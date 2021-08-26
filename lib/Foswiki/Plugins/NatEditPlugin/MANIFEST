@@ -41,17 +41,10 @@ pub/System/NatEditPlugin/build/bundle.js.gz 0644
 pub/System/NatEditPlugin/build/bundle.uncompressed.js 0644
 pub/System/NatEditPlugin/build/CodemirrorEngine.js 0644
 pub/System/NatEditPlugin/build/CodemirrorEngine.js.gz 0644
-pub/System/NatEditPlugin/build/ProsemirrorEngine.js 0644
-pub/System/NatEditPlugin/build/ProsemirrorEngine.js.gz 0644
 pub/System/NatEditPlugin/build/styles.css 0644
 pub/System/NatEditPlugin/build/styles.css.gz 0644
-pub/System/NatEditPlugin/build/TextareaEngine.js 0644
-pub/System/NatEditPlugin/build/TextareaEngine.js.gz 0644
-pub/System/NatEditPlugin/build/TextareaEngine.uncompressed.js 0644
 pub/System/NatEditPlugin/build/TinyMCEEngine.js 0644
 pub/System/NatEditPlugin/build/TinyMCEEngine.js.gz 0644
-pub/System/NatEditPlugin/build/TinyMCENativeEngine.js 0644
-pub/System/NatEditPlugin/build/TinyMCENativeEngine.js.gz 0644
 pub/System/NatEditPlugin/i18n/de.js 0644
 pub/System/NatEditPlugin/images/screenshot1.png 0644
 pub/System/NatEditPlugin/lib/tinymce/icons/default/icons.js 0644
@@ -212,6 +205,11 @@ pub/System/NatEditPlugin/lib/tinymce/tinymce.min.js 0644
 pub/System/NatEditPlugin/Makefile 0644
 pub/System/NatEditPlugin/src/BaseEngine.uncompressed.js 0644
 pub/System/NatEditPlugin/src/CodemirrorEngine.uncompressed.js 0644
+pub/System/NatEditPlugin/src/Dialog.uncompressed.js 0644
+pub/System/NatEditPlugin/src/DropDownMenu.uncompressed.js 0644
+pub/System/NatEditPlugin/src/EmojiWidget.uncompressed.js 0644
+pub/System/NatEditPlugin/src/ImageWidget.uncompressed.js 0644
+pub/System/NatEditPlugin/src/LinkWidget.uncompressed.js 0644
 pub/System/NatEditPlugin/src/NatEdit.uncompressed.js 0644
 pub/System/NatEditPlugin/src/PermissionsEditor.uncompressed.js 0644
 pub/System/NatEditPlugin/src/ProsemirrorEngine.uncompressed.js 0644
@@ -221,6 +219,7 @@ pub/System/NatEditPlugin/src/TextareaState.uncompressed.js 0644
 pub/System/NatEditPlugin/src/TinyMCEEngine.uncompressed.js 0644
 pub/System/NatEditPlugin/src/TinyMCENativeEngine.uncompressed.js 0644
 pub/System/NatEditPlugin/src/UndoManager.uncompressed.js 0644
+pub/System/NatEditPlugin/src/Utils.uncompressed.js 0644
 templates/addform.natedit.tmpl 0644
 templates/editdialog.natedit.tmpl 0644
 templates/editform.natedit.tmpl 0644
