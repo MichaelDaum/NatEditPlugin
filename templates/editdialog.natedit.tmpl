@@ -1,0 +1,180 @@
+%{ ################################################################################ }%
+%TMPL:DEF{"insertcolor"}%<div class="ui-natedit-dialog-content ui-natedit-insert-color-content" data-title="%MAKETEXT{"Insert a color code"}%">
+<form>
+<div class="ui-natedit-colorpicker"></div>
+<input type="text" name="color" class="foswikiInputField" size="10" value="{{:selection}}" />
+</form>
+</div>%TMPL:END%
+
+%{ ################################################################################ }%
+%TMPL:DEF{"searchreplace"}%<div class="ui-natedit-dialog-content ui-natedit-search-replace-content" data-title="%MAKETEXT{"Search && Replace"}%">
+<form>
+  <table class="foswikiLayoutTable">
+    <tr>
+      <th>%MAKETEXT{"Search"}%</th>
+      <td><input type="text" name="search" class="foswikiInputField" value="{{:selection}}" size="30" /></td>
+    </tr>
+    <tr>
+      <th>%MAKETEXT{"Replace"}%</th>
+      <td><input type="text" name="replace" class="foswikiInputField" value="" size="30" /></td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>
+        <label><input type="checkbox" name="ignorecase" class="foswikiRadioButton" value="1" checked /> %MAKETEXT{"ignore case"}%</label>
+      </td>
+    </tr>
+  </table>
+</form>
+</div>
+
+%{ ################################################################################ }%
+%TMPL:DEF{"searchdialog"}%<div class="ui-natedit-dialog-content ui-natedit-search-dialog-content" data-title="%MAKETEXT{"Search"}%">
+<form>
+  <table class="foswikiLayoutTable">
+    <tr>
+      <th>%MAKETEXT{"Search"}%</th>
+      <td><input type="text" name="search" class="foswikiInputField" value="{{:selection}}" size="30" /></td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>
+        <label><input type="checkbox" name="ignorecase" class="foswikiRadioButton" value="1" checked /> %MAKETEXT{"ignore case"}%</label>
+      </td>
+    </tr>
+  </table>
+</form>
+</div>
+
+%{ ################################################################################ }%
+%TMPL:DEF{"inserttable"}%<div class="ui-natedit-dialog-content ui-natedit-insert-table-content" data-title="%MAKETEXT{"Create a new table"}%">
+<form>
+  <table class="foswikiLayoutTable">
+    <tr>
+      <th>%MAKETEXT{"Header rows"}%</th>
+      <td><input type="text" id="natEditInsertTableHeads" size="20" name="heads" class="foswikiInputField" value="1" /></td>
+    </tr>
+    <tr>
+      <th>%MAKETEXT{"Data rows"}%</th>
+      <td><input type="text" id="natEditInsertTableRows" size="20" name="rows" class="foswikiInputField" value="4" /></td>
+    </tr>
+    <tr>
+      <th>%MAKETEXT{"Columns"}%</th>
+      <td><input type="text" id="natEditInsertTableCols" size="20" name="cols" class="foswikiInputField" value="4" /></td>
+    </tr>
+  </table>
+</form>
+</div>%TMPL:END%
+
+%{ ################################################################################ }%
+%TMPL:DEF{"insertimage"}%<div class="ui-natedit-dialog-content ui-natedit-insert-image-content" data-title="%MAKETEXT{"Insert/Update image"}%">
+  <table class="foswikiLayoutTable">
+    <tr>
+      <th>%MAKETEXT{"Web"}%</th>
+      <td><input type="text" size="50" name="web" class="foswikiInputField" value="{{:web}}" /></td>
+    </tr>
+    <tr>
+      <th>%MAKETEXT{"Topic"}%</th>
+      <td><input type="text" size="50" name="topic" class="foswikiInputField" value="{{:topic}}" /></td>
+    </tr>
+    <tr>
+      <th>%MAKETEXT{"Image"}%</th>
+      <td><select name='file' class='natEditAttachmentSelector foswikiSelect' data-selection="{{:file}}" data-filter="\.(png|jpe?g|gif|svg|bmp|webp|svg)$"><option></option></select>
+      </td>    
+    </tr>
+    <tr>
+      <th>%MAKETEXT{"Caption"}%</th>
+      <td><input type="text" size="50" name="caption" class="foswikiInputField" value="{{:caption}}" /></td>
+    </tr>
+    <tr>
+        <th>%MAKETEXT{"Size"}%</th>
+        <td>
+          <input type="text" size="10" name="width" class="foswikiInputField" value="{{:width}}" placeholder="%MAKETEXT{"width"}%" /> x 
+          <input type="text" size="10" name="height" class="foswikiInputField" value="{{:height}}" placeholder="%MAKETEXT{"height"}%" />
+        </td>
+    </tr>
+    <tr>
+        <th>%MAKETEXT{"Alignment"}%</th>
+        <td>
+          <label><input type="radio" name="align" value="left" class="foswikiRadio" selected>%MAKETEXT{"left"}%</label>
+          <label><input type="radio" name="align" value="center" class="foswikiRadio">%MAKETEXT{"centered"}%</label>
+          <label><input type="radio" name="align" value="right" class="foswikiRadio">%MAKETEXT{"right"}%</label>
+        </td>
+    </tr>
+  </table>
+</div>%TMPL:END%
+
+%{ ################################################################################ }%
+%TMPL:DEF{"insertlink"}%<div class="ui-natedit-dialog-content ui-natedit-insert-link-content" data-title="%MAKETEXT{"Insert a link"}%">
+%TMPL:P{"insertlink::start"}%
+%TABPANE{class="plain"}%
+%TAB{"%MAKETEXT{"Topic"}%" id="topic"}%%TMPL:P{"insertlink::topic"}%%ENDTAB%
+%TAB{"%MAKETEXT{"Attachment"}%" id="attachment"}%%TMPL:P{"insertlink::attachment"}%%ENDTAB%
+%TAB{"%MAKETEXT{"External"}%" id="external"}%%TMPL:P{"insertlink::external"}%%ENDTAB%
+%ENDTABPANE%
+%TMPL:P{"insertlink::end"}%
+</div>%TMPL:END%
+
+%{ ################################################################################ }%
+%TMPL:DEF{"insertlink::start"}%<form>%TMPL:END%
+%TMPL:DEF{"insertlink::end"}%</form>%TMPL:END%
+
+%{ ################################################################################ }%
+%TMPL:DEF{"insertlink::topic"}%<!-- -->
+  <table class="foswikiLayoutTable">
+    <tr>
+      <th>%MAKETEXT{"Web"}%</th>
+      <td><input type="text" size="50" name="web" class="foswikiInputField" value="{{:web}}" /></td>
+    </tr>
+    <tr>
+      <th>%MAKETEXT{"Topic"}%</th>
+      <td><input type="text" size="50" name="topic" class="foswikiInputField" value="{{:topic}}" /></td>
+    </tr>
+    <tr>
+      <th>%MAKETEXT{"Text"}%</th>
+      <td><input type="text" size="50" name="linktext_topic" class="foswikiInputField" value="{{:selection}}" /></td>
+    </tr>
+  </table>
+<!-- -->%TMPL:END%
+
+%{ ################################################################################ }%
+%TMPL:DEF{"insertlink::external"}%<!-- -->
+  <table class="foswikiLayoutTable">
+    <tr>
+      <th>%MAKETEXT{"URL"}%</th>
+      <td><input type="text" size="50" name="url" class="foswikiInputField empty" value="{{:url}}" /></td>
+    </tr>
+    <tr>
+      <th>%MAKETEXT{"Text"}%</th>
+      <td><input type="text" size="50" name="linktext_external" class="foswikiInputField" value="{{:selection}}" /></td>
+    </tr>
+  </table>
+<!-- -->%TMPL:END%
+
+%{ ################################################################################ }%
+%TMPL:DEF{"insertlink::attachment"}%<!-- -->
+  <table class="foswikiLayoutTable">
+    <tr>
+      <th>%MAKETEXT{"Web"}%</th>
+      <td><input type="text" size="50" name="web" class="foswikiInputField" value="{{:web}}" /></td>
+    </tr>
+    <tr>
+      <th>%MAKETEXT{"Topic"}%</th>
+      <td><input type="text" size="50" name="topic" class="foswikiInputField" value="{{:topic}}" /></td>
+    </tr>
+    <tr>
+      <th>%MAKETEXT{"File"}%</th>
+      <td><select name='file' class='natEditAttachmentSelector foswikiSelect' data-selection="{{:file}}"><option></option></select>
+      </td>    
+    </tr>
+    <tr>
+      <th>%MAKETEXT{"Text"}%</th>
+      <td><input type="text" size="50" name="linktext_attachment" class="foswikiInputField" value="{{:selection}}" /></td>
+    </tr>
+  </table>
+<!-- -->%TMPL:END%
+
+%{ ################################################################################ }%
+%TMPL:DEF{"insertlink::attachment::list"}%<select name='file' class='foswikiSelect'><option></option>
+%ATTACHMENTS{format="<option>$name</option>"}%
+</select>%TMPL:END%
