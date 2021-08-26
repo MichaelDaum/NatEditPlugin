@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2017 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2007-2021 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -30,8 +30,8 @@ BEGIN {
     }
 }
 
-our $VERSION           = '9.91';
-our $RELEASE           = '04 Dec 2017';
+our $VERSION           = '9.92';
+our $RELEASE           = '26 Aug 2021';
 our $NO_PREFS_IN_TOPIC = 1;
 our $SHORTDESCRIPTION  = 'A Wikiwyg Editor';
 our $doneNonce;

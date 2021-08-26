@@ -6,47 +6,46 @@
 
 ---++ Description
 %STARTSECTION{"summary"}%
-The <nop>NatEdit is an wiki editor that helps in learning the TML
-Language by providing a GUI. By design, this is not a wysiwyg editor that tries
-to generate the correct TML in the background. Instead, the user is still in
-charge of writing correct wiki markup but with a bit more of assistance as a
-plain browser textarea. Therefor this editor helps to lower the learning curve
-but will not get in your way once you are aware of wiki markup. 
+The <nop>NatEdit is a pluggable editor providing a WYSIWYG and WIKIWYG editor modes.
+While WYSIYG tries to provide an (almost) what-you-see-is-what-you-get experience, the WIKIWYG
+mode allows to edit Foswiki's Topic Markup Language (TML) natively. Yet still WIKIWYG provides
+visual feedback and syntax highlighting of the most important typographic properties of TML, HTML,
+<nop>JavaScript and custom wiki application macros.
+
+WYSIWYG mode is implemented using <nop>TinyMCE; WIKIWYG mode is based on <nop>CodeMirror.
 %ENDSECTION{"summary"}%
 
-<nop>NatEdit is implemented as a jquery plugin, called =jquery.natedit=,
-and thus heavily depends on javascript. Hence browsers without javascript are not supported. 
-You will need to install the <nop>JQueryPlugin to use <nop>NatEdit.
-
-Caution:
-Unlikely previous versions (pre 2.0), 
-theming has been disabled in the current version. So you are "stuck" with one and the
-same button layout for now. 
-
----++ Documentation
-jquery.natedit docu
-
 ---++ Screenshot
+%RED%TODO: this is an outdated screenshot%ENDCOLOR%
+
 <a href="%ATTACHURLPATH%/images/screenshot1.png" title="screenshot"><img src="%ATTACHURLPATH%/images/screenshot1.png" alt="screenshot" border="0" /></a>
 
 ---++ Configuration
-*PatternSkin:* %BR%
+
+*PatternSkin:* 
+
 To enable the <nop>NatEditPlugin add the identifier =natedit= to the =SKIN= 
 variable in %LOCALSITEPREFS% or %WEBPREFSTOPIC%, e.g.
 
-<pre>
-   * <!-- -->Set SKIN = natedit,pattern
-</pre>
+<verbatim>   * Set SKIN = natedit,pattern</verbatim>
 
-*NatSkin:* %BR%
+*NatSkin:* 
+
 No extra configuration steps are needed in case you are using <nop>NatSkin.
 <nop>NatEditPlugin is the default editor for <nop>NatSkin, that is the normal
 
-<pre>
-   * <!-- -->Set SKIN = nat
-</pre>
+<verbatim>   * Set SKIN = nat</verbatim>
 
 is sufficient.
+
+There are a couple of preference settings for the editor:
+
+| *Name* | *Description* | *Default* |
+| NOWYSIWYG | disables wysiwyg editing; the default wikiwyg edit | 
+| NATEDIT_HELP | topic to be displayed in the help tab of the editor | %SYSTEMWEB%.NatEditHelpText |
+| NATEDIT_SPELLCHECK | boolean true/false to enable/disable spell checking in the editor | true |
+| NATEDIT_CODEMIRROR_OPTIONS | options for codemirror, see codemirror documentation | |
+| NATEDIT_CODEMIRROR_KEYMAP | editor mode of codemirror, possible values to diverge from the default key map: vim, emacs | |
 
 ---++ Installation Instructions
 %$INSTALL_INSTRUCTIONS%
@@ -56,6 +55,7 @@ is sufficient.
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  28 Aug 2021 | Foswikitask:Item14288: major rewrite |
 |  18 Dec 2017 | Foswikitask:Item14586: fixed height computation of natedit textarea |
 |  04 Dec 2017 | Foswikitask:Item13835: enable !TopicTitle field when feature available |
 |  04 May 2017 | Foswikitask:Item14388: NatEditPlugin does not honor the ScriptSuffix setting, and doesn't accommodate short URLs.<br/>
@@ -176,7 +176,7 @@ is sufficient.
 
 %META:FORM{name="PackageForm"}%
 %META:FIELD{name="Author" title="Author" value="Michael Daum"}%
-%META:FIELD{name="Copyright" title="Copyright" value="Foswiki Contributors, All Rights Reserved"}%
+%META:FIELD{name="Copyright" title="Copyright" value="(c) 2007-2021 Foswiki Contributors, All Rights Reserved"}%
 %META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
 %META:FIELD{name="Home" title="Home" value="https://foswiki.org/Extensions/%25$ROOTMODULE%25"}%
 %META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
