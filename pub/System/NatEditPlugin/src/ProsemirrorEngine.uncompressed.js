@@ -1,7 +1,7 @@
 /*
  * jQuery NatEdit: prosemirror engine
  *
- * Copyright (c) 2016 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2016-2021 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
