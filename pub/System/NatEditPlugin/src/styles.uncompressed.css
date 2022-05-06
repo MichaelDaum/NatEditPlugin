@@ -88,12 +88,12 @@
 }
 
 .ui-natedit-menu-button {
-  z-index:100;
+  z-index:2;
 }
 .ui-natedit .ui-natedit-menu {
   display:none;
   position:absolute;
-  z-index:91;
+  z-index:5;
 }
 
 .ui-natedit .ui-menu { 
@@ -156,7 +156,7 @@
 
 .ui-dialog .ui-natedit-dialog-content .foswikiLayoutTable,
 .ui-dialog .ui-natedit-dialog-content .foswikiFormSteps {
-  margin:0 0 0 4px;
+  margin:0;
   padding:0;
   border:0;
   width:100%;
@@ -246,7 +246,6 @@
 .natEditMinorChange label,
 .natEditMinorChange input {
   margin:4px;
-  border:0px;
   vertical-align:middle;
 }
 

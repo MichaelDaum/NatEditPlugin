@@ -1,7 +1,7 @@
 /*
  * jQuery NatEdit: tinymce engine
  *
- * Copyright (c) 2015-2021 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2015-2022 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -30,6 +30,10 @@ function TinyMCEEngine(shell, opts) {
   self.opts.tinymce.selector = "#"+self.shell.id+" textarea";
   self.opts.natedit.signatureMarkup = ['-- ', '<a href="'+wikiUserNameUrl+'">'+foswiki.getPreference("WIKINAME")+'</a>', ' - '+foswiki.getPreference("SERVERTIME")];
   self.opts.tinymce.content_css = foswiki.getPreference("NatEditPlugin").ContentCSS;
+  self.opts.tinymce.document_base_url = foswiki.getPreference("URLHOST");
+  self.opts.tinymce.urlconverter_callback = function(url, node, onSave) {
+    return self.convertURI(url, node, onSave);
+  };
 
   $.extend(self.shell.opts, self.opts.natedit);
 }
@@ -53,23 +57,13 @@ TinyMCEEngine.prototype.init = function() {
       editor.ui.registry.addMenuItem('image', {
         icon: 'image',
         text: 'Image ...',
-        onAction: function () {
-          var dialogData = {
-            web: foswiki.getPreference("WEB"),
-            topic: foswiki.getPreference("TOPIC"),
-            selection: "", // TODO
-          };
-
-          self.shell.dialog({
-            name: "insertimage",
-            open: function(dialogElem) {
-              self.shell.initImageDialog(dialogElem, dialogData);
-            },
-            data: dialogData,
-          }).then(function(dialog) {
-            self.shell.handleInsertImage(dialogElem, dialogData);
-          });
+        onAction: function (ev) {
+          self.shell.imageDialog();
         }
+      });
+
+      editor.addCommand('mceImage', function() {
+        self.shell.imageDialog();
       });
 
       editor.ui.registry.addContextMenu('image', {
@@ -89,8 +83,9 @@ TinyMCEEngine.prototype.init = function() {
         window.editor = editor; // playground
       }
 
-      self.tml2html($(self.shell.txtarea).val())
+      self.tml2html(self.shell.txtarea.val())
         .done(function(data) {
+          //console.log("data=",data);
           self.editor.setContent(data);
           self.editor.undoManager.clear(); // don't go beyond this level
           $(window).trigger("resize");
@@ -150,25 +145,39 @@ TinyMCEEngine.prototype.init = function() {
 };
 
 /*************************************************************************
+*/
+TinyMCEEngine.prototype.convertURI = function(url, node, onSave) {
+  var self = this;
+
+  return url.replace(/%[A-Za-z0-9_]+%/g, function(m) {
+    var r = foswiki.getPreference(m);
+    return (r && r !== '') ? r : m;
+  });
+};
+
+/*************************************************************************
  * intercept save process
  */
 TinyMCEEngine.prototype.beforeSubmit = function(action) {
   var self = this, dfd;
 
-  if (action === 'cancel') {
-    return;
+  if (action === 'cancel' || action === "save") {
+    return $.Deferred().resolve().promise();
   }
 
-  return self.html2tml(self.editor.getContent())
+  if (action === 'checkpoint') {
+    self.shell.txtarea.val(self.getValue());
+    return $.Deferred().resolve().promise();
+  }
+
+  return self.html2tml(self.getValue())
     .done(function(data) {
-      console.log("data=",data);
-      $(self.shell.txtarea).val(data);
+      self.shell.txtarea.val(data);
     })
     .fail(function() {
       self.shell.showMessage("error", "Error calling html2tml"); 
     });
 };
-
 
 /*************************************************************************
  * init gui
@@ -178,6 +187,7 @@ TinyMCEEngine.prototype.initGui = function() {
 
   // flag to container ... smell: is this really needed?
   self.shell.container.addClass("ui-natedit-wysiwyg-enabled");
+  self.wysiwygFlag = $("<input type='hidden' name='natedit_wysiwyg' value='1' />").appendTo(self.shell.container);
 
   // highlight buttons on toolbar when the cursor moves into a format
   $.each(self.opts.tinymce.formats, function(formatName) {
@@ -274,6 +284,10 @@ TinyMCEEngine.prototype.handleToolbarAction = function(ui) {
       return;
     } 
 
+    if (markup === 'rightMarkup') {
+      
+    }
+
     if (self.editor.formatter.get(markup)) {
       delete data.markup;
       self.editor.formatter.toggle(markup);
@@ -288,8 +302,8 @@ TinyMCEEngine.prototype.handleToolbarAction = function(ui) {
  * convert tml to html using WysiwygPlugin, returns a Deferred
  */
 TinyMCEEngine.prototype.tml2html = function(tml) {
-  var /*self = this,*/
-      url = foswiki.getScriptUrl("rest", "WysiwygPlugin", "tml2html");
+  var self = this,
+      url = foswiki.getScriptUrl("rest", "NatEditPlugin", "tml2html");
 
   //self.shell.log("called tml2html", tml);
 
@@ -304,8 +318,8 @@ TinyMCEEngine.prototype.tml2html = function(tml) {
  * convert html back to tml using WysiwygPlugin, returns a Deferred
  */
 TinyMCEEngine.prototype.html2tml = function(html) {
-  var /*self = this,*/
-      url = foswiki.getScriptUrl("rest", "WysiwygPlugin", "html2tml");
+  var self = this,
+      url = foswiki.getScriptUrl("rest", "NatEditPlugin", "html2tml");
 
   //self.shell.log("called html2tml", tml);
 
@@ -333,6 +347,11 @@ TinyMCEEngine.prototype.getImageData = function(data) {
       imgElem = self.editor.selection.getNode(),
       urlData;
 
+  data = $.extend({}, {
+    web: foswiki.getPreference("WEB"),
+    topic: foswiki.getPreference("TOPIC")
+  }, data) || {};;
+
   if (imgElem && imgElem.nodeName === 'IMG') {
     data.width = imgElem.width || data.width; 
     data.height = imgElem.height || data.height; 
@@ -340,6 +359,11 @@ TinyMCEEngine.prototype.getImageData = function(data) {
     data.web = urlData.web || data.web;
     data.topic = urlData.topic || data.topic;
     data.file = urlData.file || data.file;
+    data.classList = imgElem.classList;
+    data.id = imgElem.id;
+    data.align = imgElem.align;
+    data.type = imgElem.dataset.type;
+    data.caption = imgElem.dataset.caption || '';
   }
 
   return data;
@@ -360,11 +384,11 @@ TinyMCEEngine.prototype.getImageData = function(data) {
  */
 TinyMCEEngine.prototype.insertImage = function(opts) {
   var self = this,
-      elem, 
-      src= foswiki.getPubUrlPath(opts.web, opts.topic, opts.file);
+      elem, src;
 
-  console.log("insertImage, opts=",opts);
+  //console.log("insertImage, opts=",opts);
 
+  src= foswiki.getPubUrlPath(opts.web, opts.topic, opts.file);
   elem = $("<img />").attr({
     "src": src,
     "data-mce-src": src
@@ -379,10 +403,23 @@ TinyMCEEngine.prototype.insertImage = function(opts) {
   if (opts.align) {
     elem.attr("align", opts.align);
   }
+  if (opts.id) {
+    elem.attr("id", opts.id);
+  }
+  if (opts.classList) {
+    elem.attr("class", opts.classList);
+  }
+  if (opts.caption) {
+    elem.attr("data-caption", opts.caption);
+  }
+  if (opts.type) {
+    elem.attr("data-type", opts.type);
+  }
 
   elem = elem.get(0).outerHTML;
 
-  self.remove();
+  //console.log("IMG=",elem);
+  self.editor.selection.getNode().remove();
   self.insert(elem);
 };
 
@@ -392,6 +429,7 @@ TinyMCEEngine.prototype.insertImage = function(opts) {
 TinyMCEEngine.prototype.remove = function() {
   var self = this;
 
+  console.log("remove selected node",self.editor.selection.getContent());
   return self.editor.selection.setContent("");
 };
 
@@ -577,7 +615,8 @@ TinyMCEEngine.prototype.insertTable = function(opts) {
  * }
  */
 TinyMCEEngine.prototype.insertLink = function(opts) {
-  var self = this, markup, link;
+  var self = this, markup, link,
+      web = foswiki.getPreference("WEB");
 
   //self.shell.log("called insertLink",opts);
 
@@ -601,20 +640,14 @@ TinyMCEEngine.prototype.insertLink = function(opts) {
 
     link = '%PUBURLPATH%/'+opts.web+'/'+opts.topic+'/'+opts.file;
 
-    if (opts.file.match(/\.(bmp|png|jpe?g|gif|svg)$/i) && !opts.text) {
-      markup = "<img src='"+link+"' alt='"+opts.file+"' height='320' />";
+    markup = "<a href='"+link+"'>";
+
+    if (typeof(opts.text) !== 'undefined' && opts.text !== '') {
+      markup += opts.text;
     } else {
-      // linking to an ordinary attachment
-
-      markup = "<a href='"+link+"'>";
-
-      if (typeof(opts.text) !== 'undefined' && opts.text !== '') {
-        markup += opts.text;
-      } else {
-        markup += opts.file;
-      }
-      markup += "</a>";
+      markup += opts.file;
     }
+    markup += "</a>";
 
   } else {
     // wiki link
@@ -623,7 +656,12 @@ TinyMCEEngine.prototype.insertLink = function(opts) {
       return; // nop
     }
 
-    link = opts.web+'.'+opts.topic; // converted by WysiwygPlugin
+    if (typeof(opts.web) !== 'undefined' && opts.web !== web) {
+      link = opts.web + '.';
+    } else {
+      link = "";
+    }
+    link += opts.topic; 
 
     markup = "<a href='"+link+"'>";
 
@@ -636,6 +674,13 @@ TinyMCEEngine.prototype.insertLink = function(opts) {
   }
 
   //self.shell.log("markup=",markup);
+
+  var selection = self.editor.selection.getContent();
+  if (self.editor.selection.isCollapsed()) {
+    var selRng = self.editor.selection.getRng();
+    selRng.expand("word");
+    self.editor.selection.setRng(selRng);
+  } 
 
   self.remove();
   self.insert(markup);
@@ -732,10 +777,11 @@ TinyMCEEngine.defaults = {
     menubar: false,
     toolbar: false,
     statusbar: false,
-    /*
     relative_urls: false,
-    remove_script_host: true,*/
-    plugins: 'table searchreplace paste lists hr legacyoutput -natedit-image textpattern fullscreen', 
+    remove_script_host: false,
+    convert_urls: true,
+    /*document_base_url: ... set later */
+    plugins: 'table searchreplace paste lists hr legacyoutput -natedit-image textpattern fullscreen autolink', 
     table_toolbar : "tabledelete | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol",
     table_appearance_options: false,
     table_advtab: false,
@@ -743,6 +789,24 @@ TinyMCEEngine.defaults = {
     table_row_advtab: false,
     object_resizing: "img",
     paste_data_images: true,
+    keep_styles: false,
+    image_title: true,
+    image_class_list: [
+	{ title: 'Left', value: '' },
+	{ title: 'Right', value: 'foswikiRight' },
+	{ title: 'Center', value: 'foswikiCenter' }
+    ],
+/*
+    image_caption: true,
+    image_advtab: true,
+*/
+    /* TODO 
+    image_list: function(callback) {
+      callback([
+	{title: 'Dog', value: 'mydog.jpg'},
+	{title: 'Cat', value: 'mycat.gif'}
+      ]);
+    }, */ 
     content_css: [],
     style_formats_autohide: true,
     removeformat: [{ 

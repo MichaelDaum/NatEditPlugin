@@ -5,12 +5,14 @@ lib/Foswiki/Plugins/NatEditPlugin/Config.spec 0644
 lib/Foswiki/Plugins/NatEditPlugin/DEPENDENCIES 0644
 lib/Foswiki/Plugins/NatEditPlugin/FormButton.pm 0644
 lib/Foswiki/Plugins/NatEditPlugin/FormList.pm 0644
+lib/Foswiki/Plugins/NatEditPlugin/HTML2TML.pm 0644
 lib/Foswiki/Plugins/NatEditPlugin/NATEDIT.pm 0644
 lib/Foswiki/Plugins/NatEditPlugin.pm 0644
 lib/Foswiki/Plugins/NatEditPlugin/RestAttachments.pm 0644
 lib/Foswiki/Plugins/NatEditPlugin/RestCompletion.pm 0644
 lib/Foswiki/Plugins/NatEditPlugin/RestSave.pm 0644
 lib/Foswiki/Plugins/NatEditPlugin/RestUsers.pm 0644
+lib/Foswiki/Plugins/NatEditPlugin/TML2HTML.pm 0644
 locale/NatEditPlugin/bg.po 0644
 locale/NatEditPlugin/cs.po 0644
 locale/NatEditPlugin/da.po 0644

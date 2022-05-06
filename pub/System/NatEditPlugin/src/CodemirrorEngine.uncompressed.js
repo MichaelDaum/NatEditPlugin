@@ -1,7 +1,7 @@
 /*
  * jQuery NatEdit: codemirror engine
  *
- * Copyright (c) 2016-2021 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2016-2022 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -76,15 +76,14 @@ CodemirrorEngine.prototype.init = function() {
     $.when(
       self.parent.init(),
       self.shell.getScript(editorPath+"/addon/mode/loadmode.js"),
-      self.shell.getScript(editorPath+"/addon/fold/foldcode.js"),
-      self.shell.getScript(editorPath+"/addon/fold/foldgutter.js"),
+      //self.shell.getScript(editorPath+"/addon/fold/foldcode.js"),
+      //self.shell.getScript(editorPath+"/addon/fold/foldgutter.js"),
       self.shell.getScript(editorPath+"/addon/search/searchcursor.js"),
       self.shell.getScript(editorPath+"/addon/scroll/annotatescrollbar.js"),
       self.shell.getScript(editorPath+"/addon/search/matchesonscrollbar.js"),
       self.shell.getScript(editorPath+"/addon/edit/matchbrackets.js"),
       self.shell.getScript(editorPath+"/addon/dialog/dialog.js"),
-      self.shell.getScript(editorPath+"/keymap/vim.js"),
-      self.shell.preloadTemplate("editdialog", "searchdialog")
+      self.shell.getScript(editorPath+"/keymap/vim.js")
     ).done(function() {
 
         // extend vim mode to make :w and :x work
@@ -116,7 +115,8 @@ CodemirrorEngine.prototype.init = function() {
           self.cm = CodeMirror.fromTextArea(self.shell.txtarea[0], self.opts); 
           //window.cm = self.cm; //playground
 
-          if (typeof(cols) !== 'undefined' && cols > 0) {
+          // only set the width if specified by a cols attribute and not any css styled width
+          if (typeof(cols) !== 'undefined' && cols > 0  && !self.shell.txtarea[0].style.width) {
             self.cm.setSize(cols+"ch");
           }
           if (typeof(rows) !== 'undefined' && rows > 0) {
@@ -224,7 +224,9 @@ CodemirrorEngine.prototype.on = function(eventName, func) {
 CodemirrorEngine.prototype.manageWidgets = function() {
   var self = this;
 
-  EmojiWidget.createWidgets(self);
+  if (typeof(Emojis) !== 'undefined') {
+    EmojiWidget.createWidgets(self);
+  }
   LinkWidget.createWidgets(self);
 };
 
@@ -711,13 +713,18 @@ CodemirrorEngine.defaults = {
   autoresize: false,
   singleCursorHeightPerLine: false,
 
+  /*inputStyle: "contenteditable", SMELL: some ui problems, such as cursor and focus issues */
+  spellcheck: true,
+
   //gutters
+/*  
   fixedGutter: true,
   foldGutter: true,
   gutters: [
     "CodeMirror-linenumbers", 
     "CodeMirror-foldgutter"
   ],
+*/
 
   // addon options
   extraKeys: {

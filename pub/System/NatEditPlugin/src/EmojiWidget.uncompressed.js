@@ -1,7 +1,7 @@
 /*
  * EmojiWidget for CodeMirror
  *
- * Copyright (c) 2021 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2021-2022 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -46,7 +46,7 @@ EmojiWidget.prototype.init = function() {
   var self = this;
 
   self.text = self.getText();
-  //console.log("emoji at text=",self.text);
+  //console.log("emoji at text='"+self.text+"'");
 
   if (typeof(self.elem) === 'undefined') {
     self.elem = $("<img>")

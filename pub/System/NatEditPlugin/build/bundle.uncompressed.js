@@ -85,7 +85,7 @@ function _escapeRegExp(string) {
 /*
  * EmojiWidget for CodeMirror
  *
- * Copyright (c) 2021 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2021-2022 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -130,7 +130,7 @@ EmojiWidget.prototype.init = function() {
   var self = this;
 
   self.text = self.getText();
-  //console.log("emoji at text=",self.text);
+  //console.log("emoji at text='"+self.text+"'");
 
   if (typeof(self.elem) === 'undefined') {
     self.elem = $("<img>")
@@ -235,7 +235,7 @@ LinkWidget.prototype.init = function() {
         self.editor.shell.dialog({
           name: "insertlink",
           open: function(elem) {
-            self.editor.shell.initLinkDialog(elem, dialogData);
+            self.editor.shell.initLinkDialog(elem);
           },
           data: dialogData,
           event: ev
@@ -560,7 +560,6 @@ window.DropDownMenu = DropDownMenu;
 
 var initedDefaults = false;
 
-
 /*****************************************************************************
  * class NatEditor
  */
@@ -576,7 +575,7 @@ $.NatEditor = function(txtarea, opts) {
   self.isBlockedUnload = false;
   self.referrer = document.referrer;
 
-  //self.log("opts=",self.opts);
+  self.log("creating new natedit",self.opts);
 
   self.container = self.txtarea.wrap('<div class="ui-natedit"></div>').parent();
   self.container.attr("id", self.id);
@@ -587,6 +586,7 @@ $.NatEditor = function(txtarea, opts) {
 
   if (self.opts.hidden || self.txtarea.is(".foswikiHidden")) {
     // just init the shell, not any engine
+    self.container.addClass("foswikiHidden");
     self.initGui();
   } else {
     // init shell and engine
@@ -738,6 +738,8 @@ $.NatEditor.prototype.getScript = function(url) {
  */
 $.NatEditor.prototype.initGui = function() {
   var self = this;
+
+  self.log("called initGui");
 
   // init unload blocker
   if (self.opts.blockUnload) {
@@ -937,11 +939,16 @@ $.NatEditor.prototype.showToolbar = function() {
     return;
   }
 
-  self.toolbar.show();
+  self.toolbar.slideDown({
+    duration: 200,
+    easing: "easeInQuad",
+    complete: function() {
+      if (self.opts.autoMaxExpand) {
+        $(window).trigger("resize");
+      }
+    }
+  });
 
-  if (self.opts.autoMaxExpand) {
-    $(window).trigger("resize");
-  }
 };
 
 /*************************************************************************
@@ -954,11 +961,16 @@ $.NatEditor.prototype.hideToolbar = function() {
     return;
   }
 
-  self.toolbar.hide();
+  self.toolbar.slideUp({
+    duration: 200,
+    easing: "easeOutQuad",
+    complete: function() {
+      if (self.opts.autoMaxExpand) {
+        $(window).trigger("resize");
+      }
+    }
+  });
 
-  if (self.opts.autoMaxExpand) {
-    $(window).trigger("resize");
-  }
 };
 
 /*************************************************************************
@@ -1012,6 +1024,7 @@ $.NatEditor.prototype.extractErrorMessage = function(text) {
 $.NatEditor.prototype.beforeSubmit = function(action) {
   var self = this, topicParentField, actionValue;
 
+  self.log("called beforeSubmit");
   if (typeof(self.form) === 'undefined' || self.form.length === 0) {
     return $.Deferred().resolve().promise();
   }
@@ -1065,7 +1078,9 @@ $.NatEditor.prototype.beforeSubmit = function(action) {
 $.NatEditor.prototype.initForm = function() {
   var self = this, formRules;
 
+  self.log("called initForm");
   if (typeof(self.form) === 'undefined' || self.form.length === 0 || self.form.data("isInitialized") || self.txtarea.attr("id") !== 'topic') {
+    self.log("... no form found");
     return;
   }
 
@@ -1086,22 +1101,27 @@ $.NatEditor.prototype.initForm = function() {
   /* save & continue handler */
   self.form.find(".ui-natedit-checkpoint").on("click", function(ev) {
     var action = $(ev.currentTarget).attr("href").replace(/^#/, "");
+    self.log("clicked checkpoint");
+    self.isBlockedUnload = false;
     self.save(action);
     return false;
   });
 
   /* preview handler */
   self.form.find(".ui-natedit-preview").on("click", function() {
+    self.log("clicked preview");
     self.preview();
     return false;
   });
 
   self.form.find(".ui-natedit-cancel").on("click", function() {
+    self.log("clicked cancel");
     self.cancel();
     return false;
   });
 
   self.form.find(".ui-natedit-replaceform").on("click", function() {
+    self.log("clicked replaceform");
     self.beforeSubmit("replaceform").then(function() {
       self.isBlockedUnload = false;
       self.form.trigger("submit");
@@ -1110,6 +1130,7 @@ $.NatEditor.prototype.initForm = function() {
   });
 
   self.form.find(".ui-natedit-addform").on("click", function() {
+    self.log("clicked addform");
     self.beforeSubmit("addform").then(function() {
       self.isBlockedUnload = false;
       self.form.trigger("submit");
@@ -1125,7 +1146,7 @@ $.NatEditor.prototype.initForm = function() {
 
   self.form.validate({
     meta: "validate",
-    ignore: ":hidden, .foswikiIgnoreValidation",
+    ignore: ":hidden:not(.jqSelect2), div, .foswikiIgnoreValidation",
     onsubmit: false,
     invalidHandler: function(e, validator) {
       var errors = validator.numberOfInvalids();
@@ -1395,14 +1416,14 @@ $.NatEditor.prototype.handleToolbarAction = function(ev, ui) {
     }
 
     dialogData = optsHandler.call(self);
+    //console.log("dialogData=",dialogData);
 
     self.dialog({
       name: itemData.dialog,
       open: function(elem) {
-        openHandler.call(self, elem, dialogData);
+        openHandler.call(self, elem);
       },
       data: dialogData,
-      event: ev,
       modal: itemData.modal,
       okayText: itemData.okayText,
       cancelText: itemData.cancelText
@@ -1453,7 +1474,9 @@ $.NatEditor.prototype.hideMenus = function() {
 $.NatEditor.prototype.setValue = function(val) {
   var self = this;
 
-  self.engine.setValue(val);
+  if (self.engine) {
+    self.engine.setValue(val);
+  }
 };
 
 /*************************************************************************
@@ -1574,6 +1597,7 @@ $.NatEditor.prototype.unescapeTML = function(inValue) {
 $.NatEditor.prototype.autoMaxExpand = function() {
   var self = this;
 
+  self.log("called autoMaxExpand");
   self.fixHeight();
   $(window).on("resize.natedit", function() {
     self.fixHeight();
@@ -1777,6 +1801,7 @@ $.NatEditor.prototype.dialog = function(opts) {
   }
 
   opts = $.extend({}, defaults, opts);
+  
   if (typeof(opts.event) !== 'undefined') {
     opts.position = {
       my: 'center top',
@@ -1934,16 +1959,19 @@ $.NatEditor.prototype.handleInsertLink = function(elem) {
   * handler for the insert image dialog
   */
 $.NatEditor.prototype.handleInsertImage = function(elem) {
-  var self = this, $dialog = $(elem), opts = {
-    web: $dialog.find("[name=web]").val(),
-    topic: $dialog.find("[name=topic]").val(),
-    caption: $dialog.find("[name=caption]").val(),
-    file: $dialog.find("[name=file]").val(),
-    width: $dialog.find("[name=width]").val(),
-    height: $dialog.find("[name=height]").val(),
-    align: $dialog.find("[name=align]:checked").val(),
-    type: $dialog.find("[name=type]:checked").val()
-  };
+  var self = this, 
+      $dialog = $(elem), 
+      opts = {
+        web: $dialog.find("[name=web]").val(),
+        topic: $dialog.find("[name=topic]").val(),
+        caption: $dialog.find("[name=caption]").val(),
+        classList: $dialog.find("[name=classList]").val(),
+        file: $dialog.find("[name=file]").val(),
+        width: $dialog.find("[name=width]").val(),
+        height: $dialog.find("[name=height]").val(),
+        align: $dialog.find("[name=align]:checked").val(),
+        type: $dialog.find("[name=type]:checked").val()
+      };
 
   return self.engine.insertImage(opts);
 };
@@ -2260,15 +2288,33 @@ $.NatEditor.prototype.initLinkDialog = function(dialogElem) {
 };
 
 /*****************************************************************************
+  * create the image dialog 
+  */
+$.NatEditor.prototype.imageDialog = function(ev) {
+  var self = this,
+      dialogData = self.parseImageSelection();
+
+  self.dialog({
+    name: "insertimage",
+    open: function(elem) {
+      self.initImageDialog(elem);
+    },
+    data: dialogData,
+    event: ev
+  }).then(function(dialog) {
+    self.handleInsertImage(dialog);
+  });
+};
+
+/*****************************************************************************
   * init the image dialog 
   */
-$.NatEditor.prototype.initImageDialog = function(dialogElem, data) {
+$.NatEditor.prototype.initImageDialog = function(dialogElem) {
   var self = this;
 
-  //self.log("initImageDialog on dialog=",dialogElem);
+  self.log("initImageDialog on dialog=",dialogElem);
 
-  //TODO
-  self.initLinkDialog(dialogElem, data);
+  self.initLinkDialog(dialogElem);
 };
 
 /*****************************************************************************
@@ -2303,24 +2349,24 @@ $.NatEditor.prototype.parseUrl = function(text) {
         topic: self.opts.topic,
       };
 
-  console.log("called parseUrl()",text);
+  //console.log("called parseUrl()",text);
 
   if (text.match(/^(?:%ATTACHURL(?:PATH)?%\/)(.*?)$/)) {
-    console.log("here1");
+    //console.log("here1");
     data.file = RegExp.$1;
     data.type = "attachment";
   } else if (text.match(/(?:(?:%PUBURL(?:PATH)?%|\/pub)\/)(.*)\/(.*?)\/(.*?)$/)) {
-    console.log("here2");
+    //console.log("here2");
     data.web = RegExp.$1;
     data.topic = RegExp.$2;
     data.file = RegExp.$3;
     data.type = "pub";
   } else {
-    console.log("here4");
+    //console.log("here4");
     data.type = "unknown";
   }
 
-  console.log("parsed url=",data);
+  //console.log("parsed url=",data);
 
   return data;
 };
@@ -2610,7 +2656,7 @@ $.NatEditor.defaults = {
   showFullscreen: false,
   completions: [{
     "id": "emoji",
-    "match": /\B:(\*?[a-z0-9_+\-]+)$/,
+    "match": /(?<=[\s<>|]):(\*?[a-z0-9_+\-]+)$/,
     "search": function(term) {
       var dfd = $.Deferred(), 
           entries,
@@ -2640,7 +2686,7 @@ $.NatEditor.defaults = {
     }
   }, {
     "id": "mention",
-    "match": /\B(@\*?\w+)$/,
+    "match": /(?<=[\s<>|])(@\*?\w+)$/,
     "search": function(string) {
       var url = foswiki.getScriptUrl("rest", "NatEditPlugin", "complete", {
         "id": "mention",
@@ -2901,7 +2947,7 @@ $(function() {
 /*
  * jQuery NatEdit: base engine
  *
- * Copyright (c) 2015-2021 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2015-2022 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -3395,6 +3441,14 @@ BaseEngine.prototype.insertImage = function(opts) {
     markup += ' type="'+opts.type+'"';
   }
 
+  if (opts.id) {
+    markup += ' id="'+opts.id+'"';
+  }
+
+  if (opts.classList) {
+    markup += ' class="'+opts.classList+'"';
+  }
+
   markup += '}%';
 
   self.remove();
@@ -3465,9 +3519,13 @@ BaseEngine.prototype.getImageData = function(data) {
 
     data.width = elem.attr("width") || data.width;
     data.height = elem.attr("height") || data.height;
+    data.align = elem.align("height") || data.align;
+    data.type = elem.data("type");
+    data.caption = elem.data("caption");
     data.web = urlData.web || data.web || self.shell.opts.web;
     data.topic = urlData.topic || data.topic || self.shell.opts.topic;
     data.file = urlData.file;
+    data.classList = urlData.attr("class");
   } else if (selection.match(/^\s*%IMAGE\{"(.*?)"(?:.*?topic="(?:([^\s\.]+)\.)?(.*?)")?.*?\}%\s*$/)) {
     // SMELL: nukes custom params
     //self.log("image link");

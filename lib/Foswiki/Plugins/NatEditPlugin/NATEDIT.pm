@@ -109,7 +109,7 @@ sub init {
 <script class='\$zone \$id foswikiPreferences' type='text/json'>{ 
   "NatEditPlugin": {
     "Engine": "$engine",
-    "ContentCSS": ["%PUBURLPATH%/%SYSTEMWEB%/SkinTemplates/base.css","%FOSWIKI_STYLE_URL%","%FOSWIKI_COLORS_URL%"],
+    "ContentCSS": ["%PUBURLPATH%/%SYSTEMWEB%/SkinTemplates/base.css","%FOSWIKI_STYLE_URL%","%FOSWIKI_COLORS_URL%", "%PUBURLPATH%/%SYSTEMWEB%/ImagePlugin/style.css"],
     "EmojiPluginEnabled": %IF{"context EmojiPluginEnabled" then="true" else="false"}%,
     "FarbtasticEnabled": %IF{"context FarbtasticEnabled" then="true" else="false"}%,
     "ImagePluginEnabled": %IF{"context ImagePluginEnabled" then="true" else="false"}%,

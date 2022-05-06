@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2021 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2013-2022 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -99,6 +99,7 @@ sub handle {
 
     $response->header(
         -status => 200,
+        -charset => 'UTF-8',
         -type   => 'text/plain',
     );
     $response->print($result);

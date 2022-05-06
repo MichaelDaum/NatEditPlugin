@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1528881735" format="1.1" version="1"}%
+%META:TOPICINFO{author="micha" comment="lost screenshot1.png" date="1630052410" format="1.1" version="2"}%
 ---+!! Natural Edit Plugin
 %FORMFIELD{"Description"}%
 
@@ -184,4 +184,3 @@ There are a couple of preference settings for the editor:
 %META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/distro"}%
 %META:FIELD{name="Support" title="Support" value="https://foswiki.org/Support/%25$ROOTMODULE%25"}%
 %META:FIELD{name="Version" title="Version" value="%25$VERSION%25"}%
-%META:FILEATTACHMENT{name="screenshot1.png" attr="h" comment="" date="1528881735" size="64487" user="ProjectContributor" version="1"}%

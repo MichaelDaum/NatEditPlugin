@@ -20,9 +20,7 @@
 %TMPL:DEF{"edittoolbar::end"}%</div>%TMPL:END%
 
 %{ ################################################################################ }%
-%TMPL:DEF{"edittoolbar::paragraphbuttons"}%<!-- -->
-  <a href="#" class="ui-natedit-menu-button ui-natedit-paragraph" data-menu=".ui-natedit-paragraph-menu" title="%MAKETEXT{"Format selected text"}%">%MAKETEXT{"Format"}%</a>
-<!-- -->%TMPL:END%
+%TMPL:DEF{"edittoolbar::paragraphbuttons"}%<a href="#" class="ui-natedit-menu-button ui-natedit-paragraph" data-menu=".ui-natedit-paragraph-menu" title="%MAKETEXT{"Format selected text"}%">%MAKETEXT{"Format"}%</a>%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"edittoolbar::paragraphmenu"}%<ul class="ui-natedit-menu ui-natedit-paragraph-menu">
@@ -118,15 +116,12 @@
   <!-- li><a href="#" title="%MAKETEXT{"Insert a symbol"}%"><i class="ui-icon fa">&#937;</i> %MAKETEXT{"Symbol"}%</a></li -->
   <!-- li class="ui-natedit-colorpicker"><a href='#' title='%MAKETEXT{"Insert a color code"}%' data-dialog='insertcolor' data-open-handler='initColorDialog' data-okay-handler='handleInsertColorCode' data-opts-handler='parseColorCode'><i class='ui-icon fa fa-tint'></i> %MAKETEXT{"Color"}%</a></li -->
   <!-- li class="ui-natedit-datepicker"><a href='#' title='%MAKETEXT{"Insert a date"}%' data-handler='openDatePicker'><i class='ui-icon fa fa-calendar'></i> %MAKETEXT{"Date"}%</a></li -->
-  %IF{"context OEmbedPluginEnabled"
-  then="<li><a href='#' title='%MAKETEXT{"Embed external object"}%'><i class='ui-icon fa fa-film'></i> %MAKETEXT{"OEmbed"}%</a></li>"
-  }%<!-- -->
   <!-- li><a href="#" title="%MAKETEXT{"Insert a new table"}%" data-dialog="inserttable" data-okay-handler="handleInsertTable"><i class="ui-icon fa fa-table"></i> %MAKETEXT{"Table"}%</a></li -->
   <!-- li><a href="#" title="%MAKETEXT{"Insert a link to a topic or an external resource"}%" data-dialog="insertlink" data-okay-handler="handleInsertLink" data-open-handler="initLinkDialog" data-opts-handler="parseLink"><i class="ui-icon fa fa-link"></i> %MAKETEXT{"Link"}%</a></li -->
   <!-- li><a href="#" title="%MAKETEXT{"Insert a link to a user-profile"}%"><i class="ui-icon fa">@</i> User mention</a></li -->
   <li><a href="#" title="%MAKETEXT{"Insert your signature"}%" data-markup="signatureMarkup"><i class="ui-icon fa fa-pencil-square-o"></i> %MAKETEXT{"Signature"}%</a></li>
   <li><a href="#" title="%MAKETEXT{"Insert a horizontal ruler"}%" data-markup="horizRulerMarkup"><i class="ui-icon fa fa-minus"></i> %MAKETEXT{"Horizontal ruler"}%</a></li>
-  <li class="ui-natedit-formula"><a href="#" title="%MAKETEXT{"Insert a mathematical formula"}%" data-markup="mathMarkup"><i class="ui-icon fa">&#931;</i> %MAKETEXT{"Formula"}%</a></li>
+  <!-- li class="ui-natedit-formula"><a href="#" title="%MAKETEXT{"Insert a mathematical formula"}%" data-markup="mathMarkup"><i class="ui-icon fa">&#931;</i> %MAKETEXT{"Formula"}%</a></li -->
   <li><a href="#" title="%MAKETEXT{"Insert a data form table header"}%" data-markup="dataFormMarkup"><i class="ui-icon fa fa-columns"></i> %MAKETEXT{"Data Form Table Header"}%</a></li>
   <!-- li>-</li -->
   <!-- li><a href="#" title="%MAKETEXT{"Insert a macro"}%"><i class="ui-icon fa fa-gears"></i> %MAKETEXT{"Macro"}%</a></li -->
@@ -226,8 +221,8 @@
     href=\"#$id\"
   }$percnt"
 }%</li>%TMPL:END%
-%TMPL:DEF{"forcenewrevision"}%<li class="natEditForceNewRevision"><label for="forcenewrevision"><input type="checkbox" title="%MAKETEXT{"Creates a new topic revision when saving"}%" id="forcenewrevision" name="forcenewrevision" %IF{"'%URLPARAM{"forcenewrevision" default="%FORCENEWREVISIONCHECKBOX%"}%'=~'1|on|yes|checked'" then="checked"}% />%MAKETEXT{"Force new revision"}%</label></li>%TMPL:END%
-%TMPL:DEF{"minorchange"}%<li class="natEditMinorChange"><label for="minorchange"><input type="checkbox" value="checked" title="%MAKETEXT{"Flag the changes as being minor"}%" id="minorchange" name="dontnotify" %IF{"'%URLPARAM{"dontnotify"}%'=~'1|on|yes|checked'" then="checked"}% />%MAKETEXT{"Minor change"}%</label></li>%TMPL:END%
+%TMPL:DEF{"forcenewrevision"}%<li class="natEditForceNewRevision"><label for="forcenewrevision"><input type="checkbox" class="foswikiCheckbox" title="%MAKETEXT{"Creates a new topic revision when saving"}%" id="forcenewrevision" name="forcenewrevision" %IF{"'%URLPARAM{"forcenewrevision" default="%FORCENEWREVISIONCHECKBOX%"}%'=~'1|on|yes|checked'" then="checked"}% />%MAKETEXT{"Force new revision"}%</label></li>%TMPL:END%
+%TMPL:DEF{"minorchange"}%<li class="natEditMinorChange"><label for="minorchange"><input type="checkbox" class="foswikiCheckbox" value="checked" title="%MAKETEXT{"Flag the changes as being minor"}%" id="minorchange" name="dontnotify" %IF{"'%URLPARAM{"dontnotify"}%'=~'1|on|yes|checked'" then="checked"}% />%MAKETEXT{"Minor change"}%</label></li>%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"revcomment"}%<div class="revComment">

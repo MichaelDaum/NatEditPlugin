@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2021 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2007-2022 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -114,9 +114,48 @@ sub initPlugin {
         description => 'Expand a list of possible text completions.'
     );
 
+    Foswiki::Func::registerRESTHandler(
+        "html2tml",
+        sub {
+          require Foswiki::Plugins::NatEditPlugin::HTML2TML;
+          return Foswiki::Plugins::NatEditPlugin::HTML2TML::restConvert(@_);
+        },
+        validate     => 0,             # doesn't update.
+        http_allow   => 'GET,POST',    # doesn't update.
+    );
+
+    Foswiki::Func::registerRESTHandler(
+        "tml2html",
+        sub {
+          require Foswiki::Plugins::NatEditPlugin::TML2HTML;
+          return Foswiki::Plugins::NatEditPlugin::TML2HTML::restConvert(@_);
+        },
+        validate     => 0,             # doesn't update.
+        http_allow   => 'GET,POST',    # doesn't update.
+    );
+
     $doneNonce = 0;
 
     return 1;
+}
+
+###############################################################################
+sub beforeSaveHandler {
+    #my( $text, $topic, $web, $meta ) = @_;
+    my $meta = $_[3];
+
+    my $request = Foswiki::Func::getRequestObject();
+    return unless $request;
+
+    my $wysiwygFlag = $request->param("natedit_wysiwyg");
+    return unless $wysiwygFlag;
+
+    require Foswiki::Plugins::NatEditPlugin::HTML2TML;
+    my $text = $meta->text();
+
+    $text = Foswiki::Plugins::NatEditPlugin::HTML2TML::convert($text);
+
+    $meta->text($text);
 }
 
 ###############################################################################

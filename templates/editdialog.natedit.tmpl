@@ -87,6 +87,10 @@
       <td><input type="text" size="50" name="caption" class="foswikiInputField" value="{{:caption}}" /></td>
     </tr>
     <tr>
+      <th>%MAKETEXT{"Class"}%</th>
+      <td><input type="text" size="50" name="classList" class="foswikiInputField" value="{{:classList}}" /></td>
+    </tr>
+    <tr>
         <th>%MAKETEXT{"Size"}%</th>
         <td>
           <input type="text" size="10" name="width" class="foswikiInputField" value="{{:width}}" placeholder="%MAKETEXT{"width"}%" /> x 
@@ -96,13 +100,24 @@
     <tr>
         <th>%MAKETEXT{"Alignment"}%</th>
         <td>
-          <label><input type="radio" name="align" value="left" class="foswikiRadio" selected>%MAKETEXT{"left"}%</label>
-          <label><input type="radio" name="align" value="center" class="foswikiRadio">%MAKETEXT{"centered"}%</label>
-          <label><input type="radio" name="align" value="right" class="foswikiRadio">%MAKETEXT{"right"}%</label>
+          <label><input type="radio" name="align" value="left" class="foswikiRadioButton" {{if align === 'left'}}checked{{/if}}>%MAKETEXT{"left"}%</label>
+          <label><input type="radio" name="align" value="" class="foswikiRadioButton" {{if !align || align === 'middle' || align === 'none' }}checked{{/if}}>%MAKETEXT{"inline"}%</label>
+          <label><input type="radio" name="align" value="right" class="foswikiRadioButton" {{if align === 'right'}}checked{{/if}}>%MAKETEXT{"right"}%</label>
         </td>
     </tr>
+    %TMPL:P{context="ImagePluginEnabled" then="insertimage::imageplugin::opts"}%<!-- -->
   </table>
 </div>%TMPL:END%
+
+%TMPL:DEF{"insertimage::imageplugin::opts"}%<tr>
+  <th>%MAKETEXT{"Type"}%</th>
+  <td>
+    <label><input type="radio" name="type" value="simple" class="foswikiRadioButton" {{if !type || type === 'simple'}}checked{{/if}}>%MAKETEXT{"default"}%</label>
+    <label><input type="radio" name="type" value="plain" class="foswikiRadioButton" {{if type === 'simple'}}checked{{/if}}>%MAKETEXT{"img"}%</label>
+    <label><input type="radio" name="type" value="frame" class="foswikiRadioButton" {{if type === 'frame'}}checked{{/if}}>%MAKETEXT{"decorated"}%</label>
+    <label><input type="radio" name="type" value="photoswipe" class="foswikiRadioButton" {{if type === 'photoswipe'}}checked{{/if}}>%MAKETEXT{"lightbox"}%</label>
+  </td>
+</tr>%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"insertlink"}%<div class="ui-natedit-dialog-content ui-natedit-insert-link-content" data-title="%MAKETEXT{"Insert a link"}%">

@@ -56,7 +56,7 @@ LinkWidget.prototype.init = function() {
         self.editor.shell.dialog({
           name: "insertlink",
           open: function(elem) {
-            self.editor.shell.initLinkDialog(elem, dialogData);
+            self.editor.shell.initLinkDialog(elem);
           },
           data: dialogData,
           event: ev

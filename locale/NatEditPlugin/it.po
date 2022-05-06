@@ -64,7 +64,7 @@ msgstr "Elenco puntato"
 #: templates/edit.natedit.tmpl:63 templates/edittoolbar.natedit.tmpl:214
 #: templates/edittoolbar.natedit.tmpl:218
 msgid "Cancel"
-msgstr "Rinuncia"
+msgstr "Annullare"
 
 #: templates/editdialog.natedit.tmpl:86
 #, fuzzy

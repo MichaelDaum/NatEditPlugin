@@ -1,7 +1,7 @@
 /*
  * jQuery NatEdit: base engine
  *
- * Copyright (c) 2015-2021 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2015-2022 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -495,6 +495,14 @@ BaseEngine.prototype.insertImage = function(opts) {
     markup += ' type="'+opts.type+'"';
   }
 
+  if (opts.id) {
+    markup += ' id="'+opts.id+'"';
+  }
+
+  if (opts.classList) {
+    markup += ' class="'+opts.classList+'"';
+  }
+
   markup += '}%';
 
   self.remove();
@@ -565,9 +573,13 @@ BaseEngine.prototype.getImageData = function(data) {
 
     data.width = elem.attr("width") || data.width;
     data.height = elem.attr("height") || data.height;
+    data.align = elem.align("height") || data.align;
+    data.type = elem.data("type");
+    data.caption = elem.data("caption");
     data.web = urlData.web || data.web || self.shell.opts.web;
     data.topic = urlData.topic || data.topic || self.shell.opts.topic;
     data.file = urlData.file;
+    data.classList = urlData.attr("class");
   } else if (selection.match(/^\s*%IMAGE\{"(.*?)"(?:.*?topic="(?:([^\s\.]+)\.)?(.*?)")?.*?\}%\s*$/)) {
     // SMELL: nukes custom params
     //self.log("image link");
