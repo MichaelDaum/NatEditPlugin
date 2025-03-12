@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2022-2023 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -21,13 +21,39 @@ use JSON ();
 use Foswiki::Plugins ();
 use Foswiki::Plugins::WysiwygPlugin::HTML2TML ();
 use Foswiki::Plugins::WysiwygPlugin::Handlers ();
+use MIME::Base64 ();
+use Digest::MD5 ();
+
+sub new {
+  my $class = shift;
+  my $session = shift;
+
+  my $this = bless({
+      session => $session,
+      @_
+    },
+    $class
+  );
+
+  return $this;
+}
+
+sub DESTROY {
+  my $this = shift;
+
+  undef $this->{session};
+  undef $this->{types};
+  undef $this->{pendingAttachments};
+}
 
 sub restConvert {
-  my ($session, $plugin, $verb, $response) = @_;
+  my ($this, $plugin, $verb, $response) = @_;
 
-  my $request = $session->{request};
+  my $request = $this->{session}{request};
   my $html = $request->param('text');
-  my $tml = convert($html, $session);
+  $html = Foswiki::urlDecode($html) if Foswiki::Func::getContext()->{command_line};
+  my $tml = $this->convert($html);
+  $this->attachPending();
 
   $response->header(
     -status => 200,
@@ -40,38 +66,49 @@ sub restConvert {
 }
 
 sub convert {
-  my ($html, $session) = @_;
+  my ($this, $html, $meta) = @_;
 
-  $session ||= $Foswiki::Plugins::SESSION;
+  return '' unless defined $html;
 
   $html =~ s/<!--$Foswiki::Plugins::WysiwygPlugin::Handlers::SECRET_ID-->//g;
+
   my $html2tml = Foswiki::Plugins::WysiwygPlugin::HTML2TML->new();
 
-  return $html2tml->convert(
+  my $tml = $html2tml->convert(
     $html,
     {
-      web => $session->{webName},
-      topic => $session->{topicName},
+      web => $this->{session}{webName},
+      topic => $this->{session}{topicName},
+      meta => $meta,
       very_clean => 1,
+      #keepws => 1,
       stickybits => Foswiki::Func::getPreferencesValue('WYSIWYGPLUGIN_STICKYBITS'),
       ignoreattrs => Foswiki::Func::getPreferencesValue('WYSIWYGPLUGIN_IGNOREATTRS'),
-      convertImage => \&convertImage,
+      convertImage => sub {
+        return $this->convertImage(@_)
+      },
       rewriteURL => \&Foswiki::Plugins::WysiwygPlugin::Handlers::postConvertURL,
     }
   );
+
+  # SMELL: dunno better
+  $tml =~ s/<br \/>/%BR%/g;
+
+  return $tml;
 }
 
-#use Data::Dump qw(dump);
 sub convertImage {
-  my $img = shift;
+  my ($this, $img) = @_;
+
+  return unless ref($img);
 
   #print STDERR "called convertImage()\n";
-  #print STDERR "attrs=".dump($img->{attrs})."\n";
+  #print STDERR "img=".dump($img)."\n";
 
   if (Foswiki::Func::getContext()->{ImagePluginEnabled}) {
     my $src = $img->{attrs}{src};
-    my $web = $img->{attrs}{web};
-    my $topic = $img->{attrs}{topic};
+    my $web = $img->{attrs}{web} || $img->{context}{web} || $this->{session}{webName};
+    my $topic = $img->{attrs}{topic} || $img->{context}{topic} || $this->{session}{topicName};
     my $file;
 
     if ($src =~ /^(?:%ATTACHURL(?:PATH)?%\/)(.*?)$/) {
@@ -80,12 +117,19 @@ sub convertImage {
       $web = $1;
       $topic = $2;
       $file = $3;
+    } elsif ($src =~ /^data:(.*)$/) {
+      $file = $this->attachBlobImage($web, $topic, $img->{context}{meta}, $1);
     }
+
+    my $class = $img->{attrs}{class} // '';
+    $class =~ s/\bimage(Simple|Float|Thumb|Frame|Plain)(_left|_right|_none)?\b//g;
+    $class =~ s/^\s+//;
+    $class =~ s/\s+$//;
 
     my @params = ();
     push @params, "\"$file\"";
     push @params, "topic=\"$web.$topic\"" if $web && $topic;
-    push @params, "class=\"$img->{attrs}{class}\"" if $img->{attrs}{class};
+    push @params, "class=\"$class\"" if $class;
     push @params, "width=\"$img->{attrs}{width}\"" if defined $img->{attrs}{width};
     push @params, "height=\"$img->{attrs}{height}\"" if defined $img->{attrs}{height};
     push @params, "align=\"$img->{attrs}{align}\"" if $img->{attrs}{align};
@@ -96,6 +140,95 @@ sub convertImage {
   }
 
   return;
+}
+
+sub attachBlobImage {
+  my ($this, $web, $topic, $meta, $blob) = @_;
+
+  return unless $blob =~ /([a-z]+\/[a-z\-\.\+]+)?(;[a-z\-]+\=[a-z\-]+)?;base64,(.*)$/;
+
+  my $mimeType = $1;
+  return unless $mimeType;
+
+  my $charset = $2 || '';
+  my $data = MIME::Base64::decode_base64($3);
+
+  my $suffix = $this->mimeTypeToSuffix($mimeType);
+  my $size = do { use bytes; length $data };
+  my $attachment = Digest::MD5::md5_hex($data) . '.' . $suffix;
+
+  my $fh = File::Temp->new();
+  my $filename = $fh->filename;
+  binmode($fh);
+
+  my $offset = 0;
+  my $r = $size;
+  while ($r) {
+    my $w = syswrite($fh, $data, $r, $offset);
+    die "system write error: $!\n" unless defined $w;
+    $offset += $w;
+    $r -= $w;
+  }
+
+  # queue blobs to be attached later on
+  push @{$this->{pendingAttachments}}, {
+    name => $attachment,
+    fh => $fh,
+    file => $filename,
+    filesize => $size,
+  };
+
+  return $attachment;
+}
+
+sub attachPending {
+  my ($this, $meta) = @_;
+
+  return unless $this->{pendingAttachments};
+
+  ($meta) = Foswiki::Func::readTopic($this->{session}{webName}, $this->{session}{topicName})
+    unless $meta;
+
+  foreach my $item (@{$this->{pendingAttachments}}) {
+    $meta->attach(
+      name => $item->{name},
+      file => $item->{file},
+      stream => $item->{fh},
+      filesize => $item->{filesize},
+      minor => 1,
+      dontlog => 1,
+      comment => 'Auto-attached by <nop>NatEditPlugin',
+    );
+  }
+
+  undef $this->{pendingAttachments};
+}
+
+sub mimeTypeToSuffix {
+  my ($this, $mimeType) = @_;
+
+  my $suffix = '';
+  if ($mimeType =~ /.*\/(.*)/) {
+    $suffix = $1;             # fallback
+  }
+
+  $this->readMimeTypes();
+
+  if ($this->{types} =~ /^$mimeType\s*(\S*)(?:\s|$)/im) {
+    $suffix = $1;
+  }
+
+  return $suffix;
+}
+
+sub readMimeTypes {
+  my $this = shift;
+
+  unless ($this->{types}) {
+    $this->{types} = Foswiki::readFile($Foswiki::cfg{MimeTypesFileName});
+  }
+
+  return $this->{types};
 }
 
 1;

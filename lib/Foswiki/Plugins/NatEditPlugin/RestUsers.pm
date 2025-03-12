@@ -27,6 +27,7 @@ sub handle {
 
   my $it = Foswiki::Func::eachUser();
   my $thisUser = Foswiki::Func::getWikiName();
+  my $useTopicTitles = Foswiki::Func::getContext()->{TopicTitlePluginEnabled};
 
   while ($it->hasNext()) {
     my $user = $it->next();
@@ -34,9 +35,10 @@ sub handle {
     next if Foswiki::Func::topicExists($Foswiki::cfg{UsersWebName}, $user) &&
             !Foswiki::Func::checkAccessPermission("VIEW", $thisUser, undef, $user, $Foswiki::cfg{UsersWebName});
 
+
     push @results, {
       value => $user,
-      label => Foswiki::Func::getTopicTitle($Foswiki::cfg{UsersWebName}, $user),
+      label => $useTopicTitles ? Foswiki::Func::getTopicTitle($Foswiki::cfg{UsersWebName}, $user) : $user,
     };
   }
 
@@ -47,7 +49,7 @@ sub handle {
 
     push @results, {
       value => $group,
-      label => Foswiki::Func::getTopicTitle($Foswiki::cfg{UsersWebName}, $group),
+      label => $useTopicTitles ? Foswiki::Func::getTopicTitle($Foswiki::cfg{UsersWebName}, $group) : $group,
     };
   }
 
@@ -65,4 +67,3 @@ sub handle {
 }
 
 1;
-

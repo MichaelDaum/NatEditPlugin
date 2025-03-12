@@ -99,15 +99,32 @@
   <a class="ui-natedit-bullet" href="#" title="%MAKETEXT{"Bullet list"}%" data-markup="bulletListMarkup" data-type="line"><i class="fa fa-list-ul"></i></a>
   <a class="ui-natedit-indent" href="#" title="%MAKETEXT{"Indent"}%" data-markup="indentMarkup" data-type="line"><i class="fa fa-indent"></i></a>
   <a class="ui-natedit-outdent" href="#" title="%MAKETEXT{"Outdent"}%" data-markup="outdentMarkup" data-type="line"><i class="fa fa-outdent"></i></a>
-</div>%TMPL:END%
+  <a href="#" class="ui-natedit-menu-button ui-natedit-table" title="%MAKETEXT{"More table tools"}%" data-menu=".ui-natedit-table-menu"><i class="fa fa-table"></i></a>
+</div>%TMPL:P{"edittoolbar::tablemenu"}%%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"edittoolbar::insertbuttons"}%<div class="ui-natedit-buttons ui-natedit-insert-object-buttons">
-  <a href="#" title="%MAKETEXT{"Insert a new table"}%" data-dialog="inserttable" data-okay-handler="handleInsertTable"><i class="fa fa-table"></i></a>
   <a href="#" title="%MAKETEXT{"Insert a link"}%" data-dialog="insertlink" data-okay-handler="handleInsertLink" data-open-handler="initLinkDialog" data-opts-handler="parseLink"><i class="fa fa-link"></i></a>
   <a href="#" title="%MAKETEXT{"Insert Image"}%" data-dialog="insertimage" data-okay-handler="handleInsertImage" data-open-handler="initImageDialog" data-opts-handler="parseImageSelection"><i class="fa fa-picture-o"></i></a>
   <a href="#" class="ui-natedit-menu-button ui-natedit-insert" title="%MAKETEXT{"More objects to insert"}%" data-menu=".ui-natedit-more-insert-menu"><i class="fa fa-plus"></i></a>
 </div>%TMPL:END%
+
+%{ ################################################################################ }%
+%TMPL:DEF{"edittoolbar::tablemenu"}%<ul class="ui-natedit-menu ui-natedit-table-menu">
+  <li><a href="#" data-dialog="inserttable" data-okay-handler="handleInsertTable"><i class="fa ui-icon fa-table"></i>%MAKETEXT{"Insert a new table"}%</a></li>
+  <li></li>
+  <li><a href="#" data-handler="handleInsertRow" title="Alt+Enter"><i class="ui-icon fa fa-plus"></i>%MAKETEXT{"Add row"}%</a></li>
+  <li><a href="#" data-handler="handleDeleteRow" title="Alt+Delete"><i class="ui-icon fa fa-minus"></i>%MAKETEXT{"Delete row"}%</a></li>
+  <li></li>
+  <li><a href="#" data-handler="handleInsertColumn" title="Alt-N"><i class="ui-icon fa fa-plus"></i>%MAKETEXT{"Add column"}%</a></li>
+  <li><a href="#" data-handler="handleDeleteColumn" title="Alt-Shift-N" ><i class="ui-icon fa fa-minus"></i>%MAKETEXT{"Delete column"}%</a></li>
+  <li></li>
+  <li><a href="#" data-handler="handleMoveRowUp" title="Alt-Up"><i class="ui-icon fa fa-chevron-up"></i>%MAKETEXT{"Move row up"}%</a></li>
+  <li><a href="#" data-handler="handleMoveRowDown" title="Alt-Down"><i class="ui-icon fa fa-chevron-down"></i>%MAKETEXT{"Move row down"}%</a></li>
+  <li></li>
+  <li><a href="#" data-handler="handleMoveColumnLeft" title="Alt-Left"><i class="ui-icon fa fa-chevron-left"></i>%MAKETEXT{"Move column left"}%</a></li>
+  <li><a href="#" data-handler="handleMoveColumnRight" title="Alt-Right"><i class="ui-icon fa fa-chevron-right"></i>%MAKETEXT{"Move column right"}%</a></li>
+</ul>%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"edittoolbar::insertmenu"}%<ul class="ui-natedit-menu ui-natedit-more-insert-menu jqUITooltip" data-theme="info" data-position="left" data-arrow="true">
@@ -115,23 +132,17 @@
   <!-- li><a href='#' title='%MAKETEXT{"Insert an emoticon"}%'><i class='ui-icon fa fa-smile-o'></i> %MAKETEXT{"Emoticon"}%</a> </li -->
   <!-- li><a href="#" title="%MAKETEXT{"Insert a symbol"}%"><i class="ui-icon fa">&#937;</i> %MAKETEXT{"Symbol"}%</a></li -->
   <!-- li class="ui-natedit-colorpicker"><a href='#' title='%MAKETEXT{"Insert a color code"}%' data-dialog='insertcolor' data-open-handler='initColorDialog' data-okay-handler='handleInsertColorCode' data-opts-handler='parseColorCode'><i class='ui-icon fa fa-tint'></i> %MAKETEXT{"Color"}%</a></li -->
-  <!-- li class="ui-natedit-datepicker"><a href='#' title='%MAKETEXT{"Insert a date"}%' data-handler='openDatePicker'><i class='ui-icon fa fa-calendar'></i> %MAKETEXT{"Date"}%</a></li -->
-  <!-- li><a href="#" title="%MAKETEXT{"Insert a new table"}%" data-dialog="inserttable" data-okay-handler="handleInsertTable"><i class="ui-icon fa fa-table"></i> %MAKETEXT{"Table"}%</a></li -->
-  <!-- li><a href="#" title="%MAKETEXT{"Insert a link to a topic or an external resource"}%" data-dialog="insertlink" data-okay-handler="handleInsertLink" data-open-handler="initLinkDialog" data-opts-handler="parseLink"><i class="ui-icon fa fa-link"></i> %MAKETEXT{"Link"}%</a></li -->
-  <!-- li><a href="#" title="%MAKETEXT{"Insert a link to a user-profile"}%"><i class="ui-icon fa">@</i> User mention</a></li -->
   <li><a href="#" title="%MAKETEXT{"Insert your signature"}%" data-markup="signatureMarkup"><i class="ui-icon fa fa-pencil-square-o"></i> %MAKETEXT{"Signature"}%</a></li>
-  <li><a href="#" title="%MAKETEXT{"Insert a horizontal ruler"}%" data-markup="horizRulerMarkup"><i class="ui-icon fa fa-minus"></i> %MAKETEXT{"Horizontal ruler"}%</a></li>
+  <li><a href="#" title="%MAKETEXT{"Insert a horizontal ruler"}%" data-markup="horizRulerMarkup"><i class="ui-icon fa fa-minus"></i> %MAKETEXT{"Horizontal Ruler"}%</a></li>
+  <li><a href="#" title="%MAKETEXT{"Clear floating objects"}%" data-markup="clearMarkup"><i class="ui-icon fa fa-paragraph"></i> %MAKETEXT{"Insert Clear"}%</a></li>
   <!-- li class="ui-natedit-formula"><a href="#" title="%MAKETEXT{"Insert a mathematical formula"}%" data-markup="mathMarkup"><i class="ui-icon fa">&#931;</i> %MAKETEXT{"Formula"}%</a></li -->
-  <li><a href="#" title="%MAKETEXT{"Insert a data form table header"}%" data-markup="dataFormMarkup"><i class="ui-icon fa fa-columns"></i> %MAKETEXT{"Data Form Table Header"}%</a></li>
-  <!-- li>-</li -->
-  <!-- li><a href="#" title="%MAKETEXT{"Insert a macro"}%"><i class="ui-icon fa fa-gears"></i> %MAKETEXT{"Macro"}%</a></li -->
 </ul>%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"edittoolbar::toolsbuttons"}%<div class="ui-natedit-buttons ui-natedit-tools-buttons">
   <a href='#' class="ui-natedit-undo" title='%MAKETEXT{"Undo last change"}%' data-handler='handleUndo'><i class='fa fa-rotate-left'></i></a>
   <a href='#' class="ui-natedit-redo" title='%MAKETEXT{"Redo previous change"}%' data-handler='handleRedo'><i class='fa fa-rotate-right'></i></a>
-  <a href='#' class='ui-natedit-switch-to-wysiwyg' title='%MAKETEXT{"Switch to wysiwyg"}%' data-handler='switchToWYSIWYG'><i class='fa fa-refresh'></i></a>
+  <a href='#' class='ui-natedit-switch-editor' title='%MAKETEXT{"Switch Editor"}%' data-handler='handleSwitchEditor'><i class='fa fa-refresh'></i></a>
   <a href="#" class="ui-natedit-menu-button ui-natedit-tools" title="%MAKETEXT{"More tools"}%" data-menu=".ui-natedit-tools-menu"><i class="fa fa-wrench"></i></a>
 </div>%TMPL:P{"edittoolbar::toolsmenu"}%%TMPL:END%
 
@@ -139,9 +150,12 @@
 %TMPL:DEF{"edittoolbar::toolsmenu"}%<ul class="ui-natedit-menu ui-natedit-tools-menu">
   <li><a href="#" title="%MAKETEXT{"Sort selected lines ascending"}%" data-handler="handleSortAscending"><i class="ui-icon fa fa-sort-amount-asc"></i> %MAKETEXT{"Sort ascending"}%</a></li>
   <li><a href="#" title="%MAKETEXT{"Sort selected lines descending"}%" data-handler="handleSortDescending"><i class="ui-icon fa fa-sort-amount-desc"></i> %MAKETEXT{"Sort descending"}%</a></li>
-  <li><a class="ui-natedit-search-replace" href="#" data-dialog="searchreplace" data-modal="false" data-okay-text="%MAKETEXT{"Replace"}%" data-cancel-text="%MAKETEXT{"Close"}%" data-okay-handler="handleSearchReplace"><i class="ui-icon fa fa-search"></i> %MAKETEXT{"Search && Replace"}%</a></li>
+  <li></li>
   <li><a href="#" data-handler="handleEscapeTML"><i class="ui-icon fa fa-usd"></i> %MAKETEXT{"Escape markup"}%</a></li>
-  <li><a href="#" data-handler="handleUnescapeTML"><i class="ui-icon fa">%</i> %MAKETEXT{"Unescape markup"}%</a></li>
+  <li><a href="#" data-handler="handleUnescapeTML"><i class="ui-icon fa-percent"></i> %MAKETEXT{"Unescape markup"}%</a></li>
+  <li></li>
+  <li><a class="ui-natedit-search-replace" href="#" data-dialog="searchreplace" data-modal="false" data-okay-text="%MAKETEXT{"Replace"}%" data-cancel-text="%MAKETEXT{"Close"}%" data-okay-handler="handleSearchReplace"><i class="ui-icon fa fa-search"></i> %MAKETEXT{"Search && Replace"}%</a></li>
+  <li><a href="#" data-handler="handleWrapText"><i class="ui-icon fa-text-width"></i> %MAKETEXT{"Wrap text"}%</a></li>
 </ul>%TMPL:END%
 
 %{ ################################################################################ }%

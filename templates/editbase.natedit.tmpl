@@ -1,0 +1,22 @@
+%TMPL:DEF{"natedit::options"}%%NATEDIT_OPTIONS{default=""}% %TMPL:P{"natedit::codemirror::options"}% %TMPL:P{"natedit::engine"}%%TMPL:END%
+%TMPL:DEF{"natedit::engine"}%data-engine="%IF{"$'URLPARAM{nowysiwyg}'='on'"
+  then="CodemirrorEngine"
+  else="%IF{"'%NATEDIT_ENGINE{default=""}%'=''"
+    then="%TMPL:P{"natedit::engine::nowysiwyg"}%"
+    else="%NATEDIT_ENGINE%"
+  }%"
+}%"%TMPL:END%
+%TMPL:DEF{"natedit::engine::nowysiwyg"}%%IF{"'%NOWYSIWYG{default="off"}%'='on'"
+  then="CodemirrorEngine"
+  else="TinyMCEEngine"
+}%%TMPL:END%
+
+%TMPL:DEF{"natedit::codemirror::options"}%data-codemirror='{"keyMap": "%TMPL:P{"natedit::codemirror::keymap"}%", "lineWrapping": %TMPL:P{"natedit::codemirror::linewrapping"}%, "spellcheck": %TMPL:P{"textarea::spellcheck"}%, "normalizeTables": "%TMPL:P{"natedit::codemirror::normalizetables"}%"}' %NATEDIT_CODEMIRROR_OPTIONS{default=""}%%TMPL:END%
+%TMPL:DEF{"natedit::codemirror::keymap"}%%NATEDIT_KEYMAP{default="default"}%%TMPL:END%
+%TMPL:DEF{"natedit::codemirror::linewrapping"}%%IF{"'%NATEDIT_LINEWRAPPING{default="off"}%'=~'^(on|true|yes|1)$'" then="true" else="false"}%%TMPL:END%
+%TMPL:DEF{"natedit::codemirror::normalizetables"}%%NATEDIT_NORMALIZETABLES{default="off"}%%TMPL:END%
+
+%TMPL:DEF{"textarea::spellcheck"}%%IF{"'%NATEDIT_SPELLCHECK{default="on"}%'=~'^(on|true|yes|1)$'" then="true" else="false"}%%TMPL:END%
+
+%TMPL:DEF{"natedit::placeholder::title"}%%MAKETEXT{"Title/Subject"}%%TMPL:END%
+%TMPL:DEF{"natedit::placeholder::textarea"}%%MAKETEXT{"Enter your comment"}%%TMPL:END%

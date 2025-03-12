@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="micha" comment="lost screenshot1.png" date="1630052410" format="1.1" version="2"}%
+%META:TOPICINFO{author="micha" comment="" date="1738173862" format="1.1" reprev="1" version="3"}%
 ---+!! Natural Edit Plugin
 %FORMFIELD{"Description"}%
 
@@ -7,7 +7,7 @@
 ---++ Description
 %STARTSECTION{"summary"}%
 The <nop>NatEdit is a pluggable editor providing a WYSIWYG and WIKIWYG editor modes.
-While WYSIYG tries to provide an (almost) what-you-see-is-what-you-get experience, the WIKIWYG
+While WYSIWYG tries to provide an (almost) what-you-see-is-what-you-get experience, the WIKIWYG
 mode allows to edit Foswiki's Topic Markup Language (TML) natively. Yet still WIKIWYG provides
 visual feedback and syntax highlighting of the most important typographic properties of TML, HTML,
 <nop>JavaScript and custom wiki application macros.
@@ -16,9 +16,7 @@ WYSIWYG mode is implemented using <nop>TinyMCE; WIKIWYG mode is based on <nop>Co
 %ENDSECTION{"summary"}%
 
 ---++ Screenshot
-%RED%TODO: this is an outdated screenshot%ENDCOLOR%
-
-<a href="%ATTACHURLPATH%/images/screenshot1.png" title="screenshot"><img src="%ATTACHURLPATH%/images/screenshot1.png" alt="screenshot" border="0" /></a>
+<a href="%ATTACHURLPATH%/screenshot1.png" title="screenshot"><img src="%ATTACHURLPATH%/screenshot1.png" style="max-width:100%;height:auto" alt="screenshot" border="0" /></a>
 
 ---++ Configuration
 
@@ -41,11 +39,33 @@ is sufficient.
 There are a couple of preference settings for the editor:
 
 | *Name* | *Description* | *Default* |
-| NOWYSIWYG | disables wysiwyg editing; the default wikiwyg edit | 
+| NOWYSIWYG | disables wysiwyg editing; the default wikiwyg edit; if NOWYSIWYG is =on= the =CodemirrorEngine= is used, otherwise =TinyMCEEngine= | =off= |
+| NATEDIT_ENGINE | name of the edit engine, possible values are =Code,irrorEngine= and =TinyMCEEngine= | depends on NOWYSIWYG |
 | NATEDIT_HELP | topic to be displayed in the help tab of the editor | %SYSTEMWEB%.NatEditHelpText |
-| NATEDIT_SPELLCHECK | boolean true/false to enable/disable spell checking in the editor | true |
+| NATEDIT_SPELLCHECK | boolean to enable/disable spell checking in the editor | =on= |
+| NATEDIT_NORMALIZETABLES | possible values are =on= (normalize table cells and rows), =off=, =full= (same as =on= but also align columns) | =off= |
+| NATEDIT_KEYMAP | editor mode of codemirror, possible values to diverge from the default key map: vim, sublime | default |
+| NATEDIT_LINEWRAPPING | boolean to enable/disable line wrapping | =off= |
 | NATEDIT_CODEMIRROR_OPTIONS | options for codemirror, see codemirror documentation | |
-| NATEDIT_CODEMIRROR_KEYMAP | editor mode of codemirror, possible values to diverge from the default key map: vim, emacs | |
+
+---++ Table editor shortcuts
+
+Within the WIKIWYG editor editing a table enables a few extra keyboard shortcuts:
+
+| *Shortcut* | *Description* |
+| tab | jump to next column |
+| shift-tab | jump to previous column |
+| enter | jump to next row in the same column |
+| home | jump to the first column; if pressed again jump to first char in line |
+| end | jump to the last column; if pressed again jump to last char in line |
+| alt-enter | insert a new row |
+| alt-delete | delete the current row |
+| alt-n | insert a new column |
+| alt-shift-n or alt-shift-del | delete the current column |
+| alt-up | move up current row |
+| alt-down | move down current row |
+| alt-left | move current column to the left |
+| alt-right | move current column to the right |
 
 ---++ Installation Instructions
 %$INSTALL_INSTRUCTIONS%
@@ -55,10 +75,11 @@ There are a couple of preference settings for the editor:
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+<noautolink>
 |  28 Aug 2021 | Foswikitask:Item14288: major rewrite |
 |  18 Dec 2017 | Foswikitask:Item14586: fixed height computation of natedit textarea |
 |  04 Dec 2017 | Foswikitask:Item13835: enable !TopicTitle field when feature available |
-|  04 May 2017 | Foswikitask:Item14388: NatEditPlugin does not honor the ScriptSuffix setting, and doesn't accommodate short URLs.<br/>
+|  04 May 2017 | Foswikitask:Item14388: NatEditPlugin does not honor the ScriptSuffix setting, and doesn't accommodate short URLs.<br/> \
                  Foswikitask:Item14404: NatEdit Save and Continue action fails on mod_perl systems. |
 |  20 Jan 2017 | Foswikitask:Item14265: NatEdit plugin leaves UI blocked after some save errors<br/>\
                  Foswikitask:Item14285: fixed error clicking on disabled toolbar buttons |
@@ -173,14 +194,16 @@ There are a couple of preference settings for the editor:
 |  03 Apr 2007 | added NATEDIT_HELPTEXT variable; \
                   be backwards compatible to <nop>PatternSkin |
 |  31 Mar 2007 | Initial version |
+</noautolink>
 
 %META:FORM{name="PackageForm"}%
 %META:FIELD{name="Author" title="Author" value="Michael Daum"}%
-%META:FIELD{name="Copyright" title="Copyright" value="(c) 2007-2021 Foswiki Contributors, All Rights Reserved"}%
-%META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
-%META:FIELD{name="Home" title="Home" value="https://foswiki.org/Extensions/%25$ROOTMODULE%25"}%
-%META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
-%META:FIELD{name="Release" title="Release" value="%25$RELEASE%25"}%
-%META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/distro"}%
-%META:FIELD{name="Support" title="Support" value="https://foswiki.org/Support/%25$ROOTMODULE%25"}%
 %META:FIELD{name="Version" title="Version" value="%25$VERSION%25"}%
+%META:FIELD{name="Release" title="Release" value="%25$RELEASE%25"}%
+%META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
+%META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/distro"}%
+%META:FIELD{name="Copyright" title="Copyright" value="(c) 2007-2021 Foswiki Contributors, All Rights Reserved"}%
+%META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
+%META:FIELD{name="Home" title="Home" value="https://foswiki.org/Extensions/%25$ROOTMODULE%25"}%
+%META:FIELD{name="Support" title="Support" value="https://foswiki.org/Support/%25$ROOTMODULE%25"}%
+%META:FILEATTACHMENT{name="screenshot1.png" attachment="screenshot1.png" attr="" comment="" date="1733926926" size="154456" user="micha" version="1"}%

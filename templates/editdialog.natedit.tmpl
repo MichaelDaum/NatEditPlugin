@@ -1,3 +1,5 @@
+%TMPL:DEF{"image::exts"}%avif|jpe?g|gif|png|bmp|webp|svg|ico|tiff?|xcf|psd|heic|heif|AVIF|JPE?PG|GIF|PNG|BMP|WEBP|SVG|ICO|TIFF|XCF|PSD?|HEIC|HEIF%TMPL:END%
+
 %{ ################################################################################ }%
 %TMPL:DEF{"insertcolor"}%<div class="ui-natedit-dialog-content ui-natedit-insert-color-content" data-title="%MAKETEXT{"Insert a color code"}%">
 <form>
@@ -79,7 +81,7 @@
     </tr>
     <tr>
       <th>%MAKETEXT{"Image"}%</th>
-      <td><select name='file' class='natEditAttachmentSelector foswikiSelect' data-selection="{{:file}}" data-filter="\.(png|jpe?g|gif|svg|bmp|webp|svg)$"><option></option></select>
+      <td><select name='file' class='natEditAttachmentSelector foswikiSelect' data-selection="{{:file}}" data-filter="\.(%TMPL:P{"image::exts"}%)$"><option></option></select>
       </td>    
     </tr>
     <tr>
@@ -100,8 +102,9 @@
     <tr>
         <th>%MAKETEXT{"Alignment"}%</th>
         <td>
+          <label><input type="radio" name="align" value="" class="foswikiRadioButton" {{if !align || align === 'none' }}checked{{/if}}>%MAKETEXT{"inline"}%</label>
           <label><input type="radio" name="align" value="left" class="foswikiRadioButton" {{if align === 'left'}}checked{{/if}}>%MAKETEXT{"left"}%</label>
-          <label><input type="radio" name="align" value="" class="foswikiRadioButton" {{if !align || align === 'middle' || align === 'none' }}checked{{/if}}>%MAKETEXT{"inline"}%</label>
+          <label><input type="radio" name="align" value="center" class="foswikiRadioButton" {{if align === 'center'}}checked{{/if}}>%MAKETEXT{"center"}%</label>
           <label><input type="radio" name="align" value="right" class="foswikiRadioButton" {{if align === 'right'}}checked{{/if}}>%MAKETEXT{"right"}%</label>
         </td>
     </tr>

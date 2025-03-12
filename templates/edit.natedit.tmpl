@@ -1,6 +1,7 @@
 %TMPL:INCLUDE{"edit"}%
 %TMPL:INCLUDE{"editjavascript"}%
 %TMPL:INCLUDE{"edittoolbar"}%
+%TMPL:INCLUDE{"editbase"}%
 %TMPL:INCLUDE{"editdialog"}%
 %TMPL:DEF{"titleaction"}%%IF{"defined 'rev'" 
   then="%MAKETEXT{"restore"}%" 
@@ -11,25 +12,26 @@
 }%%TMPL:END%
 %TMPL:DEF{"pagetitlestylewrapper"}%%{}%%TMPL:END%
 
-%TMPL:DEF{"contenttitle"}%%TMPL:P{context="TopicTitleEnabled" then="contenttitle::topictitle" else="contenttitle::default"}%%TMPL:END%
+%TMPL:DEF{"contenttitle"}%<noautolink>%TMPL:P{context="TopicTitleEnabled" then="contenttitle::topictitle" else="contenttitle::default"}%</noautolink>%TMPL:END%
 
 %TMPL:DEF{"contenttitle::topictitle"}%<h1 class="natEditTitle">%IF{
   "istopic '%WEB%.%TOPIC%'" 
-  then="<a href='%SCRIPTURLPATH{"view"}%/%WEB%/%TOPIC%' target='_blank'>%URLPARAM{"TopicTitle" default="%TMPL:P{"topictitle" hideautoinc="off"}%"}%</a>" 
-  else="<nop>%URLPARAM{"TopicTitle" default="%TMPL:P{"topictitle" hideautoinc="off"}%"}% <span class='natEditTitleStatus'>(%TMPL:P{"titleaction"}%)</span>"
+  then="<a href='%SCRIPTURLPATH{"view" topic="%WEB%.%TOPIC%"}%' target='_blank'>%URLPARAM{"TopicTitle" default="%TMPL:P{"topictitle" hideautoinc="off"}%"}%</a>" 
+  else="%URLPARAM{"TopicTitle" default="%TMPL:P{"topictitle" hideautoinc="off"}%"}% <span class='natEditTitleStatus'>(%TMPL:P{"titleaction"}%)</span>"
 }%</h1>%TMPL:END%
 
 %TMPL:DEF{"contenttitle::default"}%<h1 class="natEditTitle">%IF{
   "istopic '%WEB%.%TOPIC%'" 
-  then="<a href='%SCRIPTURLPATH{"view"}%/%WEB%/%TOPIC%' target='_blank'>%TOPIC%</a>" 
-  else="<nop>%TOPIC% <span class='natEditTitleStatus'>(%TMPL:P{"titleaction"}%)</span>"
+  then="<a href='%SCRIPTURLPATH{"view" topic="%WEB%.%TOPIC%"}%' target='_blank'>%TOPIC%</a>" 
+  else="%TOPIC% <span class='natEditTitleStatus'>(%TMPL:P{"titleaction"}%)</span>"
 }%</h1>%TMPL:END%
 
 %TMPL:DEF{"windowtitle"}%<title>(%TMPL:P{"titleaction"}%) <nop>%BASETOPIC%%TMPL:P{"titlesep"}%%BASEWEB%%TMPL:P{"titlesep"}%<nop>%WIKITOOLNAME%</title>%TMPL:END%
 
-%TMPL:DEF{"topictitle"}%%TMPL:P{context="TopicTitlePlugin" then="topictitle_topictitle" else="topictitle_default" hideautoinc="%hideautoinc%"}%%TMPL:END%
-%TMPL:DEF{"topictitle_default"}%%TOPICTITLE{default="%FORMFIELD{"TopicTitle" alttext="%BASETOPIC%" default="%BASETOPIC%"}%"}%%TMPL:END%
+%TMPL:DEF{"topictitle"}%%TMPL:P{context="TopicTitlePluginEnabled" then="topictitle_topictitle" else="topictitle_default" hideautoinc="%hideautoinc%"}%%TMPL:END%
+%TMPL:DEF{"topictitle_default"}%%ENCODE{"%TOPICTITLE{default="%FORMFIELD{"TopicTitle" alttext="%BASETOPIC%" default="%BASETOPIC%"}%"}%" type="entity"}%%TMPL:END%
 %TMPL:DEF{"topictitle_topictitle"}%%GETTOPICTITLE{"%WEB%.%TOPIC%" encode="entity" hideautoinc="%hideautoinc%"}%%TMPL:END%
+
 %TMPL:DEF{"sig_textareabuttons"}%%TMPL:END%
 
 %TMPL:DEF{"content"}%%{}%
@@ -57,18 +59,12 @@
 <input type="hidden" name="editaction" value="%IF{"$'action'='form'" then="form" else=""}%" />
 <input type="hidden" name="action_save" value="" />%TMPL:END%
 
-%TMPL:DEF{"textarea"}%<textarea id="topic" rows="25" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="%TMPL:P{"textarea::spellcheck"}%" style="width:100%" class="foswikiTextarea foswikiWysiwygEdit natedit" data-rest-params="?%NONCE%" data-auto-max-expand="true" data-show-fullscreen="true" data-block-unload="true" %TMPL:P{"natedit::options"}%  name="text">%TEXT%</textarea>%TMPL:END%
-%TMPL:DEF{"textarea::spellcheck"}%%NATEDIT_SPELLCHECK{default="true"}%%TMPL:END%
-%TMPL:DEF{"natedit::options"}%%NATEDIT_OPTIONS{default=""}% %TMPL:P{"natedit::codemirror::options"}%%TMPL:END%
-%TMPL:DEF{"natedit::codemirror::options"}%%NATEDIT_CODEMIRROR_OPTIONS{default=""}% %IF{
-  "'%NATEDIT_CODEMIRROR_KEYMAP{default=""}%'!=''"
-  then="data-codemirror='{\"keyMap\": \"%NATEDIT_CODEMIRROR_KEYMAP%\", \"spellcheck\": %TMPL:P{"textarea::spellcheck"}%}'"
-}%%TMPL:END%
+%TMPL:DEF{"textarea"}%<textarea class="foswikiTextarea foswikiWysiwygEdit natedit" id="topic" name="text" rows="25" autocomplete="off" autocorrect="off" autocapitalize="off" autofocus="on" spellcheck="%TMPL:P{"textarea::spellcheck"}%" style="width:100%" data-rest-params="?%NONCE%" data-auto-max-expand="true" %TMPL:P{"natedit::options"}%>%TEXT%</textarea>%TMPL:END%
 
 %TMPL:DEF{"formend"}%</form></div>%TMPL:END%
 
 %TMPL:DEF{"editcaptcha"}%%TMPL:P{context="CaptchaEnableSave" then="editcaptcha::impl"}%%TMPL:END%
-%TMPL:DEF{"editcaptcha::impl"}%<div class="jqUIDialog foswikiFormSteps {modal:true, resizable:false, width:'auto', draggable:true, appendTo:'#EditForm'}" id="editcaptcha" title="%MAKETEXT{"Please validate"}%" >
+%TMPL:DEF{"editcaptcha::impl"}%<div class="jqUIDialog foswikiFormSteps" data-modal="true" data-resizable="false" data-width="auto data-draggable="true" data-append-to="#EditForm" id="editcaptcha" title="%MAKETEXT{"Please validate"}%" >
 %CAPTCHAFORM{validateonsubmit="off"}%
 <a class="jqUIDialogButton jqUIDialogSubmit" data-icon="ui-icon-disk">%MAKETEXT{"Save"}%</a> 
 <a class="jqUIDialogButton jqUIDialogClose" data-icon="ui-icon-cancel">%MAKETEXT{"Cancel"}%</a> 

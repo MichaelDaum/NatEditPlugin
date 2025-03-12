@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2006-2021 Michael Daum, http://michaeldaumconsulting.com
+# Copyright (C) 2006-2025 Michael Daum, http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,6 +19,7 @@ use warnings;
 
 use Foswiki::Func                          ();
 use Foswiki::Plugins::JQueryPlugin::Plugin ();
+use Foswiki::Plugins::NatEditPlugin ();
 our @ISA = qw( Foswiki::Plugins::JQueryPlugin::Plugin );
 
 =begin TML
@@ -43,11 +44,11 @@ sub new {
     my $this = bless(
         $class->SUPER::new(
             name          => 'NatEdit',
-            version       => '4.991',
+            version       => $Foswiki::Plugins::NatEditPlugin::VERSION,
             author        => 'Michael Daum',
             homepage      => 'http://foswiki.org/Extensions/NatEditPlugin',
             puburl        => '%PUBURLPATH%/%SYSTEMWEB%/NatEditPlugin/build',
-            css           => ['styles.css'],
+            css           => ['bundle.css'],
             documentation => "$Foswiki::cfg{SystemWebName}.NatEditPlugin",
             javascript    => [ 'bundle.js' ],
             i18n => $Foswiki::cfg{SystemWebName} . "/NatEditPlugin/i18n",
@@ -61,7 +62,8 @@ sub new {
                 'ui::autocomplete',                   'ui::button',
                 'button',                             'loader',
                 'JQUERYPLUGIN::UPLOADER',             'blockui',
-                'render',                             'imagesloaded'
+                'render',                             'imagesloaded',
+                'image'
             ],
         ),
         $class
@@ -84,37 +86,37 @@ sub init {
     return unless $this->SUPER::init();
 
     my $request = Foswiki::Func::getRequestObject();
-    my $engine;
+    my @files = ();
+    push @files, 
+      split /\s*,\s*/,
+      Foswiki::Func::expandCommonVariables("%PUBURLPATH%/%SYSTEMWEB%/SkinTemplates/base.css, %FOSWIKI_STYLE_URL%, %FOSWIKI_COLORS_URL%");
 
-    # TODO: make those two engines configurable
-    if (Foswiki::Func::isTrue($request->param("nowysiwyg")) ||
-      Foswiki::Func::getPreferencesFlag("TINYMCEPLUGIN_DISABLE") || 
-      Foswiki::Func::getPreferencesFlag("NOWYSIWYG")) {
+    push @files, "$Foswiki::cfg{PubUrlPath}/$Foswiki::cfg{SystemWebName}/ImagePlugin/image.css"
+      if Foswiki::Func::getContext("ImagePluginEnabled");
 
-      $engine = "codemirror"; # wiki editor
-    } else {
-      $engine = "tinymce"; # wysiwyg editor
-    }
-
-    $engine = "Codemirror" if $engine =~ /^codemirror$/;
-    $engine = "Prosemirror" if $engine =~ /^prosemirror$/;
-    $engine = "TinyMCE" if $engine =~ /^tinymce$/;
-    $engine = "TinyMCENative" if $engine =~ /^tinymcenative$/;
-    $engine = "Textarea" if $engine =~ /^(textarea|raw)$/;
-    $engine .= "Engine";
-
+    my $contentCSS = join ", ", map {"\"$_\""} @files;
+   
     Foswiki::Func::addToZone(
         "script", "JQUERYPLUGIN::NATEDIT::PREFERENCES",
         <<"HERE", "JQUERYPLUGIN::FOSWIKI::PREFERENCES" );
 <script class='\$zone \$id foswikiPreferences' type='text/json'>{ 
   "NatEditPlugin": {
-    "Engine": "$engine",
-    "ContentCSS": ["%PUBURLPATH%/%SYSTEMWEB%/SkinTemplates/base.css","%FOSWIKI_STYLE_URL%","%FOSWIKI_COLORS_URL%", "%PUBURLPATH%/%SYSTEMWEB%/ImagePlugin/style.css"],
+    "version": "$this->{version}",
+    "ContentCSS": [$contentCSS],
     "EmojiPluginEnabled": %IF{"context EmojiPluginEnabled" then="true" else="false"}%,
     "FarbtasticEnabled": %IF{"context FarbtasticEnabled" then="true" else="false"}%,
     "ImagePluginEnabled": %IF{"context ImagePluginEnabled" then="true" else="false"}%,
     "MathEnabled": %IF{"context MathModePluginEnabled or context MathJaxPluginEnabled" then="true" else="false"}%,
-    "TopicInteractionPluginEnabled": %IF{"context TopicInteractionPluginEnabled" then="true" else="false"}%
+    "TopicInteractionPluginEnabled": %IF{"context TopicInteractionPluginEnabled" then="true" else="false"}%,
+    "NoAutolink": %IF{"'%NOAUTOLINK{default=""}%'='on'" then="true" else="false"}%,
+    "debug": %IF{"'%NATEDIT_DEBUG{default="off"}%'='on'" then="true" else="false"}%,
+    "purifyInput": %IF{"'%NATEDIT_PURIFY{default="true"}%'=~'(on|1|true)'" then="true" else="false"}%,
+    "purify": {
+      "ADD_ATTR": "%NATEDIT_PURIFY_ADDATTRS{default="contenteditable"}%",
+      "ADD_TAGS": "%NATEDIT_PURIFY_ADDTAGS{default="verbatim, literal, sticky, nop, noautolink, dirtyarea, graphviz, dot, mermaid, latex"}%",
+      "FORBID_ATTRS": "%NATEDIT_PURIFY_FORBIDATTRS{default=""}%",
+      "FORBID_TAGS": "%NATEDIT_PURIFY_FORBIDTAGS{default=""}%"
+    }
   }
 }</script>
 HERE

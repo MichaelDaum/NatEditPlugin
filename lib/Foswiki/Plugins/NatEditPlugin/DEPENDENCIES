@@ -1,5 +1,4 @@
 Foswiki::Plugins::JQueryPlugin,>=6.00,perl,Required
-Foswiki::Contrib::CodeMirrorContrib,>=0,perl,Required
 Foswiki::Plugins::EmojiPlugin,>=0,perl,Optional
 Foswiki::Plugins::MentionsPlugin,>=0,perl,Optional
 JSON,>=2.59,cpan,Required. 

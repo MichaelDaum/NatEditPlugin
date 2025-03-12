@@ -1,7 +1,8 @@
 %TMPL:INCLUDE{"settings"}%
 %TMPL:INCLUDE{"settingstoolbar"}%
+%TMPL:INCLUDE{"editbase"}%
 
-%TMPL:DEF{"settings::engine"}%CodemirrorEngine%TMPL:END%
+%TMPL:DEF{"natedit::engine"}%CodemirrorEngine%TMPL:END%
 
 %TMPL:DEF{"content"}%%TMPL:P{"contenttitle"}%<div class="ui-natedit-container">
 <form id="EditForm" name="EditForm" method="post" action="%SCRIPTURLPATH{"manage"}%/%WEB%/%TOPIC%">
@@ -14,9 +15,9 @@
 <input type="hidden" name="action_save" value="" />
 <input type="hidden" name="action" value="saveSettings" />
 <input type="hidden" name="originalrev" value="%ORIGINALREV%" />
-%JQREQUIRE{"focus, natedit, blockui, emoji" warn="off"}%%TABPANE%
+%JQREQUIRE{"focus, natedit, blockui, emoji" warn="off"}%%TABPANE{class="plain" automaxexpand="on" animate="on" remember="on"}%
 %TAB{"%MAKETEXT{"Preferences"}%"}%
-<textarea class="foswikiTextArea natedit" name="text" id="topic" style='width:100%' wrap="virtual" data-engine="%TMPL:P{"settings::engine"}%" data-auto-max-expand="true" %TMPL:P{"natedit::options"}% autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">%TEXT%</textarea>
+%TMPL:P{"textarea"}%
 %ENDTAB%
 %TMPL:P{"helptab"}%%ENDTABPANE%
 %TMPL:P{"bottomtopicactions"}%</form></div>%TMPL:END%
@@ -32,6 +33,6 @@
 %MAKETEXT{"~[multiple of 3 spaces~] * ~[space~] Set ~[space~] VARIABLENAME ~[space~] = ~[value~]"}%
 </pre>
 
-<a href="%SCRIPTURLPATH{"view"}%/%SYSTEMWEB%/PreferenceSettings" target="_blank">%MAKETEXT{"Get help on setting topic preferences"}%</a>
+<a href="%SCRIPTURLPATH{"view" topic="%SYSTEMWEB%.PreferenceSettings"}%" target="_blank">%MAKETEXT{"Get help on setting topic preferences"}%</a>
 </div>
 <!-- -->%TMPL:END%

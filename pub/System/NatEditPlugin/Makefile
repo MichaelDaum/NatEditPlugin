@@ -1,7 +1,9 @@
 FOSWIKI_ROOT?=~/foswiki/core
+SUBDIRS=lib/codemirror lib/dompurify
 TARGET=\
+  build \
   build/bundle.js \
-  build/styles.css \
+  build/bundle.css \
   build/CodemirrorEngine.js \
   build/TinyMCEEngine.js \
 
@@ -12,21 +14,40 @@ TARGET=\
 -include $(FOSWIKI_ROOT)/pub/System/JQueryPlugin/Makefile.include
 
 TEXTAREA_ENGINE_SOURCE=\
-  src/TextareaState.uncompressed.js \
-  src/UndoManager.uncompressed.js \
-  src/RawEngine.uncompressed.js 
+  src/TextareaState.js \
+  src/Table.js \
+  src/Attrs.js \
+  src/UndoManager.js \
+  src/RawEngine.js 
 
 BUNDLE_SOURCE=\
-  src/Utils.uncompressed.js \
-  src/EmojiWidget.uncompressed.js \
-  src/LinkWidget.uncompressed.js \
-  src/DropDownMenu.uncompressed.js \
-  src/NatEdit.uncompressed.js \
-  src/PermissionsEditor.uncompressed.js \
-  src/BaseEngine.uncompressed.js 
+  lib/dompurify/purify.js \
+  src/Utils.js \
+  src/EmojiWidget.js \
+  src/LinkWidget.js \
+  src/ImageWidget.js \
+  src/DropDownMenu.js \
+  src/Table.js \
+  src/Attrs.js \
+  src/FormManager.js \
+  src/NatEdit.js \
+  src/PermissionsEditor.js \
+  src/BaseEngine.js 
 
-build/TextareaEngine.uncompressed.js: $(TEXTAREA_ENGINE_SOURCE)
-	@echo generating $@; cat $^ > $@
+clean:
+	@rm -f build/*
 
-build/bundle.uncompressed.js: $(BUNDLE_SOURCE)
-	@echo generating $@; cat $^ > $@
+build:
+	@mkdir build
+
+build/TextareaEngine.js: $(TEXTAREA_ENGINE_SOURCE)
+	@echo generating $@; $(JSMIN) $^ > $@
+
+build/bundle.js: $(BUNDLE_SOURCE)
+	@echo generating $@; $(JSMIN) $^ > $@
+
+build/bundle.css: src/styles.css
+	@echo generating $@; $(CAT) $^ | $(CSSMIN) $(CSSMIN_ARGS) > $@
+
+build/%.js: src/%.js
+	@echo generating $@; $(JSMIN) $^ > $@

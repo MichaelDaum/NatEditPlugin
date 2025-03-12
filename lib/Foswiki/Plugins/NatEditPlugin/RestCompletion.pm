@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2021-2022 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,104 +19,28 @@ use Foswiki::Func ();
 use Foswiki::Meta ();
 use JSON ();
 
+use constant DBCACHE_ENABLED => 1;
+use constant SOLR_ENABLED => 0;
+
 sub handle {
   my ($session, $plugin, $verb, $response) = @_;
 
-  my $request = $session->{request};
-  my $id = $request->param("id");
-  return "" unless defined($id) && $id =~ /^(mention|topic)$/;
+  my $context = Foswiki::Func::getContext();
 
-  my $term = $request->param("term");
-  my $web = $request->param("web") // $session->{webName};
-  my $limit = $request->param("limit") // 0;
-  my $thisUser = Foswiki::Func::getWikiName();
-  my @result = ();
+  my $impl = "Foswiki::Plugins::NatEditPlugin::RestCompletion::";
 
-  if ($id eq 'mention') {
-    $term =~ s/^@//;
-    my $star = ($term =~ s/^\*// ? ".*":"");
-
-    my $it = Foswiki::Func::eachUser();
-    my $index = 0;
-
-    while ($it->hasNext()) {
-      $web //= $Foswiki::cfg{UsersWebName};
-      my $user = $it->next();
-      next if $term && $user !~ /^$star\Q$term\E/i;
-      next if Foswiki::Func::topicExists($web, $user) &&
-              !Foswiki::Func::checkAccessPermission("VIEW", $thisUser, undef, $user, $web);
-
-      push @result, {
-        web => $web,
-        topic => $user,
-        title => Foswiki::Func::getTopicTitle($web, $user),
-      };
-      $index++;
-      last if $limit && $index >= $limit;
-    }
-
-    @result = sort {$a->{title} cmp $b->{title}} @result;
-
-  } elsif ($id eq 'topic') {
-
-    $term =~ s/^\[\[//;
-    my $star = ($term =~ s/^\*// ? ".*":"");
-
-    my $termWeb;
-    ($termWeb, $term) = Foswiki::Func::normalizeWebTopicName($web, $term);
-
-    # get topics
-    my $webObject = Foswiki::Meta->new($session, $termWeb);
-    my $it = $webObject->eachTopic();
-    my $index = 0;
-
-    while ($it->hasNext()) {
-      my $topic = $it->next();
-      next if $term && $topic !~ /^$star\Q$term\E/i;
-      next if Foswiki::Func::topicExists($termWeb, $topic) &&
-              !Foswiki::Func::checkAccessPermission("VIEW", $thisUser, undef, $topic, $termWeb);
-
-      push @result, {
-        web => $termWeb,
-        topic => $topic,
-        title => Foswiki::Func::getTopicTitle($termWeb, $topic),
-      };
-
-      $index++;
-      last if $limit && $index >= $limit;
-    }
-
-    # get webs
-    if ($web eq $termWeb && (!$limit || $index < $limit)) {
-      my $topic = $Foswiki::cfg{HomeTopicName};
-      foreach my $thisWeb (Foswiki::Func::getListOfWebs()) {
-        next if $thisWeb =~ /^_/;
-        next if $term && $thisWeb !~ /^$star\Q$term\E/i;
-        next if Foswiki::Func::topicExists($thisWeb, $topic) &&
-                !Foswiki::Func::checkAccessPermission("VIEW", $thisUser, undef, $topic, $thisWeb);
-
-        push @result, {
-          web => $thisWeb,
-          topic => $topic,
-          title => Foswiki::Func::getTopicTitle($thisWeb, $topic),
-        };
-        $index++;
-        last if $limit && $index >= $limit;
-      }
-    }
-
-    @result = sort {$a->{title} cmp $b->{title}} @result;
+  if (DBCACHE_ENABLED && $context->{DBCachePluginEnabled}) {
+    $impl .= "DBCache";
+  } elsif (SOLR_ENABLED && $context->{SolrPluginEanabled}) {
+    $impl .= "Solr";
+  } else {
+    $impl .= "Default";
   }
 
-  my $result = JSON::to_json(\@result, {pretty => 1});
+  eval "require $impl";
+  die $@ if $@;
 
-  $response->header(
-    -status => 200,
-    -type => 'text/plain',
-  );
-  $response->print($result);
-
-  return "";
+  return $impl->new($session, $response)->handle();
 }
 
 1;

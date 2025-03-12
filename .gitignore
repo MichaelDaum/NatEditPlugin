@@ -16,3 +16,6 @@ pub/System/NatEditPlugin/engine/prosemirror/engine.js
 pub/System/NatEditPlugin/engine/raw/engine.js
 pub/System/NatEditPlugin/engine/tinymce/engine.js
 pub/System/NatEditPlugin/engine/tinymce_native/engine.js
+locale/**/*~
+pub/**/igp_*
+pub/System/NatEditPlugin/lib/codemirror/widgets/codemirror-widgets

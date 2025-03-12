@@ -3,7 +3,7 @@
 ---+ %TOPIC%
 Help text for the NatEditPlugin editor
 
-%STARTINCLUDE%
+%STARTSECTION{"default"}%
 <h3 >About the editor</h3>
 This edit interface is available in two different modes: (1) WYSIWYG (what you see is what you get) and (2) Wiki Text (or raw edit).
 Both interfaces come with different features and target different use cases.  The default is to use the WYSIWYG editor, though this can be overridden
@@ -18,5 +18,5 @@ Below text is specific to editing <nop>TML (topic markup language) directly usin
 Note that you can still enter <nop>TML into the WYSIWYG editor,  but you must use the "Format" drop-down box to select "Protect on save"  or "Protect forever".
 
 <h3 >Wiki markup editing shorthands</h3>
-%INCLUDE{"%SYSTEMWEB%.EditingShorthand"}%
+%INCLUDE{"%SYSTEMWEB%.EditingShorthand"}%%ENDSECTION{"default"}%
 %META:FILEATTACHMENT{name="wikitext.png" attachment="wikitext.png" attr="h" comment="" date="1438175794" size="1777" user="ProjectContributor" version="1"}%
