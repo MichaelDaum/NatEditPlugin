@@ -3,6 +3,7 @@
   margin:0 0 1rem;
   background-color:#fff;
   transition: opacity 150ms;  
+  clear:both;
 }
 
 .ui-natedit-fullscreen .ui-natedit-widget {
@@ -297,8 +298,8 @@
   font-size:127%;
 }
 
-.foswikiSelect.natEditAttachmentSelector {
-  max-width:25rem;
+.natEditAttachmentSelector {
+  width:21.5rem;
 }
 /* prosemirror */
 .ui-natedit .ProseMirror {
@@ -353,4 +354,15 @@
 .cm-natedit-emoji {
   height:1.1rem;
   width:auto;
+}
+.ui-natedit-discard {
+  margin:0.25em 0 0 0;
+}
+.ui-natedit-discard a {
+  text-decoration:none;
+}
+.ui-natedit-discard a:hover,
+.ui-natedit-discard a:active {
+  color:inherit;
+  text-decoration:underline;
 }

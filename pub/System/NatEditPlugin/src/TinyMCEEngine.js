@@ -205,10 +205,11 @@ TinyMCEEngine.prototype.convertURI = function(url, node, onSave) {
  */
 TinyMCEEngine.prototype.beforeSubmit = function(action) {
   var self = this, 
-    dfd = $.Deferred();
+    dfd = $.Deferred(),
+    val = self.getValue();
 
   if (action !== 'cancel') {
-    self.shell.txtarea.val(self.getValue());
+    self.shell.txtarea.val(val);
   }
 
   self.shell.setTextFormat("html");
@@ -262,11 +263,13 @@ TinyMCEEngine.prototype.setContent = function(val) {
 /*************************************************************************
  * get value and convert it to tml
  */
+/*
 TinyMCEEngine.prototype.getContent = function() {
   var self = this;
 
   return self.shell.html2tml(self.getValue());
 };
+*/
 
 /*************************************************************************
  * init gui
@@ -662,7 +665,7 @@ TinyMCEEngine.prototype.insertTable = function(opts) {
 
 /***************************************************************************
  * insert a link
- * opts is a hash of params that can have either of two forms:
+ * opts is a hash of params that can have either of the following forms:
  *
  * insert a link to a topic:
  * {
@@ -772,6 +775,7 @@ TinyMCEEngine.prototype.setValue = function(val) {
 TinyMCEEngine.prototype.getValue = function() {
   var self = this;
 
+  self.shell.log("TinyMCEEngine::getValue");
   return self.editor.getContent();
 };
 
@@ -836,7 +840,7 @@ TinyMCEEngine.prototype.toggleFullscreen = function() {
  * editor defaults
  */
 TinyMCEEngine.defaults = {
-  debug: true,
+  debug: false,
   natedit: {
     purifyInput: false
   },

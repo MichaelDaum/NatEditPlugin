@@ -15,6 +15,7 @@
 var defaults = {
   // toggle debug output
   debug: false,
+  ajaxSubmitEnabled: true,
 
   // set to false to prevent blocking actions other than save, cancel etc to leave the page
   blockUnload: true,
@@ -44,11 +45,17 @@ var FormManager = function(elem, opts) {
   self.opts = $.extend({}, defaults, {
     web: foswiki.getPreference("WEB"),
     topic: foswiki.getPreference("TOPIC"),
-    saveUrl: foswiki.getScriptUrl("rest", "NatEditPlugin", "save"),
     purifyInput: foswiki.getPreference("NatEditPlugin").purifyInput,
     purify: foswiki.getPreference("NatEditPlugin").purify,
     debug: foswiki.getPreference("NatEditPlugin").debug,
   }, opts, self.elem.data());
+
+  var action = self.elem.attr("action");
+  //console.log("action=",action);
+  if (action && /bin\/save/.test(action)) {
+    //console.log("disabling ajax save for form",self.elem[0]);
+    self.opts.ajaxSubmitEnabled = false;
+  }
 
   // purify configs
   for (const key in self.opts.purify) {
@@ -89,14 +96,6 @@ var FormManager = function(elem, opts) {
       this.setValue("");
     });
   });
-  
-
-  // restore document title
-  self.elem.on("submit", function() {
-    window.setTimeout(function() {
-      self.documentTitle();
-    }, 1000);
-  });
 
   /* remove the second TopicTitle */
   self.elem.find("input[name='TopicTitle']:eq(1)").parents(".foswikiFormStep").remove();
@@ -104,9 +103,19 @@ var FormManager = function(elem, opts) {
   /* remove the second Summary */
   self.elem.find("input[name='Summary']:eq(1)").parents(".foswikiFormStep").remove();
 
+  // handling submit event
+  self.elem.on("submit", function(ev) {
+    //console.log("got submit event");
+    ev.preventDefault();
+    if (!ev.defaultPrevented) {
+      self.save();
+    }
+    return false;
+  });
+
   /* save handler */
   self.elem.find(".ui-natedit-save").on("click", function() {
-    self.submit();
+    self.save();
     return false;
   });
 
@@ -114,8 +123,7 @@ var FormManager = function(elem, opts) {
   self.elem.find(".ui-natedit-checkpoint").on("click", function(ev) {
     var action = $(ev.currentTarget).attr("href").replace(/^#/, "");
     self.log("clicked checkpoint");
-    self.isBlockedUnload = false;
-    self.save(action);
+    self.checkPoint();
     return false;
   });
 
@@ -136,7 +144,7 @@ var FormManager = function(elem, opts) {
     self.log("clicked replaceform");
     self.beforeSubmit("replaceform").then(function() {
       self.isBlockedUnload = false;
-      self.elem.trigger("submit");
+      self.elem[0].submit();
     });
     return false;
   });
@@ -145,7 +153,7 @@ var FormManager = function(elem, opts) {
     self.log("clicked addform");
     self.beforeSubmit("addform").then(function() {
       self.isBlockedUnload = false;
-      self.elem.trigger("submit");
+      self.elem[0].submit();
     });
     return false;
   });
@@ -190,17 +198,19 @@ var FormManager = function(elem, opts) {
 
   // add rules for DOMPurify
   if (self.opts.purifyInput) {
-    $.validator.addMethod( "pure", function(value, element, params ) {
-      self.log("checking if element is pure", element);
-      DOMPurify.sanitize(value); 
-      return DOMPurify.removed.length === 0;
+    // additional rules for everything text-ish
+    self.elem.find("input[type=text], input[type=password], input[type=search], input[type=email], input[type=url], textarea:not(.natedit)").addClass("pure");
+
+    $.validator.addMethod("pure", function(value, element, params ) {
+      self.log("checking if element is pure", value);
+      const clean = DOMPurify.sanitize(value, self.opts.purify);
+      self.logInsecureTags();
+      return clean === value;
     }, "Security warning: input contains dangerous content.");
+
     $.validator.addClassRules("pure", {
       pure: true
     });
-
-    // additional rules for everything text-ish
-    self.elem.find("input[type=text], input[type=password], input[type=search], input[type=email], input[type=url], textarea:not(.natedit)").addClass("pure");
   }
 };
 /*************************************************************************
@@ -300,140 +310,137 @@ FormManager.prototype.documentTitle = function(title) {
 /*************************************************************************
  * submit the form on exit
  */
-FormManager.prototype.submit = function() {
-  var self = this;
-
-  return self.exit().then(function() {
-    self.elem.trigger("submit");
-  });
-};
-
-/*************************************************************************
- * submit the content to foswiki and leave the editor
- */
-FormManager.prototype.exit = function() {
+FormManager.prototype.save = function() {
   var self = this,
-      dfd = $.Deferred();
+    msg = self.elem.data("message") || $.i18n("Saving ...");
 
-  self.log("called exit");
-  self.checkCaptcha().then(function() {
-    self.hideMessages();
-    if (self.elem.validate().form()) {
-      self.isBlockedUnload = false;
-      self.beforeSubmit("save").then(function() {
-        self.documentTitle($.i18n("Saving ..."));
-        self.blockHistory();
-        $.blockUI({
-          message: '<h1> '+ $.i18n("Saving ...") + '</h1>'
-        });
-        dfd.resolve();
-      }).fail(function(msg, title) {
-        title = title || ""
-        self.showMessage("error", $.i18n(msg), $.i18n(title));
-        dfd.reject();
-      });
+  $.blockUI({
+    message: `<h1>${msg}</h1>`
+  });
+
+  return self.submit("save").then(function(redirect) {
+    if (redirect) {
+      window.location.href = redirect;
     } else {
-      dfd.reject();
+      $.unblockUI();
+      self.elem.trigger("success", "save");
     }
-  }).fail(function() {
-    dfd.reject();
-  });
-
-  return dfd.promise();
-};
-
-/*************************************************************************
- * submit the content to foswiki 
- * TODO: make it return a promise()
- */
-FormManager.prototype.save = function(action) {
-  var self = this;
-
-  action = action || 'checkpoint';
-
-  self.log("called save action=",action);
-  self.checkCaptcha().then(function() {
-    var topicName = self.opts.topic;
-
-    self.hideMessages();
-    if (self.elem.validate().form()) {
-      self.beforeSubmit(action).then(function() {
-        if (topicName.match(/AUTOINC|XXXXXXXXXX/)) {
-          // don't ajax when we don't know the resultant URL (can change this if the server tells it to us..)
-          $.blockUI({
-            message: '<h1>'+ $.i18n("Saving ...") + '</h1>'
-          });
-          self.elem.trigger("submit");
-        } else {
-          self.elem.ajaxSubmit({
-            url: self.opts.saveUrl,
-            beforeSubmit: function() {
-              self.hideMessages();
-              self.documentTitle($.i18n("Saving ..."));
-              $.blockUI({
-                message: '<h1>'+ $.i18n("Saving ...") + '</h1>'
-              });
-            },
-            error: function(xhr, textStatus) {
-              var message = self.extractErrorMessage(xhr.responseText || textStatus);
-              self.showMessage("error", message);
-            },
-            complete: function(xhr) {
-              var nonce = xhr.getResponseHeader('X-Foswiki-Validation');
-              if (nonce) {
-                // patch in new nonce
-                $("input[name='validation_key']").each(function() {
-                  $(this).val("?" + nonce);
-                });
-              }
-              $(".natEditTitleStatus").fadeOut();
-              self.documentTitle();
-              $.unblockUI();
-            }
-          });
-        }
-      }).fail(function(msg, title) {
-        title = title || "";
-        self.showMessage("error", $.i18n(msg), $.i18n(title));
-      });
-    }
+  }, function(msg) {
+    $.unblockUI();
+    self.elem.trigger("fail", "save", msg);
   });
 };
-
-/*************************************************************************
-  * hack to extract an error message from a foswiki non-json aware response :(
-  */
-FormManager.prototype.extractErrorMessage = function(text) {
-  /*var self = this;*/
-
-  if (text && text.match(/^<!DOCTYPE/)) {
-    text = $(text).find(".natErrorMessage").text().replace(/\s+/g, ' ').replace(/^\s+/, '') || '';
-  }
-
-  if (text === "error") {
-    text = "Error: save failed. Please save your content locally and reload this page.";
-  }
-
-  return text;
-};
-
 
 /*************************************************************************
  * leave the editor, discarding all changes
  */
 FormManager.prototype.cancel = function() {
-  var self = this;
+  var self = this,
+    msg = $.i18n("Quitting ...");
 
-  self.hideMessages();
-  self.beforeSubmit("cancel").then(function() {
-    self.isBlockedUnload = false;
-    self.documentTitle($.i18n("Quitting ..."));
-    self.blockHistory();
-    $.blockUI({
-      message: '<h1> '+ $.i18n("Quitting ...") + '</h1>'
-    });
-    self.elem.trigger("submit");
+  $.blockUI({
+    message: `<h1>${msg}</h1>`
   });
+
+  return self.submit("cancel").then(function(redirect) {
+    if (redirect) {
+      window.location.href = redirect;
+    } else {
+      $.unblockUI();
+      self.elem.trigger("success", "cancel");
+    }
+  }, function(msg) {
+    $.unblockUI();
+    self.elem.trigger("fail", "cancel", msg);
+  });
+};
+
+/*************************************************************************
+ * checkpoint save
+ */
+FormManager.prototype.checkPoint = function() {
+  var self = this,
+    msg = $.i18n("Saving ...");
+
+  $.blockUI({
+    message: `<h1>${msg}</h1>`
+  });
+
+  return self.submit("checkpoint").then(function(redirect) {
+    if (redirect && self.opts.topic.match(/AUTOINC|XXXXXXXXXX/)) {
+      window.location.href = redirect;
+    } else {
+      $.unblockUI();
+      self.elem.trigger("success", "checkpoint");
+    }
+  }, function(msg) {
+    $.unblockUI();
+    self.elem.trigger("fail", "checkpoint", msg);
+  });
+};
+
+/*************************************************************************
+ * submit the content to foswiki 
+ */
+FormManager.prototype.submit = function(action) {
+  var self = this,
+    dfd = $.Deferred(),
+    msg;
+
+  action = action || 'checkpoint';
+
+  self.log("called submit action=",action);
+  self.checkCaptcha().then(function() {
+
+    self.hideMessages();
+    if (action === 'cancel' || self.elem.validate().form()) {
+      self.beforeSubmit(action).then(function() {
+        if (self.opts.ajaxSubmitEnabled) {
+          self.elem.ajaxSubmit({
+            beforeSubmit: function() {
+              self.hideMessages();
+              self.documentTitle(msg);
+            },
+            error: function(xhr, textStatus) {
+              var message = self.extractErrorMessage(xhr.responseText || textStatus);
+              if (xhr.status == 419) {
+                self.confirmSave(message).then(function() {
+                  self.updateNonce(xhr.getResponseHeader('X-Foswiki-Validation'));
+                  self.submit(action); // try again
+                }, function() {
+                  self.showMessage("error", message);
+                });
+              } else {
+                self.showMessage("error", message);
+                dfd.reject(message);
+              }
+            },
+            success: function(data, textStatus, xhr) {
+              var redirect = xhr.getResponseHeader("X-Location") || xhr.getResponseHeader("Location");
+              dfd.resolve(redirect);
+            },
+            complete: function(xhr) {
+              self.updateNonce(xhr.getResponseHeader('X-Foswiki-Validation'));
+              $(".natEditTitleStatus").fadeOut();
+              self.documentTitle();
+              if (action === "checkpoint") {
+                $.unblockUI();
+              }
+            }
+          });
+        } else {
+          self.elem[0].submit();
+          dfd.resolve();
+        }
+      }).fail(function(msg, title) {
+        title = title || "";
+        self.showMessage("error", $.i18n(msg), $.i18n(title));
+        dfd.reject(msg);
+      });
+    }
+  });
+
+  return dfd.promise();
 };
 
 
@@ -449,7 +456,6 @@ FormManager.prototype.preview = function() {
 
   self.beforeSubmit("preview").then(function() {
     self.elem.ajaxSubmit({
-      url: self.opts.saveUrl,
       beforeSerialize:function() {
         self.elem.find("input[name=redirectto]").prop('disabled',true);
       },
@@ -463,7 +469,16 @@ FormManager.prototype.preview = function() {
         var message = self.extractErrorMessage(xhr.responseText || textStatus);
         self.documentTitle();
         $.unblockUI();
-        self.showMessage("error", message);
+        if (xhr.status == 419) {
+          self.confirmSave(message).then(function() {
+            self.updateNonce(xhr.getResponseHeader('X-Foswiki-Validation'));
+            self.preview(); // try again
+          }, function() {
+            self.showMessage("error", message);
+          });
+        } else {
+          self.showMessage("error", message);
+        }
       },
       success: function(data) {
         var $window = $(window),
@@ -488,6 +503,84 @@ FormManager.prototype.preview = function() {
     title = title || ""
     self.showMessage("error", $.i18n(msg), $.i18n(title));
   });
+};
+
+/*************************************************************************
+ * display a validation dialog
+ */
+FormManager.prototype.confirmSave = function(msg) {
+  var self = this,
+    html = `<div class="ui-natedit-dialog-content ui-natedit-confirm-dialog-content">${msg}</div>`;
+
+  return $.Deferred(function(dfd) {
+    $(html).dialog({
+      buttons: [{
+        text: $.i18n("OK"),
+        icon: "ui-icon-check",
+        click: function() {
+          dfd.resolve(this);
+          $(this).dialog("close");
+          return true;
+        }
+      }, {
+        text: $.i18n("Cancel"),
+        icon: "ui-icon-cancel",
+        click: function() {
+          dfd.reject();
+          $(this).dialog("close");
+          return false;
+        }
+      }],
+      close: function() {
+        if (dfd.state() === 'pending') {
+          dfd.reject(); // resolve any pending dfd, such as is the case when ESC-aping a dialog
+        }
+        //self.log("destroying dialog");
+        $(this).dialog("destroy");
+      },
+      show: 'fade',
+      modal: true,
+      draggable: true,
+      resizable: false,
+      title: $.i18n("Confirmation Required"),
+      width: 600,
+      position: {
+        my:'center', 
+        at:'center',
+        of: window
+      },
+    });
+  }).promise();
+};
+
+/*************************************************************************
+ * update strike one nonce
+ */
+FormManager.prototype.updateNonce = function(val) {
+  var self = this;
+
+  if (val) {
+    self.elem.find("input[name='validation_key']").each(function() {
+      $(this).val("?" + val);
+    });
+  }
+};
+
+/*************************************************************************
+  * hack to extract an error message from a foswiki non-json aware response :(
+  */
+FormManager.prototype.extractErrorMessage = function(text) {
+  /*var self = this;*/
+
+  if (text && text.match(/^<!DOCTYPE/)) {
+    text = $(text).find(".natErrorMessage").text().replace(/\s+/g, ' ').replace(/^\s+/, '') || '';
+  }
+
+  if (text === "error") {
+    text = "Error: save failed. Please save your content locally and reload this page.";
+  }
+
+  return text;
 };
 
 /*************************************************************************
@@ -554,16 +647,9 @@ FormManager.prototype.beforeSubmit = function(action) {
     self.elem.find("input[name='action_cancel']").val('');
     self.elem.find("input[name='action_" + action + "']").val(actionValue);
 
-
     if (typeof(StrikeOne) !== 'undefined') {
       StrikeOne.submit(self.elem[0]);
     }
-
-    // WARNING: handlers are not guaranteed to be called or have finished before the content has been submitted
-    self.elem.trigger("beforeSubmit.natedit", {
-      editor: self, 
-      action: action
-    });
 
     self.editors().each(function() {
       dfds.push(this.beforeSubmit(action));
@@ -706,18 +792,20 @@ FormManager.prototype.getSecurityReport = function() {
 /*************************************************************************
   * calls a notification systems, defaults to pnotify
   */
-FormManager.prototype.showMessage = function(type, msg, title) {
+FormManager.prototype.showMessage = function(type, msg, title, opts) {
   /*var self = this;*/
 
-  $.pnotify({
+  opts = $.extend({}, {
     title: title,
     text:msg,
     hide:(type === "error"?false:true),
     type:type,
     sticker:false,
     closer_hover:false,
-    delay: (type === "error"?8000:1000)
-  });
+    delay: type === "error"?8000:1000
+  }, opts);
+
+  return $.pnotify(opts);
 };
 
 /*************************************************************************

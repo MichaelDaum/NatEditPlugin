@@ -31,7 +31,7 @@ BEGIN {
     }
 }
 
-our $VERSION           = '9.993';
+our $VERSION           = '9.994';
 our $RELEASE           = '%$RELEASE%';
 our $NO_PREFS_IN_TOPIC = 1;
 our $SHORTDESCRIPTION  = 'A Wikiwyg Editor';
@@ -52,13 +52,6 @@ sub initPlugin {
             return Foswiki::Plugins::NatEditPlugin::FormButton::handle(@_);
         }
     );
-    Foswiki::Func::registerTagHandler(
-        'NATFORMLIST',
-        sub {
-            require Foswiki::Plugins::NatEditPlugin::FormList;
-            return Foswiki::Plugins::NatEditPlugin::FormList::handle(@_);
-        }
-    );
 
     # SMELL: wrapper around normal save not being able to handle
     # utf8->sitecharset conversion.
@@ -69,7 +62,7 @@ sub initPlugin {
             return Foswiki::Plugins::NatEditPlugin::RestSave::handle(@_);
         },
         authenticate => 1,         # save always requires authentication
-        validate     => 1,         # and validation
+        validate     => 0,         # but dont validation, validating things outselves
         http_allow   => 'POST',    # updates: restrict to POST.
         description  => 'Save or preview results of an edit.'
     );
@@ -154,7 +147,9 @@ sub initPlugin {
     $doneNonce = 0;
 
     # features
-    Foswiki::Func::getContext()->{NatEditPlugin_CanInsertImage} = 1;
+    my $context = Foswiki::Func::getContext();
+    $context->{NatEditPlugin_CanInsertImage} = 1;
+    $context->{NatEditPlugin_CanSave} = 1;
 
     return 1;
 }
@@ -230,6 +225,9 @@ sub afterSaveHandler {
     return if $error;
 
     getHtmlConverter->attachPending($meta);
+
+    require Foswiki::Plugins::NatEditPlugin::RestSave;
+    Foswiki::Plugins::NatEditPlugin::RestSave::processUploads();
 }
 
 # make sure there's a new nonce for consecutive save+continues

@@ -1,7 +1,9 @@
 FOSWIKI_ROOT?=~/foswiki/trunk/core
 TARGET=widgets.js
 
-WIDGETS_SOURCE=codemirror-widgets.js utils.js image-widget.js 
+WIDGETS_SOURCE=utils.js image-widget.js 
+
+#codemirror-widgets.js utils.js image-widget.js 
 
 #table-widget.js
 

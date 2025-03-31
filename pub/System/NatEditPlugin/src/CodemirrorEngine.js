@@ -106,11 +106,11 @@ CodemirrorEngine.prototype.init = function() {
 
         // extend vim mode to make :w and :x work
         CodeMirror.commands.save = function() {
-          self.shell.formManager.save();
+          self.shell.formManager.checkPoint();
         };
 
         CodeMirror.Vim.defineEx("x", undefined, function() {
-          self.shell.formManager.submit();
+          self.shell.formManager.save();
         });
 
 
@@ -121,7 +121,7 @@ CodemirrorEngine.prototype.init = function() {
         CodeMirror.Vim.mapCommand("gq", "operator", "wrapText", undefined, {isEdit: true});
 
         CodeMirror.Vim.defineEx("xa", undefined, function() {
-          self.shell.formManager.submit();
+          self.shell.formManager.save();
         });
 
         CodeMirror.Vim.defineEx("qa", undefined, function() {
@@ -411,6 +411,18 @@ CodemirrorEngine.prototype.handleKeyDown = function(ev) {
   }
 
   if (table) {
+    if (!self._messageVisible) {
+      self._messageVisible = true;
+      self.shell.formManager.showMessage("info", self.opts.tableEditorHelp, "Table Editor", {
+        sticker: true,
+        insert_brs: false,
+        delay: 2000,
+        after_close: function() {
+          self._messageVisible = false;
+        }
+      });
+    }
+
     if (ev.key === "Escape") {
       self.repaintTable(table, 0);
     } 
@@ -555,7 +567,7 @@ CodemirrorEngine.prototype.handleKeyUp = function(ev) {
 /*************************************************************************
  * intercept save process
  */
-CodemirrorEngine.prototype.beforeSubmit = function(/*action*/) {
+CodemirrorEngine.prototype.beforeSubmit = function(action) {
   var self = this;
 
   self.shell.log("Codemirror::beforeSubmit");
@@ -721,6 +733,17 @@ CodemirrorEngine.prototype.getSelectionRange = function() {
 };
 
 /*************************************************************************
+ * set the selection
+ */
+CodemirrorEngine.prototype.setSelectionRange = function(start, end) {
+  var self = this,
+      doc = self.cm.getDoc();
+
+  doc.setSelection(start, end);
+};
+
+
+/*************************************************************************
  * returns true if changes have beem made
  */
 CodemirrorEngine.prototype.hasChanged = function() {
@@ -765,9 +788,10 @@ CodemirrorEngine.prototype.replace = function(text, from, to) {
 CodemirrorEngine.prototype.insert = function(text) {
   var self = this,
       doc = self.cm.getDoc(),
-      start = doc.getCursor();
+      pos = doc.getCursor();
 
-  doc.replaceRange(text, start);
+  doc.replaceRange(text, pos);
+  self.cm.setCursor(pos); // preserve cursor
 };
 
 /*************************************************************************
@@ -1050,16 +1074,6 @@ CodemirrorEngine.prototype.updateContent = function() {
 };
 
 /*************************************************************************
- * get value and convert it to tml
- */
-CodemirrorEngine.prototype.getContent = function() {
-  var self = this,
-      dfd = $.Deferred();
-
-  return dfd.resolve(self.getValue()).promise();
-};
-
-/*************************************************************************
  * set value 
  */
 CodemirrorEngine.prototype.setContent = function(val) {
@@ -1090,6 +1104,7 @@ CodemirrorEngine.prototype.setValue = function(val) {
 CodemirrorEngine.prototype.getValue = function() {
   var self = this;
 
+  self.shell.log("Codemirror::getValue");
   return self.cm.getValue();
 };
 
@@ -1118,9 +1133,25 @@ CodemirrorEngine.defaults = {
   //autofocus: false,
   autoresize: false,
   singleCursorHeightPerLine: false,
+  leaveSubmitMethodAlone: true,
 
   inputStyle: "contenteditable", /* SMELL: some ui problems in VI mode, such as cursor and focus issues */
   spellcheck: true,
+  tableEditorHelp: `<table class='foswikiLayoutTable foswikiSmallish'>
+    <tr><th style='width:5em'> Tab </th><td> jump to next column </td></tr>
+    <tr><th> Shift-Tab </th><td> jump to previous column </td></tr>
+    <tr><th> Enter </th><td> jump to next row in the same column </td></tr>
+    <tr><th> Home </th><td> jump to the first column; if pressed again jump to first char in line </td></tr>
+    <tr><th> End </th><td> jump to the last column; if pressed again jump to last char in line </td></tr>
+    <tr><th> Alt-Enter </th><td> insert a new row </td></tr>
+    <tr><th> Alt-Delete </th><td> delete the current row </td></tr>
+    <tr><th> Alt-n </th><td> insert a new column </td></tr>
+    <tr><th> Alt-N </th><td> delete the current column </td></tr>
+    <tr><th> Alt-Up </th><td> move up current row </td></tr>
+    <tr><th> Alt-Down </th><td> move down current row </td></tr>
+    <tr><th> Alt-Left </th><td> move current column to the </td></tr>
+    <tr><th> Alt-Right </th><td> move current column to the right </td></tr>
+    </table>`,
 
   //gutters
 /*  

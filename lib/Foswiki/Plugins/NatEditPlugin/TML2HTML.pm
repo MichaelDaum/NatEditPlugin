@@ -73,7 +73,7 @@ sub convert {
   );
 
   # SMELL: don't know how to fix <br /> otherwise
-  $html =~ s/<br \/> <span class='WYSIWYG_HIDDENWHITESPACE'.*?<\/span>/<br \/>\n/g;
+  #$html =~ s/<br \/> <span class='WYSIWYG_HIDDENWHITESPACE'.*?<\/span>/<br \/>\n/g;
 
   return $html;
 }

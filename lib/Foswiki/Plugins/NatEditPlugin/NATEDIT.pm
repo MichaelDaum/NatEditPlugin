@@ -63,7 +63,7 @@ sub new {
                 'button',                             'loader',
                 'JQUERYPLUGIN::UPLOADER',             'blockui',
                 'render',                             'imagesloaded',
-                'image'
+                'image', 'select2'
             ],
         ),
         $class

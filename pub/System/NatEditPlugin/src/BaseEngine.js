@@ -27,6 +27,7 @@ var italicRegExp     = /_(\S+|(?:\S.*?\S))_(?=$|[\s,.;:!?)])/g,
 BaseEngine = function() {
   var self = this;
 
+  self.id = "BaseEngine";
   if (typeof(self.opts) === 'undefined') {
     self.opts = {};
   }
@@ -185,6 +186,16 @@ BaseEngine.prototype.getValue = function() {
       elem = self.getWrapperElement();
 
   return elem.val();
+};
+
+/*************************************************************************
+ * get content of editor
+ */
+BaseEngine.prototype.getContent = function() {
+  var self = this,
+      dfd = $.Deferred();
+
+  return dfd.resolve(self.getValue()).promise();
 };
 
 /*************************************************************************
@@ -383,7 +394,7 @@ BaseEngine.prototype.insertTable = function(opts) {
 
 /***************************************************************************
  * insert a link
- * opts is a hash of params that can have either of two forms:
+ * opts is a hash of params that can have either the following forms:
  *
  * insert a link to a topic:
  * {

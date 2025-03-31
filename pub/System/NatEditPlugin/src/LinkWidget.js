@@ -24,6 +24,7 @@ function LinkWidget(editor, from, to) {
   self.init();
 }
 
+// static method to create all link widgets within the given editor
 LinkWidget.createWidgets = function(editor) {
   var search = editor.cm.getSearchCursor(linkRegExp, 0, 0),
       cursor = editor.cm.getCursor(),
@@ -44,14 +45,26 @@ LinkWidget.createWidgets = function(editor) {
 LinkWidget.prototype.init = function() {
   var self = this;
 
-  return self.parse().done(function() {
+  return self.parse().then(function() {
 
     if (typeof(self.elem) === 'undefined') {
       self.elem = $("<a>"+self.linkText+"</a>")
         .addClass("cm-natedit-wiki-link")
         .on("click", function(ev) {
-          //console.log("clicked ",self);
-          self.editor.shell.linkDialog(self.getText());
+          var cm = self.editor.cm;
+
+          //SMELL: not called with selectLeft/selectRight=false, handleMouseEvents does not make any change
+          console.log("clicked",self.from);
+
+          self.editor.setSelectionRange(self.from, self.to);
+          self.editor.shell.linkDialog(self.getText()).always(function() {
+            //console.log("scrolling to",self.from);
+            cm.setCursor(self.from)
+            cm.scrollIntoView(self.from);
+            cm.refresh();
+          });
+          ev.preventDefault();
+          return false;
         });
     }
 
@@ -62,11 +75,8 @@ LinkWidget.prototype.init = function() {
       clearWhenEmpty: true,
       handleMouseEvents: true,
       widget: self,
-      selectLeft: true,
-      selectRight: true
-      /*
-      readOnly: true,
-      */
+      selectLeft: false,
+      selectRight: false
     });
   });
 };
@@ -82,9 +92,11 @@ LinkWidget.prototype.parse = function(text) {
   if (text.match(/\s*\[\[(.*?)\]\[(.*?)\]\]\s*/)) {
     self.linkTarget = RegExp.$1;
     self.linkText = RegExp.$2;
+    self.type = 1;
     dfd.resolve(self.linkTarget, self.linkText);
   } else if (text.match(/\s*\[\[(.*?)\]\]\s*/)) {
     self.linkTarget = RegExp.$1;
+    self.type = 2;
 
     if (self.linkTarget.match(/^\w+:\/\//)) {
       self.linkText = self.linkTarget;

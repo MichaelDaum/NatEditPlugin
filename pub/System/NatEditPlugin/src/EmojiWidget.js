@@ -92,4 +92,3 @@ EmojiWidget.prototype.setText = function(text) {
 window.EmojiWidget = EmojiWidget;
 
 })(jQuery);
-

@@ -11,10 +11,12 @@
 
 "use strict";
 
+// returns the last element in an array
 function _last(array) {
     return array[array.length - 1];
 }
 
+/* delayed execution of accumulating calls */
 function _debounce(callback, wait) {
   return function(...args) {
     clearTimeout(_debounce.timeout);
@@ -24,6 +26,7 @@ function _debounce(callback, wait) {
   };
 }
 
+// reduce the line length to max len chars, wrap the text accordingly
 function _wrapText(text, len) {
   var lines = [], 
     buf = "", 

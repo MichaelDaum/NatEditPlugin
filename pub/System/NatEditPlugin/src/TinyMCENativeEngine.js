@@ -88,7 +88,7 @@ TinyMCENativeEngine.prototype.setSize = function(width, height) {
  * editor defaults
  */
 TinyMCENativeEngine.defaults = {
-  debug: true,
+  debug: false,
   natedit: {
   }
 };

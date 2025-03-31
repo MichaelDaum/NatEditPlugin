@@ -3,9 +3,10 @@
 %TMPL:INCLUDE{"editbase"}%
 
 %TMPL:DEF{"natedit::engine"}%CodemirrorEngine%TMPL:END%
+%TMPL:DEF{"natedit::options"}%%TMPL:PREV% data-toolbar-template='settings' data-toolbar='settings::toolbar'%TMPL:END%
 
 %TMPL:DEF{"content"}%%TMPL:P{"contenttitle"}%<div class="ui-natedit-container">
-<form id="EditForm" name="EditForm" method="post" action="%SCRIPTURLPATH{"manage"}%/%WEB%/%TOPIC%">
+<form id="EditForm" name="EditForm" method="post" action="%SCRIPTURLPATH{"manage"}%/%WEB%/%TOPIC%" data-ajax-submit-enabled="false">
 <input type="submit" style="display:none" />
 <input type="hidden" name="action_addform" value="" />
 <input type="hidden" name="action_cancel" value="" />
@@ -36,3 +37,23 @@
 <a href="%SCRIPTURLPATH{"view" topic="%SYSTEMWEB%.PreferenceSettings"}%" target="_blank">%MAKETEXT{"Get help on setting topic preferences"}%</a>
 </div>
 <!-- -->%TMPL:END%
+
+%TMPL:DEF{"settings::toolbar"}%
+%TMPL:P{"edittoolbar::start"}%
+%TMPL:P{"edittoolbar::right"}%
+%TMPL:P{"edittoolbar::listbuttons"}%
+%TMPL:P{"edittoolbar::toolsbuttons"}%
+%TMPL:P{"edittoolbar::end"}%
+%TMPL:END%
+
+%TMPL:DEF{"edittoolbar::listbuttons"}%<div class="ui-natedit-buttons ui-natedit-list-buttons">
+  <a class="ui-natedit-bullet" href="#" title="%MAKETEXT{"Bullet list"}%" data-markup="bulletListMarkup" data-type="line"><i class="fa fa-list-ul"></i></a>
+  <a class="ui-natedit-indent" href="#" title="%MAKETEXT{"Indent"}%" data-markup="indentMarkup" data-type="line"><i class="fa fa-indent"></i></a>
+  <a class="ui-natedit-outdent" href="#" title="%MAKETEXT{"Outdent"}%" data-markup="outdentMarkup" data-type="line"><i class="fa fa-outdent"></i></a>
+</div>%TMPL:P{"edittoolbar::tablemenu"}%%TMPL:END%
+
+%TMPL:DEF{"edittoolbar::toolsmenu"}%<ul class="ui-natedit-menu ui-natedit-tools-menu">
+  <li><a href="#" title="%MAKETEXT{"Sort selected lines ascending"}%" data-handler="handleSortAscending"><i class="ui-icon fa fa-sort-amount-asc"></i> %MAKETEXT{"Sort ascending"}%</a></li>
+  <li><a href="#" title="%MAKETEXT{"Sort selected lines descending"}%" data-handler="handleSortDescending"><i class="ui-icon fa fa-sort-amount-desc"></i> %MAKETEXT{"Sort descending"}%</a></li>
+  <li><a class="ui-natedit-search-replace" href="#" data-dialog="searchreplace" data-modal="false" data-okay-text="%MAKETEXT{"Replace"}%" data-cancel-text="%MAKETEXT{"Close"}%" data-okay-handler="handleSearchReplace"><i class="ui-icon fa fa-search"></i> %MAKETEXT{"Search && Replace"}%</a></li>
+</ul>%TMPL:END%

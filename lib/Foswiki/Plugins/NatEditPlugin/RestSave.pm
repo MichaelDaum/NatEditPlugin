@@ -17,6 +17,7 @@ use warnings;
 use Foswiki::UI::Save ();
 use Foswiki::OopsException ();
 use Foswiki::Validation ();
+use Foswiki::Plugins ();
 use Foswiki::Func ();
 use Encode ();
 use Error qw( :try );
@@ -24,6 +25,15 @@ my $types;
 
 sub handle {
   my ($session, $plugin, $verb, $response) = @_;
+
+   # validate request
+  unless (_isValidRequest($session)) {
+    my $msg = $session->i18n->maketext("[_1] has received a suspicious change request from your browser.", "Foswiki");
+    $msg .= $session->i18n->maketext("Press OK to confirm that this change was intentional.");
+    $msg .= $session->i18n->maketext("Press Cancel otherwise.");
+    $response->status(419);
+    return $msg;
+  }
 
   my $request = $session->{request};
 
@@ -70,25 +80,26 @@ sub handle {
   };
 
   try {
-    processUploads($session);
+    processUploads($session, $response);
   } catch Error with {
     $error = shift;
     $status = $error eq 'access denied' ? 403 : 500;
   };
 
+  my $requestedWith = $request->http("X-Requested-With");
+  return unless $requestedWith; # not an ajax call, leave the redirect intact
+
   # clear redirect enforced by a checkpoint action
+  # preserve redirect location in another header to be performed client side 
+  my $redirect = $response->getHeader("Location");
   $response->deleteHeader("Location", "Status");
+  $response->pushHeader('X-Location', $redirect) if $redirect;
   $response->status($status);
 
   # add validation key to HTTP header, if required
   unless ($response->getHeader('X-Foswiki-Validation')) {
-
-    my $cgis = $session->getCGISession();
-    my $context = $request->url(-full => 1, -path => 1, -query => 1) . time();
-
-    my $usingStrikeOne = $Foswiki::cfg{Validation}{Method} eq 'strikeone';
-
-    $response->pushHeader('X-Foswiki-Validation', _generateValidationKey($cgis, $context, $usingStrikeOne)) if $cgis;
+    my $nonce = _generateValidationKey($session);
+    $response->pushHeader('X-Foswiki-Validation', $nonce) if $nonce;
   }
 
   return $error unless ref($error);
@@ -96,7 +107,10 @@ sub handle {
 }
 
 sub processUploads {
-  my $session = shift;
+  my ($session, $response) = @_;
+
+  $session ||= $Foswiki::Plugins::SESSION;
+  $response ||= $session->{response};
 
   my $request = $session->{request};
   my $uploads = $request->uploads();
@@ -106,6 +120,17 @@ sub processUploads {
 
   my $web = $session->{webName};
   my $topic = $session->{topicName};
+
+  if ($topic =~ /AUTOINC|XXXXXXXXXX/) {
+    # get expanded topic from redirect url
+    my $redirect = $response->getHeader("Location") || '';
+    if ($redirect =~ /\/([^\/]*?)$/) {
+      $topic = $1;
+      $topic =~ s/\Q$Foswiki::cfg{ScriptUrlSeparator}\E//g 
+        if defined $Foswiki::cfg{ScriptUrlSeparator};
+    }
+  }
+  #print STDERR "web=$web, topic=$topic\n";
   return unless Foswiki::Func::topicExists($web, $topic);
 
   my ($meta, $text) = Foswiki::Func::readTopic($web, $topic);
@@ -119,6 +144,7 @@ sub processUploads {
   foreach my $fileName (keys %$uploads) {
     my $upload = $uploads->{$fileName};
 
+    #print STDERR "found upload $fileName\n";
     my $tmpFileName = $upload->tmpFileName;
     my $origName;
     ($fileName, $origName) = Foswiki::Sandbox::sanitizeAttachmentName($fileName);
@@ -181,10 +207,18 @@ sub processUploads {
 
 # compatibility wrapper
 sub _generateValidationKey {
+  my $session = shift;
+
+  my $cgis = $session->getCGISession();
+  return unless $cgis;
+
+  my $request = $session->{request};
+  my $context = $request->url(-full => 1, -path => 1, -query => 1) . time();
+  my $usingStrikeOne = $Foswiki::cfg{Validation}{Method} eq 'strikeone';
 
   my $nonce;
   if (Foswiki::Validation->can("generateValidationKey")) {
-    $nonce = Foswiki::Validation::generateValidationKey(@_);
+    $nonce = Foswiki::Validation::generateValidationKey($cgis, $context, $usingStrikeOne);
   } else { # extract from "<input type='hidden' name='validation_key' value='?$nonce' />";
 
     my $html = Foswiki::Validation::addValidationKey(@_);
@@ -194,6 +228,20 @@ sub _generateValidationKey {
   }
 
   return $nonce;
+}
+
+sub _isValidRequest {
+  my $session = shift;
+
+  my $request = $session->{request};
+  return unless $Foswiki::cfg{Validation}{Method} eq 'strikeone';
+
+  my $nonce = $request->param('validation_key');
+  my $cgiSession = $session->getCGISession();
+
+  return unless defined $cgiSession;
+
+  return Foswiki::Validation::isValidNonce($cgiSession, $nonce);
 }
 
 sub _stringifyError {

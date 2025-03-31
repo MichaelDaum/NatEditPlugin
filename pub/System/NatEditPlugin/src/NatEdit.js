@@ -152,6 +152,7 @@ $.NatEditor.prototype.createEngine = function(id) {
       dfd.resolve(self.engines[id]);
     } else {
       url = self.opts.pubUrl+"/"+self.opts.systemWeb+"/NatEditPlugin/build/"+id+".js";
+      console.log("loading engine source");
       self.getScript(url).then(function() {
         if ($.NatEditor.factory[id]) {
           self.engines[id] = $.NatEditor.factory[id].createEngine(self);
@@ -619,6 +620,7 @@ $.NatEditor.prototype.getValue = function() {
 
   self.log("called getValue()");
   if (self.engine) {
+    self.log("engine=",self.engine);
     return self.engine.getValue();
   } 
 
@@ -994,7 +996,7 @@ $.NatEditor.prototype.dialog = function(opts) {
   }
 
   opts = $.extend({}, defaults, opts);
-  
+ 
   if (typeof(opts.event) !== 'undefined') {
     opts.position = {
       my: 'center top',
@@ -1158,15 +1160,17 @@ $.NatEditor.prototype.handleInsertImage = function(elem, opts) {
 
   opts = opts || {};
 
-  opts.web = $dialog.find("[name=web]").val();
-  opts.topic = $dialog.find("[name=topic]").val();
-  opts.caption = $dialog.find("[name=caption]").val();
-  opts.classList = $dialog.find("[name=classList]").val();
-  opts.file = $dialog.find("[name=file]").val();
-  opts.width = $dialog.find("[name=width]").val();
-  opts.height = $dialog.find("[name=height]").val();
-  opts.align = $dialog.find("[name=align]:checked").val();
-  opts.type = $dialog.find("[name=type]:checked").val();
+  $dialog.find("[name]").each(function() {
+    var $this = $(this), name = $this.attr("name");
+
+    if ($this.is(":radio") || $this.is(":checkbox")) {
+      if ($this.is(":checked") || $this.is(":selected")) {
+        opts[name] = $this.val();
+      }
+    } else {
+      opts[name] = $this.data("select2") ? $this.select2("data").id : $this.val();
+    }
+  });
 
   return self.engine.insertImage(opts);
 };
@@ -1357,7 +1361,7 @@ $.NatEditor.prototype.handleRedo = function(/*elem*/) {
 /*************************************************************************/
 $.NatEditor.prototype.handleSwitchEditor = function(/*elem*/) {
   var self = this,
-    otherEngine = self.engine.id === "CodemirrorEngine" ? "TinyMCEEngine" : "CodemirrorEngine",
+    otherEngine = (self.engine.id === "CodemirrorEngine" ? "TinyMCEEngine" : "CodemirrorEngine"),
     dfd = $.Deferred();
 
   self.log("called handleSwitchEditor");
@@ -1379,6 +1383,7 @@ $.NatEditor.prototype.handleSwitchEditor = function(/*elem*/) {
           self.fixHeight();
         }
         self.engine.setValue(result);
+        self.txtarea.val(result)
         self.engine.focus();
 
         //self.engine.setCaretPosition(pos);
@@ -1529,21 +1534,27 @@ $.NatEditor.prototype.initLinkDialog = function(dialogElem) {
   var self = this,
       $dialog = $(dialogElem),
       xhr, requestIndex = 0,
-      $container = $dialog.find(".jqTab.current"),
-      $fileSelect = $dialog.find(".natEditAttachmentSelector");
+      $fileSelect = $dialog.find(".natEditAttachmentSelector"),
+      $fileUpload = $dialog.find(".natEditFileUpload");
 
-  if ($container.length === 0) {
-    $container = $dialog;
+  // get the container of the current part of the dialog
+  function getContainer() {
+    var $container = $dialog.find(".jqTab.current");
+    return $container.length ? $container : $dialog;
   }
 
+  // load attachments for the given or selected web.topic
   function loadAttachments(web, topic) {
     var selection = $fileSelect.data("selection") || '',
         filter = $fileSelect.data("filter") || ".*",
-        filterRegEx = new RegExp(filter, "i");
+        filterRegEx = new RegExp(filter, "i"),
+        $container = getContainer();
 
-    web = web || $container.find("input[name='web']").val();
-    topic = topic || $container.find("input[name='topic']").val();
-    $.ajax({
+    web = web || $container.find("input[name='web']").val() || self.opts.web;
+    topic = topic || $container.find("input[name='topic']").val() || self.opts.topic;
+
+    self.log("loading attachments for",web,topic);
+    return $.ajax({
       url: self.opts.attachmentsUrl,
       data: {
         topic: web+"."+topic,
@@ -1552,28 +1563,49 @@ $.NatEditor.prototype.initLinkDialog = function(dialogElem) {
       dataType: "json"
     }).done(function(json) {
       var options = [];
+      var files = new Set();
+
+      json.forEach(function(elem) {
+        files.add(elem.name);
+      });
+
+      self.form.find(".newFile").each(function() {
+        files.add(this.files[0].name);
+      });
+
+      files = Array.from(files).sort();
+
       options.push("<option></option>");
-      $(json).each(function(i, item) {
-        if (filterRegEx.test(item.name)) {
-          options.push("<option"+(selection === item.name?" selected":"")+">"+item.name+"</option>");
+      files.forEach(function(file) {
+        if (filterRegEx.test(file)) {
+          options.push("<option"+(selection === file?" selected='selected'":"")+">"+file+"</option>");
         }
       });
-      $fileSelect.html(options.join(""));
+      $fileSelect.html(options.join("")).trigger("reset");
+      $fileSelect[0].selectedIndex = -1;
     });
   }
 
+  // init web selector
   $dialog.find("input[name='web']").each(function() {
     $(this).autocomplete({
-      source: self.opts.webUrl
+      source: self.opts.webUrl,
+      change: function() {
+        loadAttachments();
+      },
+      select: function(ev, ui) {
+        loadAttachments(ui.item.value);
+      }
     });
-  }).on("change", function() {
-    loadAttachments();
   });
 
+  // init topic selector
   $dialog.find("input[name='topic']").each(function() {
       $(this).autocomplete({
       source: function(request, response) {
-        var baseWeb = $container.find("input[name='web']").val();
+        var $container = getContainer(),
+          baseWeb = $container.find("input[name='web']").val();
+
         if (xhr) {
           xhr.abort();
         }
@@ -1598,12 +1630,61 @@ $.NatEditor.prototype.initLinkDialog = function(dialogElem) {
             }
           }
         });
+      },
+      change: function() {
+        loadAttachments();
+      },
+      select: function(ev, ui) {
+        loadAttachments(undefined, ui.item.value);
       }
     });
-  }).on("change", function() {
+  });
+
+  // init file upload
+  $fileUpload.on("change", function() {
+    var id = foswiki.getUniqueID(),
+      clone = $fileUpload
+        .clone(1)
+        .removeClass("natEditFileUpload")
+        .addClass("newFile")
+        .removeAttr("id")
+        .attr("name", id)
+        .prependTo(self.form),
+        file = clone[0].files[0];
+      msg = $("<div>")
+        .append(file.name)
+        .append("<div class='ui-natedit-discard'><i class='ui-icon ui-icon-cancel'></i> <a href='#'>"+$.i18n("Discard Upload")+"</a></div>").on("click", function() {
+          self.form.find(`[name=${id}]`).remove();
+          $(this).trigger("close.pnotify");
+          $(".natEditAttachmentSelector").trigger("refresh");
+          return false;
+        });
+
+    $fileSelect.data("selection",file.name);
+    loadAttachments().then(function() {
+      $fileSelect.select2("val", file.name);
+    });
+    
+    var pnotify = self.formManager.showMessage(
+      "info", 
+      msg[0], $.i18n("New File"), 
+      {
+        hide: false,
+        text_escape: false,
+        insert_brs: false
+      }
+    ).on("close.pnotify", function() {
+      pnotify.remove();
+    });
+  });
+
+  // add event handler
+  $fileSelect.on("refresh", function() {
+    $fileUpload.val("");
     loadAttachments();
   });
 
+  // init attachments
   loadAttachments();
 };
 
@@ -1617,13 +1698,13 @@ $.NatEditor.prototype.linkDialog = function(dialogData) {
     dialogData = self.parseLink(dialogData);
   }
 
-  self.dialog({
+  return self.dialog({
     name: "insertlink",
     open: function(elem) {
       self.initLinkDialog(elem);
     },
     data: dialogData
-  }).done(function(dialog) {
+  }).then(function(dialog) {
       var $currentTab = $(dialog).find(".jqTab.current"),
           opts;
 
@@ -1716,6 +1797,7 @@ $.NatEditor.prototype.parseUrl = function(text) {
       };
 
   //console.log("called parseUrl()",text);
+  text = decodeURIComponent(text);
 
   if (text.match(/^(?:%ATTACHURL(?:PATH)?%\/)(.*?)$/)) {
     //console.log("here1");
@@ -1753,6 +1835,10 @@ $.NatEditor.prototype.parseLink = function(text) {
   var self = this, data,
       urlRegExp = "(?:file|ftp|gopher|https?|irc|mailto|news|nntp|telnet|webdav|tel|sip|edit)://[^\\s]+?";
 
+  if (typeof(text) === 'undefined') {
+    text = self.engine.getSelection();
+  }
+
   data = {
     selection: text,
     web: self.opts.web,
@@ -1761,10 +1847,6 @@ $.NatEditor.prototype.parseLink = function(text) {
     url: '',
     type: 'topic',
   };
-
-  if (typeof(text) === 'undefined') {
-    text = self.engine.getSelection();
-  }
 
   // initialize from text
   if (text.match(/\s*\[\[(.*?)\]\]\s*/)) {
@@ -1832,7 +1914,14 @@ $.NatEditor.prototype.parseLink = function(text) {
 $.NatEditor.prototype.handleKeyDown = function(ev) {
   var self = this;
 
+  if (ev.ctrlKey && ev.key === "r") {
+    window.location.reload();
+    ev.preventDefault();
+    return true;
+  }
+
   self.preventDefault = false;
+
 
   if (self.dropdown.isVisible()) {
 

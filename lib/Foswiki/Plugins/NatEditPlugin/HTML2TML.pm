@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2023 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2022-2025 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -23,6 +23,7 @@ use Foswiki::Plugins::WysiwygPlugin::HTML2TML ();
 use Foswiki::Plugins::WysiwygPlugin::Handlers ();
 use MIME::Base64 ();
 use Digest::MD5 ();
+use Encode ();
 
 sub new {
   my $class = shift;
@@ -106,7 +107,8 @@ sub convertImage {
   #print STDERR "img=".dump($img)."\n";
 
   if (Foswiki::Func::getContext()->{ImagePluginEnabled}) {
-    my $src = $img->{attrs}{src};
+    my $src = Encode::encode_utf8($img->{attrs}{src});
+    $src = Foswiki::urlDecode($src);
     my $web = $img->{attrs}{web} || $img->{context}{web} || $this->{session}{webName};
     my $topic = $img->{attrs}{topic} || $img->{context}{topic} || $this->{session}{topicName};
     my $file;
@@ -121,20 +123,29 @@ sub convertImage {
       $file = $this->attachBlobImage($web, $topic, $img->{context}{meta}, $1);
     }
 
+    $web = "" if $web eq $this->{session}{webName};
+    $topic = "" if $topic eq $this->{session}{topicName};
+
     my $class = $img->{attrs}{class} // '';
     $class =~ s/\bimage(Simple|Float|Thumb|Frame|Plain)(_left|_right|_none)?\b//g;
     $class =~ s/^\s+//;
     $class =~ s/\s+$//;
 
+    my $type = $img->{attrs}{"data-type"};
+    $type = "" unless $type && $type ne "none";
+
+    my $align = $img->{attrs}{"align"};
+    $align = "" unless $align && $align ne "none";
+
     my @params = ();
     push @params, "\"$file\"";
+    push @params, 'caption="' . $img->{attrs}{"data-caption"} . '"' if $img->{attrs}{"data-caption"};
     push @params, "topic=\"$web.$topic\"" if $web && $topic;
-    push @params, "class=\"$class\"" if $class;
     push @params, "width=\"$img->{attrs}{width}\"" if defined $img->{attrs}{width};
     push @params, "height=\"$img->{attrs}{height}\"" if defined $img->{attrs}{height};
-    push @params, "align=\"$img->{attrs}{align}\"" if $img->{attrs}{align};
-    push @params, 'type="' . $img->{attrs}{"data-type"} . '"' if $img->{attrs}{"data-type"};
-    push @params, 'caption="' . $img->{attrs}{"data-caption"} . '"' if $img->{attrs}{"data-caption"};
+    push @params, "class=\"$class\"" if $class;
+    push @params, "align=\"$align\"" if $align;
+    push @params, "type=\"$type\"" if $type;
 
     return "%IMAGE{" . join(" ", @params) . "}%";
   }

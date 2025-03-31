@@ -1,6 +1,7 @@
 FOSWIKI_ROOT?=~/foswiki/trunk/core
 TARGET=pkg.css pkg.js
-SUBDIRS=lib mode widgets
+SUBDIRS=lib mode 
+#widgets
 
 -include $(FOSWIKI_ROOT)/pub/System/JQueryPlugin/Makefile.include
 

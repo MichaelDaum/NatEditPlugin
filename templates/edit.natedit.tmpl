@@ -47,7 +47,7 @@
 %{}%%TMPL:END%
 
 %TMPL:DEF{"formstart"}%<div class="ui-natedit-container">
-<form id="EditForm" name="EditForm" action="%SCRIPTURLPATH{"save"}%" method="post" validate="%TMPL:P{"validationrules"}%">
+<form id="EditForm" name="EditForm" action="%SCRIPTURLPATH{"rest"}%/NatEditPlugin/save" method="post" validate="%TMPL:P{"validationrules"}%">
 <input type="submit" style="display:none" />
 <input type="hidden" name="submitChangeForm" value="" /> 
 <input type="hidden" name="topic" value="%WEB%.%TOPIC%" />

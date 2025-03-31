@@ -11,6 +11,8 @@
   "replaced '%count%' time(s)": "%count% mal ersetzt",
   "search string '%search%' not found": "Such-Term '%search%' nicht gefunden",
   "invalid date '%date%'": "ungültiges Datun '%date%'",
-  "error ...": "Fehler ..."
+  "error ...": "Fehler ...",
+  "New File": "Neue Datei",
+  "Discard Upload": "Upload verwerfen"
 }
 

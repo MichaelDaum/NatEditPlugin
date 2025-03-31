@@ -3,9 +3,7 @@ SUBDIRS=lib/codemirror lib/dompurify
 TARGET=\
   build \
   build/bundle.js \
-  build/bundle.css \
-  build/CodemirrorEngine.js \
-  build/TinyMCEEngine.js \
+  build/bundle.css 
 
 #  build/ProsemirrorEngine.js \
   build/TextareaEngine.js \
@@ -32,7 +30,11 @@ BUNDLE_SOURCE=\
   src/FormManager.js \
   src/NatEdit.js \
   src/PermissionsEditor.js \
-  src/BaseEngine.js 
+  src/BaseEngine.js \
+  src/CodemirrorEngine.js \
+  src/TinyMCEEngine.js 
+
+.PRECIOUS: $(TARGET)
 
 clean:
 	@rm -f build/*
