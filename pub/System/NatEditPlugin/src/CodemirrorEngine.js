@@ -38,7 +38,15 @@ function CodemirrorEngine(shell, opts) {
   self.id = "CodemirrorEngine";
   self.type = "wikiwyg";
   self.searchState = undefined;
-  self.opts = $.extend({}, CodemirrorEngine.defaults, self.shell.opts.codemirror, opts);
+  self.opts = $.extend(true, {}, CodemirrorEngine.defaults, self.shell.opts.codemirror, opts);
+
+  if (self.opts.lineNumbers) {
+    self.opts.gutters.push("CodeMirror-linenumbers");
+  }
+  if (self.opts.foldGutter) {
+    self.opts.gutters.push("CodeMirror-foldgutter");
+  }
+
 }
 
 /*************************************************************************
@@ -63,45 +71,12 @@ CodemirrorEngine.prototype.init = function() {
     .attr({type : 'text/css', rel : 'stylesheet'})
     .attr('href', editorPath + '/pkg.css');
 
-/*
-  $('<link>')
-    .appendTo('head')
-    .attr({type : 'text/css', rel : 'stylesheet'})
-    .attr('href', editorPath + '/lib/codemirror.css');
-
-  $('<link>')
-    .appendTo('head')
-    .attr({type : 'text/css', rel : 'stylesheet'})
-    .attr('href', editorPath + '/theme/foswiki.css');
-
-  $('<link>')
-    .appendTo('head')
-    .attr({type : 'text/css', rel : 'stylesheet'})
-    .attr('href', editorPath + '/addon/search/matchesonscrollbar.css');
-
-  $('<link>')
-    .appendTo('head')
-    .attr({type : 'text/css', rel : 'stylesheet'})
-    .attr('href', editorPath + '/addon/dialog/dialog.css');
-*/
-
   self.shell.getScript(editorPath+"/lib/codemirror.js").done(function() {
     CodeMirror.modeURL = editorPath+'/'+'/mode/%N/%N.js';
 
     $.when(
       self.parent.init(),
       self.shell.getScript(editorPath+"/pkg.js"),
-      /*
-      self.shell.getScript(editorPath+"/addon/mode/loadmode.js"),
-      //self.shell.getScript(editorPath+"/addon/fold/foldcode.js"),
-      //self.shell.getScript(editorPath+"/addon/fold/foldgutter.js"),
-      self.shell.getScript(editorPath+"/addon/search/searchcursor.js"),
-      self.shell.getScript(editorPath+"/addon/scroll/annotatescrollbar.js"),
-      self.shell.getScript(editorPath+"/addon/search/matchesonscrollbar.js"),
-      self.shell.getScript(editorPath+"/addon/edit/matchbrackets.js"),
-      self.shell.getScript(editorPath+"/addon/dialog/dialog.js"),
-      self.shell.getScript(editorPath+"/keymap/vim.js")
-      */
     ).done(function() {
 
         // extend vim mode to make :w and :x work
@@ -133,7 +108,7 @@ CodemirrorEngine.prototype.init = function() {
         });
 
         CodeMirror.requireMode(self.opts.mode || 'foswiki', function() {
-          var cols = parseInt(self.shell.txtarea.attr("cols"), 10) || 10000,
+          var cols = parseInt(self.shell.txtarea.attr("cols"), 10),
               rows = parseInt(self.shell.txtarea.attr("rows"), 10),
               lineHeight = parseInt(self.shell.txtarea.css("line-height"), 10);
 
@@ -141,17 +116,17 @@ CodemirrorEngine.prototype.init = function() {
           //window.cm = self.cm; //playground
 
           // only set the width if specified by a cols attribute and not any css styled width
-          if (typeof(cols) !== 'undefined' && !self.shell.txtarea[0].style.width) {
-            self.cm.setSize(`min(${cols}ch,100%)`);
+          if (cols !== undefined && cols !== 0 && !self.shell.txtarea[0].style.width) {
+            self.cm.setSize(`${cols}ch`);
           }
-          if (typeof(rows) !== 'undefined' && rows > 0) {
-            rows = (rows*lineHeight)+"px";
-            self.cm.setSize(null, rows);
+          if (rows !== undefined && rows > 0) {
+            rows = (rows*lineHeight); // em doesn't work for heights
+            self.cm.setSize(null, `${rows}px`);
           }
 
           // forward events to shell
           self.on("focus", function() {
-            if (typeof(self.shell.onFocus) !== 'undefined') {
+            if (self.shell.onFocus !== undefined) {
               self.shell.onFocus();
             }
           });
@@ -171,16 +146,23 @@ CodemirrorEngine.prototype.init = function() {
           });
           self.cm.setOption("extraKeys", extraKeys);
 
-          self.cm.on("keyup", function(cm, ev) {
-            self.handleKeyUp(ev);
+          self.on("keyup", function(cm, ev) {
+            return self.handleKeyUp(ev);
           });
-          self.cm.on("keydown", function(cm, ev) {
-            self.handleKeyDown(ev);
+
+          self.on("keydown", function(cm, ev) {
+            return self.handleKeyDown(ev);
           });
 
           self.on("change", _debounce(function(cm) {
             self.manageWidgets();
-          }, 500));
+          }, 1000));
+
+          self.on("paste", function(editor, ev) {
+            self.handlePasteEvent(ev);
+            ev.preventDefault();
+            return false;
+          });
 
           self.manageWidgets();
 
@@ -204,6 +186,8 @@ CodemirrorEngine.prototype.init = function() {
 
           dfd.resolve(self);
         });
+
+
     });
   });
 
@@ -211,7 +195,7 @@ CodemirrorEngine.prototype.init = function() {
   // a codemirror element must be refreshed when becoming visible then.
   // (see also https://github.com/codemirror/CodeMirror/issues/3527)
   $(window).on("resize", function() {
-    if (typeof(self.cm) !== 'undefined') {
+    if (self.cm !== undefined) {
       self.cm.refresh();
     }
   });
@@ -220,14 +204,104 @@ CodemirrorEngine.prototype.init = function() {
 };
 
 /*************************************************************************
+ * handles a clipboard paste event
+ */
+CodemirrorEngine.prototype.handlePasteEvent = async function(ev) {
+  var self = this, text;
+
+  const items = await navigator.clipboard.read();
+
+  for (const item of items) {
+    for (const type of item.types) {
+      const blob = await item.getType(type);
+
+      //console.log("type=",type);
+
+      if (!text && type === 'text/plain') {
+        text = await blob.text();
+      } else if (type === 'text/html') {
+        // SMELL: only allow html tables as all kinds of content will creep in otherwise
+        const html = _clearClipboardContent(await blob.text());
+        if (html.startsWith("<table")) {
+          text = await self.shell.html2tml(html);
+          text = text.trim();
+          break;
+        }
+      } else if (type.startsWith("image/")) {
+        // images. pdf as well?
+
+        var id = foswiki.getUniqueID();
+        var fileName = 
+          type.replace(/\/.*$/, "") + "_" + 
+          id + "." + 
+          type.replace(/^.*\//, "");
+
+        var file = new File([blob], fileName, {type: blob.type});
+        //console.log("file=",file);
+
+        var $fileUpload = $("<input />")
+          .addClass("newFile foswikiHidden")
+          .attr("type", "file")
+          .attr("name", fileName)
+          .attr("id", id)
+          .prependTo(self.shell.form);
+
+        var dt = new DataTransfer();
+        dt.items.add(file);
+        $fileUpload[0].files = dt.files;
+
+        //console.log("fileUpload=",$fileUpload[0]);
+        var msg = $("<div>")
+          .append(fileName)
+          .append("<div class='ui-natedit-discard'><i class='ui-icon ui-icon-cancel'></i> <a href='#'>"+$.i18n("Discard Upload")+"</a></div>")
+          .on("click", function() {
+            self.shell.form.find(`#${id}`).remove();
+            $(this).trigger("close.pnotify");
+            return false;
+          });
+
+        var pnotify = self.shell.formManager.showMessage(
+          "info", 
+          msg[0], $.i18n("New File"), 
+          {
+            hide: false,
+            text_escape: false,
+            insert_brs: false
+          }
+        ).on("close.pnotify", function() {
+          pnotify.remove();
+        });
+
+        // rest ImagePluginEnabled
+        if (foswiki.getPreference("NatEditPlugin").ImagePluginEnabled) {
+          text = `%IMAGE{"${fileName}"}%`;
+        } else {
+          text = `<img src="%ATTACHURLPATH%/${fileName}" />`;
+        }
+      }
+    }
+
+    if (text !== undefined) {
+      self.remove();
+      self.replace(text, self.cm.getCursor());
+      text = undefined;
+    }
+  }
+}
+
+/*************************************************************************
  * word wrap selected lines longer than 80 chars
  */
 CodemirrorEngine.prototype.wrapText = function() {
   var self = this,
-    lines = _wrapText(self.getSelection() || "") + "\n";
+    text = self.getSelection();
 
-  self.remove();
-  self.insert(lines);
+  if (text) {
+    text = _wrapText(text) + "\n";
+
+    self.remove();
+    self.insert(text);
+  }
 };
 
 /*************************************************************************
@@ -277,33 +351,43 @@ CodemirrorEngine.prototype.findTable = function() {
   return table;
 };
 
+/*************************************************************************
+ * insert table macro at the current position
+ */
 CodemirrorEngine.prototype.repaintTable = function(table, doCursor) {
   var self = this,
     start = CodeMirror.Pos(table.offset, 0),
     end = self.cm.findPosH(start, table.rawContent.length, "char"),
     orig, cursor;
 
-  if (typeof(doCursor) === 'undefined') {
-    doCursor = true;
-  } else {
-    cursor = self.getCaretPosition();
-  }
+  self.manageWidgets().then(function() {
 
-  if (self.opts.normalizeTables !== 'off') {
-    table.normalize(self.opts.normalizeTables === 'full');
-  }
+    if (doCursor === undefined) {
+      doCursor = true;
+    } else {
+      cursor = self.getCaretPosition();
+    }
 
-  orig = self.cm.getRange(start, end);
-  self.cm.replaceRange(table.toString(), start, end, orig);
+    if (self.opts.normalizeTables !== 'off') {
+      table.normalize(self.opts.normalizeTables === 'full');
+    }
 
-  if (doCursor) {
-    cursor = table.getCursor();
-  }
-  cursor && self.setCaretPosition(cursor);
+    orig = self.cm.getRange(start, end);
+    self.cm.replaceRange(table.toString(), start, end, orig);
+
+    if (doCursor) {
+      cursor = table.getCursor();
+    }
+    cursor && self.setCaretPosition(cursor);
+  });
 
   return cursor;
 };
 
+
+/*************************************************************************
+ * inserts a new table row
+ */
 CodemirrorEngine.prototype.insertTableRow = function() {
   var self = this,
     table = self.findTable();
@@ -316,6 +400,9 @@ CodemirrorEngine.prototype.insertTableRow = function() {
   }
 };
 
+/*************************************************************************
+ * delete table row at current position
+ */
 CodemirrorEngine.prototype.deleteTableRow = function() {
   var self = this,
     table = self.findTable();
@@ -408,147 +495,155 @@ CodemirrorEngine.prototype.handleKeyDown = function(ev) {
       (ev.key === "n" && ev.altKey)) {
 
     table = self.findTable();
+
+    if (table && !self.handleKeyDownInTable(ev, table)) {
+      return false;
+    }
   }
 
-  if (table) {
-    if (!self._messageVisible) {
-      self._messageVisible = true;
-      self.shell.formManager.showMessage("info", self.opts.tableEditorHelp, "Table Editor", {
-        sticker: true,
-        insert_brs: false,
-        delay: 2000,
-        after_close: function() {
-          self._messageVisible = false;
-        }
-      });
-    }
+  return self.shell.handleKeyDown(ev);
+};
 
-    if (ev.key === "Escape") {
-      self.repaintTable(table, 0);
-    } 
+CodemirrorEngine.prototype.handleKeyDownInTable = function(ev, table) {
+  var self = this;
 
-    // alt+delete: delete row
-    else if (ev.altKey && ev.key === "Delete" && !ev.shiftKey) {
-      table.deleteRow();
+  if (self.opts.showTableEditorHelp && !self._messageVisible) {
+    self._messageVisible = true;
+    self.shell.formManager.showMessage("info", self.opts.tableEditorHelp, "Table Editor", {
+      sticker: true,
+      insert_brs: false,
+      delay: 2000,
+      after_close: function() {
+        self._messageVisible = false;
+      }
+    });
+  }
+
+  if (ev.key === "Escape") {
+    self.repaintTable(table, 0);
+  } 
+
+  // alt+delete: delete row
+  else if (ev.altKey && ev.key === "Delete" && !ev.shiftKey) {
+    table.deleteRow();
+    self.repaintTable(table);
+    ev.preventDefault();
+    return false;
+  }
+
+  // alt+shift+n or alt+shift+delete: delete column
+  else if (ev.altKey && (ev.key === "N" || (ev.key === 'Delete' && ev.shiftKey))) {
+    table.deleteColumn();
+    self.repaintTable(table);
+    ev.preventDefault();
+    return false;
+  }
+
+  // alt+n: insert column
+  else if (ev.altKey && ev.key === "n") {
+    table.insertColumn();
+    self.repaintTable(table);
+    ev.preventDefault();
+    return false;
+  }
+
+  // alt+left: move column left
+  else if (ev.altKey && ev.key === "ArrowLeft") {
+    if (table.moveColumnLeft()) {
+      table.gotoPrevCol();
       self.repaintTable(table);
-      ev.preventDefault();
-      return false;
     }
+    ev.preventDefault();
+    return false;
+  }
 
-    // alt+shift+n or alt+shift+delete: delete column
-    else if (ev.altKey && (ev.key === "N" || (ev.key === 'Delete' && ev.shiftKey))) {
-      table.deleteColumn();
+  // alt+right: move column right
+  else if (ev.altKey && ev.key === "ArrowRight") {
+    if (table.moveColumnRight()) {
+      table.gotoNextCol();
       self.repaintTable(table);
-      ev.preventDefault();
-      return false;
     }
+    ev.preventDefault();
+    return false;
+  }
 
-    // alt+n: insert column
-    else if (ev.altKey && ev.key === "n") {
-      table.insertColumn();
+  // alt+up: move row up
+  else if (ev.altKey && ev.key === "ArrowUp") {
+    if (table.moveRowUp()) {
+      table.gotoPrevRow();
       self.repaintTable(table);
-      ev.preventDefault();
-      return false;
     }
+    ev.preventDefault();
+    return false;
+  }
 
-    // alt+left: move column left
-    else if (ev.altKey && ev.key === "ArrowLeft") {
-      if (table.moveColumnLeft()) {
-        table.gotoPrevCol();
-        self.repaintTable(table);
-      }
-      ev.preventDefault();
-      return false;
-    }
-
-    // alt+right: move column right
-    else if (ev.altKey && ev.key === "ArrowRight") {
-      if (table.moveColumnRight()) {
-        table.gotoNextCol();
-        self.repaintTable(table);
-      }
-      ev.preventDefault();
-      return false;
-    }
-
-    // alt+up: move row up
-    else if (ev.altKey && ev.key === "ArrowUp") {
-      if (table.moveRowUp()) {
-        table.gotoPrevRow();
-        self.repaintTable(table);
-      }
-      ev.preventDefault();
-      return false;
-    }
-
-    // alt+down: move row down
-    else if (ev.altKey && ev.key === "ArrowDown") {
-      if (table.moveRowDown()) {
-        table.gotoNextRow();
-        self.repaintTable(table);
-      }
-      ev.preventDefault();
-      return false;
-    }
-
-    // home: go to first col
-    else if (ev.key === "Home") {
-      if (table.position.col) {
-        table.gotoFirstCol();
-        self.repaintTable(table);
-        ev.preventDefault();
-        return false;
-      }
-    }
-
-    // end: go to last col
-    else if (ev.key === "End") {
-      if (!table.isLastCol()) {
-        table.gotoLastCol();
-        self.repaintTable(table);
-        ev.preventDefault();
-        return false;
-      }
-    }
-
-    // tab or shift+tab: go to next/prev col
-    else if (ev.key === "Tab") {
-      if (ev.shiftKey) {
-        table.gotoPrevCol();
-      } else {
-        let cursor = self.getCaretPosition();
-        if (cursor.ch) {
-          table.gotoNextCol();
-        } else {
-          table.gotoFirstCol();
-        }
-      }
-
-      self.repaintTable(table);
-      ev.preventDefault();
-      return false;
-    }
-
-    // alt+enter: insert row
-    else if (ev.altKey && ev.key === "Enter") {
-      table.insertRowAfter();
-      table.position.row++;
-      table.position.col = 0;
-      self.repaintTable(table);
-      ev.preventDefault();
-      return false;
-    } 
-
-    // enter: go down one row in the same column
-    else if (!ev.altKey && ev.key === "Enter") {
+  // alt+down: move row down
+  else if (ev.altKey && ev.key === "ArrowDown") {
+    if (table.moveRowDown()) {
       table.gotoNextRow();
       self.repaintTable(table);
-      ev.preventDefault();
-      return false;
-    } 
+    }
+    ev.preventDefault();
+    return false;
   }
 
-  self.shell.handleKeyDown(ev);
+  // home: go to first col
+  else if (ev.key === "Home") {
+    if (table.position.col) {
+      table.gotoFirstCol();
+      self.repaintTable(table);
+      ev.preventDefault();
+      return false;
+    }
+  }
+
+  // end: go to last col
+  else if (ev.key === "End") {
+    if (!table.isLastCol()) {
+      table.gotoLastCol();
+      self.repaintTable(table);
+      ev.preventDefault();
+      return false;
+    }
+  }
+
+  // tab or shift+tab: go to next/prev col
+  else if (ev.key === "Tab") {
+    if (ev.shiftKey) {
+      table.gotoPrevCol();
+    } else {
+      let cursor = self.getCaretPosition();
+      if (cursor.ch) {
+        table.gotoNextCol();
+      } else {
+        table.gotoFirstCol();
+      }
+    }
+
+    self.repaintTable(table);
+    ev.preventDefault();
+    return false;
+  }
+
+  // alt+enter: insert row
+  else if (ev.altKey && ev.key === "Enter") {
+    table.insertRowAfter();
+    table.position.row++;
+    table.position.col = 0;
+    self.repaintTable(table);
+    ev.preventDefault();
+    return false;
+  } 
+
+  // enter: go down one row in the same column
+  else if (!ev.altKey && ev.key === "Enter") {
+    table.gotoNextRow();
+    self.repaintTable(table);
+    ev.preventDefault();
+    return false;
+  }
+
+  return true;
 };
 
 /*************************************************************************
@@ -562,6 +657,54 @@ CodemirrorEngine.prototype.handleKeyUp = function(ev) {
   }
 
   self.shell.handleKeyUp(ev);
+};
+
+/*************************************************************************
+ * process completion for a given string
+ */
+CodemirrorEngine.prototype.execCompletion = function(completion, string) {
+  var self = this,
+      coords = self.getCursorCoords(-string.length),
+      pos = self.getCaretPosition(),
+      dropdown = self.shell.dropdown;
+
+  completion.search.call(self.shell, string).then(function(data) {
+      var list = [];
+
+      $.each(data, function(i, hit) {
+        list.push(
+          $("<li>"+completion.template.call(self.shell, hit)+"</li>")
+            .data("callback", function() {
+              var result = completion.result.call(self.shell, hit),
+                  line = pos.line,
+                  ch = pos.ch - string.length;
+
+              //console.log("string=",string,",result='"+result+"', ch=",ch,"length=",string.length);
+              self.replace(result, {
+                  line: line,
+                  ch: ch
+                }, {
+                  line: pos.line, 
+                  ch: pos.ch}
+                );
+            })
+            .on("click", function() {
+              dropdown.hide();
+              dropdown.callback($(this));
+              self.focus();
+            })
+        );
+      });
+
+      if (list.length) {
+        dropdown.set(list).show({
+          top: coords.bottom,
+          left: coords.left
+        });
+      } else {
+        dropdown.hide();
+      }
+  });
 };
 
 /*************************************************************************
@@ -591,13 +734,21 @@ CodemirrorEngine.prototype.on = function(eventName, func) {
  * replace specific elements with widgets to display them 
  */
 CodemirrorEngine.prototype.manageWidgets = function() {
-  var self = this;
+  var self = this, dfds = [];
 
   if (typeof(Emojis) !== 'undefined') {
     EmojiWidget.createWidgets(self);
   }
-  LinkWidget.createWidgets(self);
-  //ImageWidget.createWidgets(self);
+
+  /*
+  if (typeof(katex) !== 'undefined') {
+    KaTexWidget.createWidgets(self);
+  }
+  */
+
+  return LinkWidget.createWidgets(self).then(function() {
+    //ImageWidget.createWidgets(self);
+  });
 };
 
 /*************************************************************************
@@ -636,6 +787,17 @@ CodemirrorEngine.prototype.getCaretPosition = function() {
   var self = this;
 
   return self.cm.getCursor();
+};
+
+/*****************************************************************************
+ * get word at current cursor position
+ */
+CodemirrorEngine.prototype.getCurrentWord = function() {
+  var self = this,
+    cursor = self.cm.getCursor();
+    range = self.cm.findWordAt(cursor);
+
+  return self.cm.getRange(range.anchor, range.head);
 };
 
 /*****************************************************************************
@@ -706,6 +868,10 @@ CodemirrorEngine.prototype.getSelectionLines = function() {
   end.line++;
   end.ch = 0;
   end = doc.posFromIndex(doc.indexFromPos(end)-1);
+
+  if (end.line < start.line) {
+    end.line = start.line;
+  }
 
   //self.shell.log("start=",start,"end=",end);
 
@@ -807,7 +973,7 @@ CodemirrorEngine.prototype.insertLineTag = function(markup) {
       sampleText = markup[1],
       tagClose = markup[2],
       doc = self.cm.getDoc(),
-      listRegExp = new RegExp(/^(( {3})*)( {3})(\* |\d+ |\d+\. )/),
+      listRegExp = new RegExp(/^(( {3})*)( {3})(\* |\d+ |\d+\. \|\$ |: )/),
       start, end, i, subst, line, lines, nrSpaces = 0, result = [];
 
   selection = self.getSelectionLines() || sampleText;
@@ -822,7 +988,7 @@ CodemirrorEngine.prototype.insertLineTag = function(markup) {
     } else {
       // special case - undent (remove 3 spaces, and bullet or numbered list if outdenting away)
       if ((tagOpen === '' && sampleText === '' && tagClose === '')) {
-        subst = line.replace(/^ {3}(\* |\d+ |\d+\. )?/, '');
+        subst = line.replace(/^ {3}(\* |\d+ |\d+\. |: |\$ )?/, '');
       }
 
       // special case - list transform
@@ -877,7 +1043,7 @@ CodemirrorEngine.prototype.insertTag = function(markup) {
 CodemirrorEngine.prototype.getSearchState = function() {
   var self = this;
 
-  if (typeof(self.searchState) === 'undefined') {
+  if (self.searchState === undefined) {
     self.searchState = new SearchState();
   }
 
@@ -930,7 +1096,8 @@ CodemirrorEngine.prototype.searchOverlay = function(term, ignoreCase) {
  * opens the search dialog
  */
 CodemirrorEngine.prototype.openSearchDialog = function() {
-  var self = this;
+  var self = this,
+    webTopic = self.shell.formManager.getWebTopic();
 
   if (self._searchDialogOpen) {
     self.shell.log("dialog is open");
@@ -942,8 +1109,8 @@ CodemirrorEngine.prototype.openSearchDialog = function() {
   self.shell.dialog({
     name: "searchdialog",
     data: {
-        web: self.shell.opts.web,
-        topic: self.shell.opts.topic,
+        web: webTopic[0],
+        topic: webTopic[1],
         selection: self.getSelection() || self.getSearchState().query
     }
   }).then(function(dialog) {
@@ -965,7 +1132,7 @@ CodemirrorEngine.prototype.openSearchDialog = function() {
 CodemirrorEngine.prototype.search = function(term, ignoreCase) {
   var self = this, state, query;
 
-  if (typeof(term) !== 'undefined') {
+  if (term !== undefined) {
     if (/^\s*\/(.*)\/\s*$/.test(term)) {
       query = new RegExp(RegExp.$1, ignoreCase ? "gi" : "g");
     } else {
@@ -1048,20 +1215,30 @@ CodemirrorEngine.prototype.setSize = function(width, height) {
 
   self.cm.setSize(width, height);
   self.cm.refresh();
-};
 
+  return self.getSize();
+};
 
 /*************************************************************************
  * set the size of editor
  */
 CodemirrorEngine.prototype.getSize = function() {
-  var self = this, info;
+  var self = this, info,
+    elem = self.getWrapperElement();
 
+  return {
+    width: elem.outerWidth(),
+    height: elem.outerHeight(),
+  };
+
+  /*
   info = self.cm.getScrollInfo();
   return {
-    width: info.width,
-    height: info.height
+    width: info.clientWidth,
+    height: info.clientHeight
   };
+  */
+
 };
 
 /*************************************************************************
@@ -1091,7 +1268,7 @@ CodemirrorEngine.prototype.setContent = function(val) {
 CodemirrorEngine.prototype.setValue = function(val) {
   var self = this;
 
-  if (typeof(self.cm) === 'undefined') {
+  if (self.cm === undefined) {
     console.warn("called setValue while editor isn't fully loaded yet");
   } else {
     self.cm.setValue(val);
@@ -1123,9 +1300,6 @@ CodemirrorEngine.defaults = {
   electricChars: false,
   keyMap: "default", // or vim, sublime
   lineWrapping: false,
-  lineNumbers: false, 
-  firstLineNumber: 1,
-  //lineNumberFormatter
   readOnly: false,
   showCursorWhenSelecting: false,
   undoDepth: 1000,
@@ -1137,10 +1311,12 @@ CodemirrorEngine.defaults = {
 
   inputStyle: "contenteditable", /* SMELL: some ui problems in VI mode, such as cursor and focus issues */
   spellcheck: true,
+  showTableEditorHelp: true,
   tableEditorHelp: `<table class='foswikiLayoutTable foswikiSmallish'>
     <tr><th style='width:5em'> Tab </th><td> jump to next column </td></tr>
     <tr><th> Shift-Tab </th><td> jump to previous column </td></tr>
     <tr><th> Enter </th><td> jump to next row in the same column </td></tr>
+    <tr><th> Shift-Enter </th><td> insert a new line </td></tr>
     <tr><th> Home </th><td> jump to the first column; if pressed again jump to first char in line </td></tr>
     <tr><th> End </th><td> jump to the last column; if pressed again jump to last char in line </td></tr>
     <tr><th> Alt-Enter </th><td> insert a new row </td></tr>
@@ -1154,20 +1330,20 @@ CodemirrorEngine.defaults = {
     </table>`,
 
   //gutters
-/*  
   fixedGutter: true,
-  foldGutter: true,
-  gutters: [
-    "CodeMirror-linenumbers", 
-    "CodeMirror-foldgutter"
-  ],
-*/
+  foldGutter: false,
+  coverGutterNextToScrollbar: false,
+  gutters: [],
+  lineNumbers: false, 
+  firstLineNumber: 1,
+  //lineNumberFormatter
 
   // addon options
   extraKeys: {
     "Enter": "newlineAndIndentContinueFoswikiList",
     "Tab": "insertSoftTab",
-    "Ctrl-Q": "toggleFold"
+    "Ctrl-Q": "toggleFold",
+    "Ctrl-Y": "toggleFoldAll",
   },
   matchBrackets: true,
   normalizeTables: "off"

@@ -31,7 +31,7 @@ BEGIN {
     }
 }
 
-our $VERSION           = '9.994';
+our $VERSION           = '9.996';
 our $RELEASE           = '%$RELEASE%';
 our $NO_PREFS_IN_TOPIC = 1;
 our $SHORTDESCRIPTION  = 'A Wikiwyg Editor';
@@ -39,6 +39,7 @@ our $LICENSECODE       = '%$LICENSECODE%';
 our $doneNonce;
 our $htmlConverter;
 our $tmlConverter;
+our $resourceLoader;
 
 sub initPlugin {
 
@@ -125,6 +126,16 @@ sub initPlugin {
     );
 
     Foswiki::Func::registerRESTHandler(
+        "documentTitle",
+        sub {
+            return getResourceLoader(shift)->restGetDocumentTitle();
+        },
+        authenticated => 1,
+        validate      => 0,
+        http_allow    => 'GET, POST'
+    );
+
+    Foswiki::Func::registerRESTHandler(
         "html2tml",
         sub {
             return getHtmlConverter(shift)->restConvert(@_);
@@ -155,8 +166,23 @@ sub initPlugin {
 }
 
 sub finishPlugin {
+    undef $resourceLoader;;
     undef $htmlConverter;
     undef $tmlConverter;
+}
+
+sub getResourceLoader {
+    my $session = shift;
+
+    $session ||= $Foswiki::Plugins::SESSION;
+
+    unless ($resourceLoader) {
+        require Foswiki::Plugins::NatEditPlugin::RestResourceLoader;
+        $resourceLoader =
+          Foswiki::Plugins::NatEditPlugin::RestResourceLoader->new($session);
+    }
+
+    return $resourceLoader;
 }
 
 sub getHtmlConverter {
@@ -222,9 +248,10 @@ sub beforeSaveHandler {
 sub afterSaveHandler {
     my ( $text, $topic, $web, $error, $meta ) = @_;
 
+    #print STDERR "called afterSaveHandler\n";
     return if $error;
 
-    getHtmlConverter->attachPending($meta);
+    getHtmlConverter->saveQueuedAttachments($meta);
 
     require Foswiki::Plugins::NatEditPlugin::RestSave;
     Foswiki::Plugins::NatEditPlugin::RestSave::processUploads();

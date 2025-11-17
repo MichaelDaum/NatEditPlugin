@@ -41,7 +41,6 @@
 %TMPL:P{"formattop"}%%{}%
 %TMPL:P{"tabpane"}%%{}%
 %TMPL:P{"bottomtopicactions"}%%{}%
-%TMPL:P{"editcaptcha"}%%{}%
 %TMPL:P{"formend"}%%{}%
 %TMPL:P{"editjavascript"}%%{}%
 %{}%%TMPL:END%
@@ -59,16 +58,9 @@
 <input type="hidden" name="editaction" value="%IF{"$'action'='form'" then="form" else=""}%" />
 <input type="hidden" name="action_save" value="" />%TMPL:END%
 
-%TMPL:DEF{"textarea"}%<textarea class="foswikiTextarea foswikiWysiwygEdit natedit" id="topic" name="text" rows="25" autocomplete="off" autocorrect="off" autocapitalize="off" autofocus="on" spellcheck="%TMPL:P{"textarea::spellcheck"}%" style="width:100%" data-rest-params="?%NONCE%" data-auto-max-expand="true" %TMPL:P{"natedit::options"}%>%TEXT%</textarea>%TMPL:END%
+%TMPL:DEF{"textarea"}%<textarea class="foswikiTextarea foswikiWysiwygEdit natedit" id="topic" name="text" rows="25" autocomplete="off" autocorrect="off" autocapitalize="off" autofocus="on" style="width:100%" data-rest-params="?%NONCE%" data-auto-max-expand="true" %TMPL:P{"natedit::options"}%>%TEXT%</textarea>%TMPL:END%
 
 %TMPL:DEF{"formend"}%</form></div>%TMPL:END%
-
-%TMPL:DEF{"editcaptcha"}%%TMPL:P{context="CaptchaEnableSave" then="editcaptcha::impl"}%%TMPL:END%
-%TMPL:DEF{"editcaptcha::impl"}%<div class="jqUIDialog foswikiFormSteps" data-modal="true" data-resizable="false" data-width="auto data-draggable="true" data-append-to="#EditForm" id="editcaptcha" title="%MAKETEXT{"Please validate"}%" >
-%CAPTCHAFORM{validateonsubmit="off"}%
-<a class="jqUIDialogButton jqUIDialogSubmit" data-icon="ui-icon-disk">%MAKETEXT{"Save"}%</a> 
-<a class="jqUIDialogButton jqUIDialogClose" data-icon="ui-icon-cancel">%MAKETEXT{"Cancel"}%</a> 
-</div>%TMPL:END%
 
 %TMPL:DEF{"tabpane"}%%TABPANE{class="plain" automaxexpand="on" animate="on" remember="on" select="%URLPARAM{"natedittab" default="%TMPL:P{"selectedtab"}%"}%"}%
 %TMPL:P{"tabs"}%%ENDTABPANE%%TMPL:END%

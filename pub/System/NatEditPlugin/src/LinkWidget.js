@@ -21,40 +21,43 @@ function LinkWidget(editor, from, to) {
   self.editor = editor;
   self.from = from;
   self.to = to;
-  self.init();
 }
 
 // static method to create all link widgets within the given editor
 LinkWidget.createWidgets = function(editor) {
   var search = editor.cm.getSearchCursor(linkRegExp, 0, 0),
       cursor = editor.cm.getCursor(),
-      marks;
+      marks, dfds = [];
 
   while (search.findNext()) {
     if (!_posInsideRange(cursor, search.pos) && !_posEqual(cursor, search.pos.to)) {
       marks = editor.cm.findMarksAt(search.pos.from);
       if (!marks.find(function(mark) {
-        return typeof(mark.widget) !== 'undefined';
+        return mark.widget !== undefined;
       })) {
-        new LinkWidget(editor, search.pos.from, search.pos.to);
+        let link = new LinkWidget(editor, search.pos.from, search.pos.to);
+        dfds.push(link.init());
       }
     }
   }
+
+  return $.when(dfds)
 };
 
 LinkWidget.prototype.init = function() {
-  var self = this;
+  var self = this,
+      cursor = self.editor.cm.getCursor(); // remember cursor position
 
   return self.parse().then(function() {
+    var cm = self.editor.cm;
 
-    if (typeof(self.elem) === 'undefined') {
+    if (self.elem === undefined) {
       self.elem = $("<a>"+self.linkText+"</a>")
         .addClass("cm-natedit-wiki-link")
         .on("click", function(ev) {
-          var cm = self.editor.cm;
 
           //SMELL: not called with selectLeft/selectRight=false, handleMouseEvents does not make any change
-          console.log("clicked",self.from);
+          //console.log("clicked",self.from);
 
           self.editor.setSelectionRange(self.from, self.to);
           self.editor.shell.linkDialog(self.getText()).always(function() {
@@ -68,7 +71,7 @@ LinkWidget.prototype.init = function() {
         });
     }
 
-    self.mark = self.editor.cm.markText(self.from, self.to, {
+    self.mark = cm.markText(self.from, self.to, {
       replacedWith: self.elem[0],
       addToHistory: false,
       clearOnEnter: true,
@@ -76,8 +79,11 @@ LinkWidget.prototype.init = function() {
       handleMouseEvents: true,
       widget: self,
       selectLeft: false,
-      selectRight: false
+      selectRight: false,
     });
+
+    // restore cursor position
+    cm.setCursor(cursor);
   });
 };
 
@@ -85,7 +91,7 @@ LinkWidget.prototype.parse = function(text) {
   var self = this,
       dfd = $.Deferred();
 
-  if (typeof(text) === 'undefined') {
+  if (text === undefined) {
     text = self.getText();
   }
 
@@ -144,17 +150,19 @@ LinkWidget.prototype.setText = function(text) {
 };
 
 LinkWidget.prototype.set = function(opts) {
-  var self = this, markup;
+  var self = this, markup,
+    webTopic = self.editor.shell.formManager.getWebTopic();
+
 
   //self.shell.log("set opts=",opts);
 
-  if (typeof(opts.url) !== 'undefined') {
+  if (opts.url !== undefined) {
     // external link
-    if (typeof(opts.url) === 'undefined' || opts.url === '') {
+    if (opts.url === undefined || opts.url === '') {
       return; // nop
     }
 
-    if (typeof(opts.text) !== 'undefined' && opts.text !== '') {
+    if (opts.text !== undefined && opts.text !== '') {
       self.linkText = opts.text;
       self.linkTarget = opts.url;
       markup = "[["+opts.url+"]["+opts.text+"]]";
@@ -163,15 +171,15 @@ LinkWidget.prototype.set = function(opts) {
       self.linkTarget = opts.url;
       markup = "[["+opts.url+"]]";
     }
-  } else if (typeof(opts.file) !== 'undefined') {
+  } else if (opts.file !== undefined) {
     // attachment link
 
-    if (typeof(opts.web) === 'undefined' || opts.web === '' || 
-        typeof(opts.topic) === 'undefined' || opts.topic === '') {
+    if (opts.web === undefined || opts.web === '' || 
+        opts.topic === undefined || opts.topic === '') {
       return; // nop
     }
 
-    if (opts.web === self.editor.shell.opts.web && opts.topic === self.editor.shell.opts.topic) {
+    if (opts.web === webTopic[0] && opts.topic === webTopic[1]) {
       self.linkText = self.linkTarget = '%ATTACHURLPATH%/'+opts.file;
       markup = "[[%ATTACHURLPATH%/"+opts.file+"]";
     } else {
@@ -179,7 +187,7 @@ LinkWidget.prototype.set = function(opts) {
       markup = "[[%PUBURLPATH%/"+opts.web+"/"+opts.topic+"/"+opts.file+"]";
     }
 
-    if (typeof(opts.text) !== 'undefined' && opts.text !== '') {
+    if (opts.text !== undefined && opts.text !== '') {
       self.linkText = opts.text;
       markup += "["+opts.text+"]";
     } else {
@@ -191,7 +199,7 @@ LinkWidget.prototype.set = function(opts) {
   } else {
     // wiki link
     
-    if (typeof(opts.topic) === 'undefined' || opts.topic === '') {
+    if (opts.topic === undefined || opts.topic === '') {
       return; // nop
     }
 
@@ -203,7 +211,7 @@ LinkWidget.prototype.set = function(opts) {
     });
     */
 
-    if (opts.web === self.editor.shell.opts.web) {
+    if (opts.web === webTopic[0]) {
       self.linkText = self.linkTarget = opts.topic;
       markup = "[["+opts.topic+"]";
     } else {
@@ -211,7 +219,7 @@ LinkWidget.prototype.set = function(opts) {
       markup = "[["+opts.web+"."+opts.topic+"]";
     }
 
-    if (typeof(opts.text) !== 'undefined' && opts.text !== '') {
+    if (opts.text !== undefined && opts.text !== '') {
       self.linkText = opts.text;
       markup += "["+opts.text+"]";
     } 

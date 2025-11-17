@@ -13,6 +13,8 @@ lib/Foswiki/Plugins/NatEditPlugin/RestCompletion/Base.pm 0644
 lib/Foswiki/Plugins/NatEditPlugin/RestCompletion/DBCache.pm 0644
 lib/Foswiki/Plugins/NatEditPlugin/RestCompletion/Default.pm 0644
 lib/Foswiki/Plugins/NatEditPlugin/RestCompletion.pm 0644
+lib/Foswiki/Plugins/NatEditPlugin/RestCompletion/Solr.pm 0644
+lib/Foswiki/Plugins/NatEditPlugin/RestResourceLoader.pm 0644
 lib/Foswiki/Plugins/NatEditPlugin/RestSave.pm 0644
 lib/Foswiki/Plugins/NatEditPlugin/RestUsers.pm 0644
 lib/Foswiki/Plugins/NatEditPlugin/TML2HTML.pm 0644
@@ -47,6 +49,7 @@ pub/System/NatEditPlugin/build/bundle.js 0644
 pub/System/NatEditPlugin/build/bundle.js.gz 0644
 pub/System/NatEditPlugin/i18n/de.js 0644
 pub/System/NatEditPlugin/images/clear-float.svg 0644
+pub/System/NatEditPlugin/images/spinner.gif 0644
 pub/System/NatEditPlugin/lib/codemirror/addon/comment/comment.js 0644
 pub/System/NatEditPlugin/lib/codemirror/addon/comment/continuecomment.js 0644
 pub/System/NatEditPlugin/lib/codemirror/addon/dialog/dialog.css 0644
@@ -549,6 +552,7 @@ pub/System/NatEditPlugin/lib/tinymce/plugins/lists/plugin.js 0644
 pub/System/NatEditPlugin/lib/tinymce/plugins/lists/plugin.min.js 0644
 pub/System/NatEditPlugin/lib/tinymce/plugins/media/plugin.js 0644
 pub/System/NatEditPlugin/lib/tinymce/plugins/media/plugin.min.js 0644
+pub/System/NatEditPlugin/lib/tinymce/plugins/mention/plugin.js 0644
 pub/System/NatEditPlugin/lib/tinymce/plugins/nonbreaking/plugin.js 0644
 pub/System/NatEditPlugin/lib/tinymce/plugins/nonbreaking/plugin.min.js 0644
 pub/System/NatEditPlugin/lib/tinymce/plugins/noneditable/plugin.js 0644
@@ -655,6 +659,7 @@ pub/System/NatEditPlugin/src/DropDownMenu.js 0644
 pub/System/NatEditPlugin/src/EmojiWidget.js 0644
 pub/System/NatEditPlugin/src/FormManager.js 0644
 pub/System/NatEditPlugin/src/ImageWidget.js 0644
+pub/System/NatEditPlugin/src/KaTexWidget.js 0644
 pub/System/NatEditPlugin/src/LinkWidget.js 0644
 pub/System/NatEditPlugin/src/NatEdit.js 0644
 pub/System/NatEditPlugin/src/PermissionsEditor.js 0644

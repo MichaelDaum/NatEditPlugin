@@ -72,9 +72,9 @@ DropDownMenu.prototype.select = function(item) {
   }
 
   self.list.children().removeClass(self.opts.activeClassName);
-  self.list.scrollTo(item);
 
   item.addClass(self.opts.activeClassName);
+  item[0].scrollIntoView();
 
   return item;
 };

@@ -20,6 +20,11 @@ msgstr ""
 msgid "$action"
 msgstr "vang"
 
+#. ("Foswiki")
+#: lib/Foswiki/Plugins/NatEditPlugin/RestSave.pm:33
+msgid "%1 has received a suspicious change request from your browser."
+msgstr ""
+
 #. ("$theWeb.$theTopic")
 #: lib/Foswiki/Plugins/NatEditPlugin/FormButton.pm:78
 msgid "Add a new form to <nop>%1"
@@ -39,6 +44,10 @@ msgstr "yu&&#39;muD chel"
 msgid "Add row"
 msgstr "yu&&#39;muD chel"
 
+#: templates/editdialog.natedit.tmpl:106
+msgid "Advanced"
+msgstr ""
+
 #: templates/edittoolbar.natedit.tmpl:90
 msgid "Align left"
 msgstr "poSDaq lan"
@@ -47,12 +56,12 @@ msgstr "poSDaq lan"
 msgid "Align right"
 msgstr "nIHDaq lan"
 
-#: templates/editdialog.natedit.tmpl:103
+#: templates/editdialog.natedit.tmpl:96
 #, fuzzy
 msgid "Alignment"
 msgstr "poSDaq lan"
 
-#: templates/editdialog.natedit.tmpl:130
+#: templates/editdialog.natedit.tmpl:144
 msgid "Attachment"
 msgstr "tep"
 
@@ -64,16 +73,16 @@ msgstr "jatlhwI&&#39; meyrI&&#39;"
 msgid "Bold"
 msgstr "ror"
 
-#: templates/edittoolbar.natedit.tmpl:99
+#: templates/edittoolbar.natedit.tmpl:99 templates/settings.natedit.tmpl:50
 msgid "Bullet list"
 msgstr "moQHommey tetlh"
 
-#: templates/edit.natedit.tmpl:70 templates/edittoolbar.natedit.tmpl:223
+#: templates/edittoolbar.natedit.tmpl:223
 #: templates/edittoolbar.natedit.tmpl:227
 msgid "Cancel"
 msgstr "qIl"
 
-#: templates/editdialog.natedit.tmpl:88
+#: templates/editdialog.natedit.tmpl:85
 #, fuzzy
 msgid "Caption"
 msgstr "<nop>DuHmey"
@@ -91,7 +100,7 @@ msgstr "yu&&#39;muD qa&&#39;"
 msgid "Change the current form of <nop>%1"
 msgstr "<nop>%1 <nop>DaHjaj Form choH"
 
-#: templates/editdialog.natedit.tmpl:92
+#: templates/editdialog.natedit.tmpl:117
 msgid "Class"
 msgstr ""
 
@@ -99,7 +108,16 @@ msgstr ""
 msgid "Clear floating objects"
 msgstr ""
 
+#: templates/editdialog.natedit.tmpl:204
+msgid "Click to upload a new file"
+msgstr ""
+
+#: templates/editdialog.natedit.tmpl:81
+msgid "Click to upload a new image"
+msgstr ""
+
 #: templates/edittoolbar.natedit.tmpl:157 templates/preview.natedit.tmpl:6
+#: templates/settings.natedit.tmpl:58
 msgid "Close"
 msgstr "<nop>SoQmoH"
 
@@ -127,7 +145,7 @@ msgstr "bIpolDI&&#39; ghItlh Dotlh chu&&#39; chenmoH"
 msgid "Data rows"
 msgstr "De&&#39; tlheghmey"
 
-#: templates/edit.natedit.tmpl:204 templates/edit.natedit.tmpl:257
+#: templates/edit.natedit.tmpl:196 templates/edit.natedit.tmpl:249
 msgid "Default"
 msgstr "motlh"
 
@@ -140,7 +158,7 @@ msgstr ""
 msgid "Delete row"
 msgstr "De&&#39; tlheghmey"
 
-#: templates/settings.natedit.tmpl:30
+#: templates/settings.natedit.tmpl:31
 msgid "Each preference has the syntax"
 msgstr "ngoqvetlh ghaj Hoch lISmeH <nop>DuH"
 
@@ -152,7 +170,7 @@ msgstr "(choH)"
 msgid "Emoticon"
 msgstr "qabHom Degh"
 
-#: templates/editbase.natedit.tmpl:22
+#: templates/editbase.natedit.tmpl:15
 msgid "Enter your comment"
 msgstr ""
 
@@ -160,15 +178,15 @@ msgstr ""
 msgid "Escape markup"
 msgstr "ngoq meS"
 
-#: templates/edit.natedit.tmpl:211
+#: templates/edit.natedit.tmpl:203
 msgid "Everybody"
 msgstr "Hoch"
 
-#: templates/editdialog.natedit.tmpl:131
+#: templates/editdialog.natedit.tmpl:145
 msgid "External"
 msgstr "&&#39;Internet <nop>QaH"
 
-#: templates/editdialog.natedit.tmpl:184
+#: templates/editdialog.natedit.tmpl:200
 msgid "File"
 msgstr "De&&#39;"
 
@@ -197,7 +215,11 @@ msgstr "mu&&#39;mey luwIvlu&&#39;bogh nguvmoH"
 msgid "Formula"
 msgstr "<nop>SImmeH ngoq"
 
-#: templates/settings.natedit.tmpl:36
+#: templates/editdialog.natedit.tmpl:74
+msgid "General"
+msgstr ""
+
+#: templates/settings.natedit.tmpl:37
 msgid "Get help on setting topic preferences"
 msgstr "ghItlh <nop>DuHmey lISmeH mIw yajqu&&#39;choH"
 
@@ -229,8 +251,8 @@ msgstr "&&#39;ay&&#39; pong 5"
 msgid "Heading 6"
 msgstr "&&#39;ay&&#39; pong 6"
 
-#: templates/edit.natedit.tmpl:95 templates/settings.natedit.tmpl:25
-#: templates/settings.natedit.tmpl:28
+#: templates/edit.natedit.tmpl:87 templates/settings.natedit.tmpl:26
+#: templates/settings.natedit.tmpl:29
 msgid "Help"
 msgstr "<nop>QaH"
 
@@ -243,11 +265,11 @@ msgstr "tlhegh <nop>SaS"
 msgid "Icon"
 msgstr "<nop>DeghHom"
 
-#: templates/editdialog.natedit.tmpl:83
+#: templates/editdialog.natedit.tmpl:77
 msgid "Image"
 msgstr "mIllogh"
 
-#: templates/edittoolbar.natedit.tmpl:100
+#: templates/edittoolbar.natedit.tmpl:100 templates/settings.natedit.tmpl:51
 msgid "Indent"
 msgstr "yuv"
 
@@ -269,7 +291,7 @@ msgstr "nguvlu&&#39;meH ngoq chel"
 msgid "Insert a horizontal ruler"
 msgstr "tlhegh <nop>SaS chel"
 
-#: templates/editdialog.natedit.tmpl:126 templates/edittoolbar.natedit.tmpl:107
+#: templates/editdialog.natedit.tmpl:140 templates/edittoolbar.natedit.tmpl:107
 msgid "Insert a link"
 msgstr "rarwI&&#39; chel"
 
@@ -306,13 +328,17 @@ msgstr "poH chel"
 msgid "Italic"
 msgstr "wanHa&&#39;"
 
-#: templates/edit.natedit.tmpl:225 templates/edit.natedit.tmpl:271
+#: templates/edit.natedit.tmpl:217 templates/edit.natedit.tmpl:263
 msgid "Just me"
 msgstr "<nop>jIH <nop>neH"
 
 #: templates/edittoolbar.natedit.tmpl:92
 msgid "Justify text"
 msgstr "meyrI&&#39; rurmoH"
+
+#: templates/editdialog.natedit.tmpl:121
+msgid "Link"
+msgstr "<nop>rarwI&&#39;"
 
 #: templates/edittoolbar.natedit.tmpl:239
 #, fuzzy
@@ -352,7 +378,7 @@ msgstr ""
 msgid "Move row up"
 msgstr ""
 
-#: templates/edit.natedit.tmpl:232 templates/edit.natedit.tmpl:278
+#: templates/edit.natedit.tmpl:224 templates/edit.natedit.tmpl:270
 msgid "Nobody"
 msgstr "pagh"
 
@@ -364,21 +390,25 @@ msgstr ""
 msgid "Numbered list"
 msgstr "mI&&#39;mey tetlh"
 
-#: templates/edittoolbar.natedit.tmpl:101
+#: templates/edittoolbar.natedit.tmpl:101 templates/settings.natedit.tmpl:52
 msgid "Outdent"
 msgstr "luH"
 
-#: templates/edit.natedit.tmpl:110
+#: templates/edit.natedit.tmpl:102
 msgid "Permissions"
 msgstr "chaw&&#39;mey"
 
-#: templates/edit.natedit.tmpl:67
-msgid "Please validate"
-msgstr "<nop>DaH yI&&#39;ol"
-
-#: templates/settings.natedit.tmpl:19
+#: templates/settings.natedit.tmpl:20
 msgid "Preferences"
 msgstr "<nop>DuHmey"
+
+#: lib/Foswiki/Plugins/NatEditPlugin/RestSave.pm:35
+msgid "Press Cancel otherwise."
+msgstr ""
+
+#: lib/Foswiki/Plugins/NatEditPlugin/RestSave.pm:34
+msgid "Press OK to confirm that this change was intentional."
+msgstr ""
 
 #: templates/edittoolbar.natedit.tmpl:215
 #: templates/edittoolbar.natedit.tmpl:219 templates/preview.natedit.tmpl:1
@@ -389,7 +419,7 @@ msgstr "bej"
 msgid "Redo previous change"
 msgstr "nungbogh choH ta&&#39;qa&&#39;"
 
-#: templates/edit.natedit.tmpl:218 templates/edit.natedit.tmpl:264
+#: templates/edit.natedit.tmpl:210 templates/edit.natedit.tmpl:256
 msgid "Registered users"
 msgstr "muvta&&#39;bogh lo&&#39;wI&&#39;pu&&#39;&&#39;e&&#39;"
 
@@ -399,6 +429,7 @@ msgid "Remove Format"
 msgstr "lo&&#39;wI&&#39; teq"
 
 #: templates/editdialog.natedit.tmpl:20 templates/edittoolbar.natedit.tmpl:157
+#: templates/settings.natedit.tmpl:58
 msgid "Replace"
 msgstr "qa&&#39;"
 
@@ -412,7 +443,7 @@ msgstr "polqa&&#39;"
 msgid "Restore and Continue"
 msgstr "&&#39; &&#39;ej ruch"
 
-#: templates/edit.natedit.tmpl:69 templates/edittoolbar.natedit.tmpl:184
+#: templates/edittoolbar.natedit.tmpl:184
 #: templates/edittoolbar.natedit.tmpl:188
 msgid "Save"
 msgstr "pol"
@@ -428,6 +459,7 @@ msgid "Search"
 msgstr "nejwI&&#39;"
 
 #: templates/editdialog.natedit.tmpl:12 templates/edittoolbar.natedit.tmpl:157
+#: templates/settings.natedit.tmpl:58
 msgid "Search && Replace"
 msgstr "nej && qa&&#39;"
 
@@ -435,27 +467,27 @@ msgstr "nej && qa&&#39;"
 msgid "Signature"
 msgstr "qI&&#39;meH pong"
 
-#: templates/editdialog.natedit.tmpl:96
+#: templates/editdialog.natedit.tmpl:89
 msgid "Size"
 msgstr "ngI&&#39;"
 
-#: templates/edittoolbar.natedit.tmpl:151
+#: templates/edittoolbar.natedit.tmpl:151 templates/settings.natedit.tmpl:56
 msgid "Sort ascending"
 msgstr "mISHa&&#39;DI&&#39; tagh machwI&&#39;"
 
-#: templates/edittoolbar.natedit.tmpl:152
+#: templates/edittoolbar.natedit.tmpl:152 templates/settings.natedit.tmpl:57
 msgid "Sort descending"
 msgstr "mISHa&&#39;DI&&#39; tagh tInwI&&#39;"
 
-#: templates/edittoolbar.natedit.tmpl:151
+#: templates/edittoolbar.natedit.tmpl:151 templates/settings.natedit.tmpl:56
 msgid "Sort selected lines ascending"
 msgstr "tlheghmey luwIvlu&&#39;bogh <nop>SalmoH"
 
-#: templates/edittoolbar.natedit.tmpl:152
+#: templates/edittoolbar.natedit.tmpl:152 templates/settings.natedit.tmpl:57
 msgid "Sort selected lines descending"
 msgstr "tlheghmey luwIvlu&&#39;bogh ghIrmoH"
 
-#: templates/edit.natedit.tmpl:239 templates/edit.natedit.tmpl:285
+#: templates/edit.natedit.tmpl:231 templates/edit.natedit.tmpl:277
 msgid "Specific users/groups"
 msgstr "ghommey/lo&&#39;<nop>wI&&#39; le&&#39;"
 
@@ -492,30 +524,30 @@ msgstr ""
 msgid "Symbol"
 msgstr "<nop>DeghHom"
 
-#: templates/edit.natedit.tmpl:92 templates/editdialog.natedit.tmpl:152
-#: templates/editdialog.natedit.tmpl:166 templates/editdialog.natedit.tmpl:189
+#: templates/edit.natedit.tmpl:84 templates/editdialog.natedit.tmpl:166
+#: templates/editdialog.natedit.tmpl:180 templates/editdialog.natedit.tmpl:208
 msgid "Text"
 msgstr "ngoq"
 
-#: templates/edit.natedit.tmpl:83
+#: templates/edit.natedit.tmpl:75
 #, fuzzy
 msgid "Title"
 msgstr "pong:"
 
-#: templates/editbase.natedit.tmpl:21
+#: templates/editbase.natedit.tmpl:14
 msgid "Title/Subject"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:129 templates/editdialog.natedit.tmpl:148
-#: templates/editdialog.natedit.tmpl:180 templates/editdialog.natedit.tmpl:79
+#: templates/editdialog.natedit.tmpl:113 templates/editdialog.natedit.tmpl:143
+#: templates/editdialog.natedit.tmpl:162 templates/editdialog.natedit.tmpl:196
 msgid "Topic"
 msgstr "ghItlh"
 
-#: templates/editdialog.natedit.tmpl:116
+#: templates/editdialog.natedit.tmpl:130
 msgid "Type"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:162
+#: templates/editdialog.natedit.tmpl:176
 msgid "URL"
 msgstr "URL"
 
@@ -531,12 +563,12 @@ msgstr "nungbogh choH ta&&#39;Ha&&#39;"
 msgid "Unescape markup"
 msgstr "ngoq meSHa&&#39;"
 
-#: templates/edit.natedit.tmpl:251
+#: templates/edit.natedit.tmpl:243
 #, fuzzy
 msgid "Users who may edit"
 msgstr "choHlaHbogh lo&&#39;wI&&#39;pu&&#39;&&#39;e&&#39;:"
 
-#: templates/edit.natedit.tmpl:198
+#: templates/edit.natedit.tmpl:190
 #, fuzzy
 msgid "Users who may view"
 msgstr "leghlaHbogh lo&&#39;wI&&#39;pu&&#39;:"
@@ -545,14 +577,14 @@ msgstr "leghlaHbogh lo&&#39;wI&&#39;pu&&#39;:"
 msgid "Verbatim"
 msgstr "mu&&#39;mey neH"
 
-#: templates/edit.natedit.tmpl:148
+#: templates/edit.natedit.tmpl:140
 msgid ""
 "Warning: Incompatible permission settings detected. Use the =Edit settings= "
 "dialog to change the ACLs."
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:144 templates/editdialog.natedit.tmpl:176
-#: templates/editdialog.natedit.tmpl:75
+#: templates/editdialog.natedit.tmpl:109 templates/editdialog.natedit.tmpl:158
+#: templates/editdialog.natedit.tmpl:192
 msgid "Web"
 msgstr "mIch"
 
@@ -560,25 +592,25 @@ msgstr "mIch"
 msgid "Wrap text"
 msgstr ""
 
-#: templates/settings.natedit.tmpl:33
+#: templates/settings.natedit.tmpl:34
 msgid ""
 "[multiple of 3 spaces] * [space] Set [space] VARIABLENAME [space] = [value]"
 msgstr "[3 Deghmey chIm] * [chIm] Set [chIm] VARIABLENAME [chIm] = [Doch]"
 
-#: templates/editdialog.natedit.tmpl:107
+#: templates/editdialog.natedit.tmpl:100
 msgid "center"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:120
+#: templates/editdialog.natedit.tmpl:134
 msgid "decorated"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:118
+#: templates/editdialog.natedit.tmpl:132
 #, fuzzy
 msgid "default"
 msgstr "motlh"
 
-#: templates/edit.natedit.tmpl:202 templates/edit.natedit.tmpl:255
+#: templates/edit.natedit.tmpl:194 templates/edit.natedit.tmpl:247
 msgid "default as defined in the %1"
 msgstr "%1Daq lISlu&&#39;bogh <nop>DuHmey motlh"
 
@@ -590,7 +622,11 @@ msgstr "choH"
 msgid "edit form"
 msgstr "yu&&#39;muD choH"
 
-#: templates/editdialog.natedit.tmpl:99
+#: templates/editdialog.natedit.tmpl:182
+msgid "fetch document title from external url"
+msgstr ""
+
+#: templates/editdialog.natedit.tmpl:92
 msgid "height"
 msgstr ""
 
@@ -598,7 +634,7 @@ msgstr ""
 msgid "ignore case"
 msgstr "Degh&&#39;a&&#39;/<nop>DeghHom buSQo&&#39;"
 
-#: templates/editdialog.natedit.tmpl:119
+#: templates/editdialog.natedit.tmpl:133
 msgid "img"
 msgstr ""
 
@@ -606,16 +642,16 @@ msgstr ""
 msgid "indicates mandatory fields"
 msgstr "De&&#39; poQlu&&#39;bogh &&#39;ang"
 
-#: templates/editdialog.natedit.tmpl:105
+#: templates/editdialog.natedit.tmpl:98
 #, fuzzy
 msgid "inline"
 msgstr "Degh bIng tlhegh"
 
-#: templates/editdialog.natedit.tmpl:106
+#: templates/editdialog.natedit.tmpl:99
 msgid "left"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:121
+#: templates/editdialog.natedit.tmpl:135
 #, fuzzy
 msgid "lightbox"
 msgstr "nIHDaq lan"
@@ -624,7 +660,7 @@ msgstr "nIHDaq lan"
 msgid "new"
 msgstr "chu&&#39;"
 
-#: templates/edit.natedit.tmpl:209
+#: templates/edit.natedit.tmpl:201
 msgid "public view access"
 msgstr "leghlaH Hoch"
 
@@ -636,42 +672,45 @@ msgstr "polqa&&#39;"
 msgid "restore form"
 msgstr "yu&&#39;muD polqa&&#39;"
 
-#: templates/edit.natedit.tmpl:223 templates/edit.natedit.tmpl:269
+#: templates/edit.natedit.tmpl:215 templates/edit.natedit.tmpl:261
 msgid "restrict access to %1"
 msgstr "%1 naw&&#39; SoQmoH"
 
-#: templates/edit.natedit.tmpl:216
+#: templates/edit.natedit.tmpl:208
 msgid "restrict read access to users that have an account on this site"
 msgstr ""
 "chaw&&#39; choH: laDlaH patvamDaq ta ghajbogh lo&&#39;wI&&#39;pu&&#39;&&#39;"
 "e&&#39; neH"
 
-#: templates/edit.natedit.tmpl:262
+#: templates/edit.natedit.tmpl:254
 msgid "restrict write access to users that have an account on this site"
 msgstr ""
 "chaw&&#39; choH: ghItlhlaH patvamDaq ta ghajbogh lo&&#39;wI&&#39;pu&&#39;"
 "&&#39;e&&#39; neH"
 
-#: templates/editdialog.natedit.tmpl:108
+#: templates/editdialog.natedit.tmpl:101
 #, fuzzy
 msgid "right"
 msgstr "nIHDaq lan"
 
-#: templates/edit.natedit.tmpl:237 templates/edit.natedit.tmpl:283
+#: templates/edit.natedit.tmpl:229 templates/edit.natedit.tmpl:275
 msgid "specify a list of users and/or groups"
 msgstr "ghom, lo&&#39;wI&&#39; tetlh ghap lIS"
 
-#: templates/edit.natedit.tmpl:230
+#: templates/edit.natedit.tmpl:222
 msgid "strictly deny any access to this topic"
 msgstr "ghItlhvam naw&&#39; lajHa&&#39;chu&&#39;"
 
-#: templates/edit.natedit.tmpl:276
+#: templates/edit.natedit.tmpl:268
 msgid "strictly deny write access to this topic"
 msgstr "ghItlhvam choHmeH chaw&&#39; lajHa&&#39;chu&&#39;"
 
-#: templates/editdialog.natedit.tmpl:98
+#: templates/editdialog.natedit.tmpl:91
 msgid "width"
 msgstr ""
+
+#~ msgid "Please validate"
+#~ msgstr "<nop>DaH yI&&#39;ol"
 
 #, fuzzy
 #~ msgid "Format table"
@@ -697,9 +736,6 @@ msgstr ""
 
 #~ msgid "Insert a link to a user-profile"
 #~ msgstr "lo&&#39;wI&&#39; taDaq Qeqbogh rarwI&&#39; chel"
-
-#~ msgid "Link"
-#~ msgstr "<nop>rarwI&&#39;"
 
 #~ msgid "Macro"
 #~ msgstr "<nop>mIwHom"

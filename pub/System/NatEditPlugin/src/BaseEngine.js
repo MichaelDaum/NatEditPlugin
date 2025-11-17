@@ -18,7 +18,9 @@ var italicRegExp     = /_(\S+|(?:\S.*?\S))_(?=$|[\s,.;:!?)])/g,
     boldItalicRegExp = /__(\S+|(?:\S.*?\S))__(?=$|[\s,.;:!?)])/g,
     monoRegExp       = /=(\S+|(?:\S.*?\S))=(?=$|[\s,.;:!?)])/g,
     boldMonoRegExp   = /==(\S+|(?:\S.*?\S))==(?=$|[\s,.;:!?)])/g,
-    colorTagRegExp   = /%(AQUA|BLACK|BLUE|BROWN|GRAY|GREEN|LIME|MAROON|NAVY|OLIVE|ORANGE|PINK|PURPLE|RED|SILVER|TEAL|WHITE|YELLOW)%\s*|\s*%ENDCOLOR%/g;
+    formatMarkupRegExp = /<\/?(del|s|ins|ul|i|strong|b|font|sup|sub)[^>]*>/g,
+    colorTagRegExp   = /%(AQUA|BLACK|BLUE|BROWN|GRAY|GREEN|LIME|MAROON|NAVY|OLIVE|ORANGE|PINK|PURPLE|RED|SILVER|TEAL|WHITE|YELLOW)%\s*|\s*%ENDCOLOR%/g,
+    urlRegExp = "(?:file|ftp|gopher|https?|irc|mailto|news|nntp|telnet|webdav|tel|sip|edit)://[^\\s]+?";
 
 
 /*****************************************************************************
@@ -64,13 +66,14 @@ BaseEngine.prototype.initGui = function() {
 
     console.log("got event fileuploaddrop",ev);
     console.log("evX=",evX,"evY=",evY);
+    let webTopic = self.shell.formManager.getWebTopic();
 
     data.files.forEach(function(file) {
       // SMELL: allow other files as well
       if (file.type && file.type.indexOf("image/") > -1) {
         self.insertImage({
-          web: self.shell.opts.web,
-          topic: self.shell.opts.topic,
+          web: webTopic[0],
+          topic: webTopic[1],
           file: file.name,
           width: "200",
           classList: "imageResponsive"
@@ -118,12 +121,16 @@ BaseEngine.prototype.setSize = function(width, height) {
       elem = self.getWrapperElement();
 
   if (width) {
-    elem.css("width", width);
+    //elem.css("width", width);
+    elem.width(width);
   }
 
   if (height) {
-    elem.css("height", height);
+    //elem.css("height", height);
+    elem.height(width);
   }
+
+  return self.getSize();
 };
 
 /*************************************************************************
@@ -133,7 +140,7 @@ BaseEngine.prototype.toggleFullscreen = function() {
   var self = this;
 
   if(self.shell.container.is(".ui-natedit-fullscreen")) {
-    self._previousHeight = self.getWrapperElement().outerHeight();
+    self._origSize = self.getSize();
     $(window).off("resize.natedit");
     self.shell.form.find(".natEditBottomBar").hide();
     $("html").css("overflow-y", "initial");
@@ -141,9 +148,10 @@ BaseEngine.prototype.toggleFullscreen = function() {
   } else {
     $("html").css("overflow-y", "scroll");
     self.shell.form.find(".natEditBottomBar").show();
-    self.setSize(undefined, self._previousHeight);
     if (self.shell.opts.autoMaxExpand) {
       self.shell.autoMaxExpand();
+    } else {
+      self.setSize(undefined, self._origSize.height);
     }
   }
 };
@@ -196,6 +204,15 @@ BaseEngine.prototype.getContent = function() {
       dfd = $.Deferred();
 
   return dfd.resolve(self.getValue()).promise();
+};
+
+/*************************************************************************
+ * process completion for a given string
+ */
+BaseEngine.prototype.execCompletion = function(/*completion, string*/) {
+  /*var self = this,*/
+
+  throw("not implemented: execCompletion()");
 };
 
 /*************************************************************************
@@ -340,17 +357,15 @@ BaseEngine.prototype.removeFormat = function() {
     return;
   }
 
-  //console.log("removeFormat on selection",selection);
-
   result = selection
     .replace(boldItalicRegExp, "$1")
     .replace(boldMonoRegExp, "$1")
     .replace(italicRegExp, "$1")
     .replace(boldRegExp, "$1")
     .replace(monoRegExp, "$1")
-    .replace(colorTagRegExp, "");
-
-  //console.log("... result=",result);
+    .replace(colorTagRegExp, "")
+    .replace(formatMarkupRegExp, "")
+    .replace(/\xad/g, ""); // non printable such as &shy;
 
   self.remove();
   self.insert(result);
@@ -392,6 +407,87 @@ BaseEngine.prototype.insertTable = function(opts) {
   self.setCaretPosition(cursor);
 };
 
+/*************************************************************************
+ * parse the current selection and return the data to be used generating the tmpl
+ */
+BaseEngine.prototype.parseLink = function(text) {
+  var self = this, data,
+    webTopic = self.shell.formManager.getWebTopic();
+
+  if (typeof(text) === 'undefined') {
+    text = self.getSelection();
+  }
+
+
+  data = {
+    selection: text,
+    web: webTopic[0],
+    topic: webTopic[1],
+    file: '',
+    url: '',
+    type: 'topic',
+  };
+
+  // initialize from text
+  if (text.match(/\s*\[\[(.*?)\]\]\s*/)) {
+    text = RegExp.$1;
+    //console.log("brackets link, text=",text);
+    if (text.match("^("+urlRegExp+")(?:\\]\\[(.*))?$")) {
+      //console.log("external link");
+      data.url = RegExp.$1;
+      data.selection = RegExp.$2 || '';
+      data.type = 'external';
+    } else if (text.match(/^(?:%ATTACHURL(?:PATH)?%\/)(.*?)(?:\]\[(.*))?$/)) {
+      //console.log("this attachment link");     
+      data.file = RegExp.$1;
+      data.selection = RegExp.$2;
+      data.type = "attachment";
+    } else if (text.match(/^(?:%PUBURL(?:PATH)?%\/)(.*)\/(.*?)\/(.*?)(?:\]\[(.*))?$/)) {
+      //console.log("other topic attachment link");     
+      data.web = RegExp.$1;
+      data.topic = RegExp.$2;
+      data.file = RegExp.$3;
+      data.selection = RegExp.$4;
+      data.type = "attachment";
+    } else if (text.match(/^(?:(.*)\.)?(.*?)(?:\]\[(.*))?$/)) {
+      //console.log("topic link");
+      data.web = RegExp.$1 || data.web;
+      data.topic = RegExp.$2;
+      data.selection = RegExp.$3 || '';
+    } else {
+      //console.log("some link");
+      data.topic = text;
+      data.selection = '';
+    }
+  } else if (text.match("^ *"+urlRegExp)) {
+    //console.log("no brackets external link");
+    data.url = text;
+    data.selection = '';
+    data.type = "external";
+  } else if (text.match(/^\s*%IMAGE\{(.*?)\}%\s*$/)) {
+    let params = new foswiki.Attrs(RegExp.$1);
+    //console.log("image link",params);
+    params.keys().filter(key => key[0] !== '_').forEach(function(key) {
+      data[key] = params.get(key);
+    });
+    //data.file = params.get("_default");
+    data.selection = '';
+    data.type = "attachment";
+  } else {
+    if (text.match(/^\s*([A-Z][^\s.]*)\.(A-Z.*?)\s*$/)) {
+      //console.log("topic link");
+      data.web = RegExp.$1 || data.web;
+      data.topic = RegExp.$2;
+      data.selection = '';
+      data.type = "topic";
+    } else {
+      //console.log("some text, not a link");
+    }
+  }
+
+  return data;
+};
+
 /***************************************************************************
  * insert a link
  * opts is a hash of params that can have either the following forms:
@@ -418,69 +514,86 @@ BaseEngine.prototype.insertTable = function(opts) {
  * }
  */
 BaseEngine.prototype.insertLink = function(opts) {
-  var self = this, markup;
+  var self = this, markup,
+    natEditOpts = foswiki.getPreference("NatEditPlugin"),
+    webTopic = self.shell.formManager.getWebTopic();
 
   //self.shell.log("insertLink opts=",opts);
 
-  if (typeof(opts.url) !== 'undefined') {
-    // external link
-    if (typeof(opts.url) === 'undefined' || opts.url === '') {
-      return; // nop
-    }
+  return $.Deferred(function(dfd) {
+    if (typeof(opts.url) !== 'undefined') {
+      // external link
+      if (typeof(opts.url) === 'undefined' || opts.url === '') {
+        dfd.reject();
+        return; // nop
+      }
 
-    if (typeof(opts.text) !== 'undefined' && opts.text !== '') {
-      markup = "[["+opts.url+"]["+opts.text+"]]";
+      if (typeof(opts.text) !== 'undefined' && opts.text !== '') {
+        markup = "[["+opts.url+"]["+opts.text+"]]";
+      } else {
+        markup = "[["+opts.url+"]]";
+      }
+    } else if (typeof(opts.file) !== 'undefined') {
+      // attachment link
+
+      if (!opts.text && natEditOpts.TopicInteractionPluginEnabled) {
+        $.post(foswiki.getScriptUrlPath("rest", "TopicInteractionPlugin", "getlink"), {
+          id: foswiki.getUniqueID(),
+          topic: opts.web+"."+opts.topic,
+          filename: opts.file
+        }).then(function(data) {
+          var response = JSON.parse(data);
+          self.remove();
+          self.insert(response.result.tml);
+          dfd.resolve();
+        });
+        return;
+      } 
+      
+      if (typeof(opts.web) === 'undefined' || opts.web === '' || 
+          typeof(opts.topic) === 'undefined' || opts.topic === '') {
+        dfd.reject();
+        return; // nop
+      }
+
+      if (opts.web === webTopic[0] && opts.topic === webTopic[1]) {
+        markup = "[[%ATTACHURLPATH%/"+opts.file+"]";
+      } else {
+        markup = "[[%PUBURLPATH%/"+opts.web+"/"+opts.topic+"/"+opts.file+"]";
+      }
+
+      if (typeof(opts.text) !== 'undefined' && opts.text !== '') {
+        markup += "["+opts.text+"]";
+      } else {
+        markup += "["+opts.file+"]";
+      }
+      markup += "]";
+
     } else {
-      markup = "[["+opts.url+"]]";
-    }
-  } else if (typeof(opts.file) !== 'undefined') {
-    // attachment link
+      // wiki link
+      
+      if (typeof(opts.topic) === 'undefined' || opts.topic === '') {
+        dfd.reject();
+        return; // nop
+      }
 
-    if (typeof(opts.web) === 'undefined' || opts.web === '' || 
-        typeof(opts.topic) === 'undefined' || opts.topic === '') {
-      return; // nop
-    }
+      if (opts.web === webTopic[0]) {
+        markup = "[["+opts.topic+"]";
+      } else {
+        markup = "[["+opts.web+"."+opts.topic+"]";
+      }
 
-    if (opts.web === self.shell.opts.web && opts.topic === self.shell.opts.topic) {
-      markup = "[[%ATTACHURLPATH%/"+opts.file+"]";
-    } else {
-      markup = "[[%PUBURLPATH%/"+opts.web+"/"+opts.topic+"/"+opts.file+"]";
-    }
-
-    if (typeof(opts.text) !== 'undefined' && opts.text !== '') {
-      markup += "["+opts.text+"]";
-    } else {
-      markup += "["+opts.file+"]";
-    }
-    markup += "]";
-
-  } else {
-    // wiki link
-    
-    if (typeof(opts.topic) === 'undefined' || opts.topic === '') {
-      return; // nop
+      if (typeof(opts.text) !== 'undefined' && opts.text !== '') {
+        markup += "["+opts.text+"]";
+      } 
+      markup += "]";
     }
 
-    $.get(foswiki.getScriptUrl("rest", "NatEditPlugin", "topicTitle"), {
-      topic : opts.web + "." + opts.topic
-    }).done(function(data) {
-      console.log("topicTitle=",data);
-    });
+    self.remove();
+    self.insert(markup);
 
-    if (opts.web === self.shell.opts.web) {
-      markup = "[["+opts.topic+"]";
-    } else {
-      markup = "[["+opts.web+"."+opts.topic+"]";
-    }
-
-    if (typeof(opts.text) !== 'undefined' && opts.text !== '') {
-      markup += "["+opts.text+"]";
-    } 
-    markup += "]";
-  }
-
-  self.remove();
-  self.insert(markup);
+    dfd.resolve();
+  }).promise();
 };
 
 /***************************************************************************
@@ -496,28 +609,28 @@ BaseEngine.prototype.insertLink = function(opts) {
  * }
  */
 BaseEngine.prototype.insertImage = function(opts) {
-  var self = this, markup;
+  var self = this, markup,
+    webTopic = self.shell.formManager.getWebTopic();
 
   opts.prefix = opts.prefix === undefined ? "": opts.prefix;
   opts.suffix = opts.suffix === undefined ? "": opts.suffix;
 
-
   markup = opts.prefix + '%IMAGE{"'+opts.file+'"';
-  if (opts.web !== self.shell.opts.web || opts.topic !== self.shell.opts.topic) {
+  if (opts.web !== webTopic[0] || opts.topic !== webTopic[1]) {
     markup += ' topic="';
-    if (opts.web !== self.shell.opts.web) {
+    if (opts.web !== webTopic[0]) {
       markup += opts.web+'.';
     }
     markup += opts.topic+'"';
   }
 
-  if (opts.width && !opts.height) {
-    markup += ' size="'+opts.width+'"';
-  } else if (!opts.width && opts.height) {
-    markup += ' size="'+opts.height+'"';
-  } else if (opts.width || opts.height) {
-    markup += ' size="'+opts.width+'x'+opts.height+'"';
+  if (opts.width) {
+    markup += ' width="'+opts.width+'"';
   }
+
+  if (opts.height) {
+    markup += ' height="'+opts.height+'"';
+  } 
 
   if (opts.align) {
     markup += ' align="'+opts.align+'"';
@@ -539,10 +652,23 @@ BaseEngine.prototype.insertImage = function(opts) {
     markup += ' class="'+opts.classList+'"';
   }
 
+  if (opts.href) {
+    markup += ' href="'+opts.href+'"';
+  }
+
   markup += '}%' + opts.suffix;
 
   self.remove();
   self.insert(markup);
+};
+
+/*****************************************************************************
+ * 
+ */
+BaseEngine.prototype.registerBlob = function(info) {
+  var self = this;
+
+  return $.Deferred().resolve(info.fileName).promise();
 };
 
 /*****************************************************************************
@@ -579,11 +705,12 @@ BaseEngine.prototype.getImageData = function(data) {
   var self = this,
       selection = self.getSelection(),
       elem, urlData, webTopic, params,
-      excludePattern = new RegExp("image(Simple|Float|Thumb|Frame|Plain)(_left|_right|_none)?");
+      excludePattern = new RegExp("image(Simple|Float|Thumb|Frame|Plain)(_left|_right|_none)?"),
+      webTopic = self.shell.formManager.getWebTopic();
 
   data = $.extend({
-    web: self.shell.opts.web,
-    topic: self.shell.opts.topic,
+    web: webTopic[0],
+    topic: webTopic[1],
   }, data);
 
   if (selection.match(/^(\s*)(<img.*>)(\s*)$/)) {
@@ -597,8 +724,8 @@ BaseEngine.prototype.getImageData = function(data) {
     data.align = elem.align("align") || data.align;
     data.type = elem.data("type");
     data.caption = elem.data("caption");
-    data.web = urlData.web || data.web || self.shell.opts.web;
-    data.topic = urlData.topic || data.topic || self.shell.opts.topic;
+    data.web = urlData.web || data.web || webTopic[0];
+    data.topic = urlData.topic || data.topic || webTopic[1];
     data.file = urlData.file;
 
     data.classList = urlData.attr("class").split(/\s*,\s*/).filter(function(item) {
@@ -630,6 +757,88 @@ BaseEngine.prototype.getImageData = function(data) {
 
   //console.log("data=",data);
   return data;
+};
+
+/*****************************************************************************
+ * sort the selected lines
+ */
+BaseEngine.prototype.sortSelection = function(dir) {
+  var self = this,
+    selection, lines, ignored, isNumeric = true, value,
+    line, prefix, i;
+
+  //self.shell.log("sortSelection ", dir);
+
+  selection = self.getSelectionLines();
+  //console.log("selection=",selection);
+  selection = selection.split(/\r?\n/);
+
+  lines = [];
+  ignored = [];
+  for (i = 0; i < selection.length; i++) {
+    line = selection[i];
+    // SMELL: sorting lists needs a real list parser
+    if (line.match(/^((?: {3})+(?:[AaIi]\.|\d\.?|\*) | *\|)(.*)$/)) {
+      prefix = RegExp.$1;
+      line = RegExp.$2;
+    } else {
+      prefix = "";
+    }
+
+    value = parseFloat(line);
+    if (isNaN(value)) {
+      isNumeric = false;
+      value = line;
+    }
+
+    if (line.match(/^\s*$/)) {
+      ignored.push({
+        pos: i,
+        prefix: prefix,
+        value: value,
+        line: line
+      });
+    } else {
+      lines.push({
+        pos: i,
+        prefix: prefix,
+        line: line,
+        value: value
+      });
+    }
+  }
+
+  //self.shell.log("isNumeric=",isNumeric);
+  //self.shell.log("sorting lines",lines);
+
+  lines = lines.sort(function(a, b) {
+    var valA = a.value, valB = b.value;
+
+    if (isNumeric) {
+      return valA - valB;
+    } else {
+      return valA < valB ? -1 : valA > valB ? 1: 0;
+    }
+  });
+
+  if (dir === "desc") {
+    lines = lines.reverse();
+  }
+
+  $.map(ignored, function(item) {
+    lines.splice(item.pos, 0, item);
+  });
+
+  selection = [];
+  $.map(lines, function(item) {
+    selection.push(item.prefix+item.line);
+  });
+  selection = selection.join("\n");
+
+  //self.shell.log("result=\n'"+selection+"'");
+
+  self.remove();
+  self.insert(selection);
 };
 
 /*****************************************************************************

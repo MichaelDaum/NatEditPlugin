@@ -14,7 +14,6 @@
   background: var(--codemirror-background, #fff);
   color: var(--codemirror-foreground, inherit);
   margin:0px;
-  padding:4px 6px;
   box-sizing:border-box;
 }
 .cm-s-foswiki pre.CodeMirror-line {
@@ -32,7 +31,7 @@
 }
 
 .cm-s-foswiki .CodeMirror-lines {
-  padding:0.3em 1em 0.3em 0;
+  padding:0.5em 0;
 }
 
 .cm-s-foswiki .CodeMirror-scroll {
@@ -188,7 +187,10 @@ div.CodeMirror-cursor {
 
 .cm-s-foswiki .CodeMirror-gutters {
   border:0;
-  background-color:transparent;
+  background-color:var(--codemirror-gutter-background, #e6e6e6);
+}
+.cms-s-foswiki .CodeMirror-scrollbar-filter {
+  background-color:var(--codemirror-gutter-background, #e6e6e6);
 }
 
 .CodeMirror-foldgutter {
@@ -200,6 +202,7 @@ div.CodeMirror-cursor {
   font-size:125%;
   line-height:125%;
   text-align:center;
+  color:var(--color-primary);
 }
 .CodeMirror-foldgutter-open:hover,
 .CodeMirror-foldgutter-folded:hover {

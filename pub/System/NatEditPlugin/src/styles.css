@@ -36,7 +36,7 @@
           box-sizing: border-box;
 
   font-family:"Bitstream Vera Sans Mono", "Andale Mono", monospace;
-  font-size:12px;
+  font-size:var(--input-font-size, 12px);
   line-height:1.5rem;
   resize: none;
   overflow-x:hidden;

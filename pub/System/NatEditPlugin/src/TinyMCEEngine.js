@@ -22,9 +22,10 @@ TinyMCEEngine.prototype.parent = BaseEngine.prototype;
 
 function TinyMCEEngine(shell, opts) {
   var self = this,
-      wikiName =foswiki.getPreference("WIKINAME"),
+      wikiName = foswiki.getPreference("WIKINAME"),
+      wikiUserName = foswiki.getPreference("USERSWEB") + "." + wikiName,
+      wikiUserNameUrl = foswiki.getScriptUrlPath("view", foswiki.getPreference("USERSWEB"), wikiName),
       serverTime = foswiki.getPreference("SERVERTIME"),
-      wikiUserNameUrl = foswiki.getScriptUrlPath("view", foswiki.getPreference("USERSWEB"), foswiki.getPreference("WIKINAME")),
       pubUrlPath = foswiki.getPreference("PUBURLPATH");
 
   self.shell = shell;
@@ -32,13 +33,15 @@ function TinyMCEEngine(shell, opts) {
   self.type = "wysiwyg";
   self.opts = $.extend({}, TinyMCEEngine.defaults, self.shell.opts.tinymce, opts);
   self.opts.tinymce.selector = "#"+self.shell.id+" textarea";
-  self.opts.natedit.signatureMarkup = ['-- ', `<a href="${wikiUserNameUrl}">${wikiName}</a>`, ` - ${serverTime}`];
-  self.opts.natedit.clearMarkup = ['', `<img src="${pubUrlPath}/System/NatEditPlugin/images/clear-float.svg" class="WYSIWYG_CLEAR" data-mce-resize="false" data-mce-placeholder="1" />`, ''];
   self.opts.tinymce.content_css = foswiki.getPreference("NatEditPlugin").ContentCSS;
   self.opts.tinymce.document_base_url = foswiki.getPreference("URLHOST");
   self.opts.tinymce.urlconverter_callback = function(url, node, onSave) {
     return self.convertURI(url, node, onSave);
   };
+
+  self.opts.clearMarkup = ['', `<img src="${pubUrlPath}/System/NatEditPlugin/images/clear-float.svg" class="WYSIWYG_CLEAR" data-mce-resize="false" data-mce-placeholder="1" />`, ''];
+  self.opts.signatureMarkup = ['-- ', `<a class='TMLlink' href="${wikiUserNameUrl}" data-topic="${wikiUserName}">${wikiName}</a>`, ` - ${serverTime}`];
+  self.opts.horizRulerMarkup = ['', '<hr>', ''];
 
   $.extend(self.shell.opts, self.opts.natedit);
 }
@@ -63,6 +66,7 @@ TinyMCEEngine.prototype.init = function() {
     self.shell.getScript(editorPath+'/tinymce.min.js')
   ).done(function() {
 
+    /* natedit-image plugin */
     tinymce.PluginManager.add("natedit-image", function(editor) {
       editor.ui.registry.addMenuItem('image', {
         icon: 'image',
@@ -83,18 +87,20 @@ TinyMCEEngine.prototype.init = function() {
       });
     });
 
+    /* natedit-link */
     tinymce.PluginManager.add("natedit-link", function(editor) {
       editor.ui.registry.addMenuItem('link', {
         icon: 'link',
         text: 'Link ...',
         onAction: function (api) {
-          var node = self.editor.selection.getNode();
-          //TODO: parseNode
-          self.shell.linkDialog({
-            selection: node.textContent,
-            url: node.getAttribute("href"),
-            type: "external"
-          });
+          self.shell.linkDialog(self.parseLink());
+        }
+      });
+      editor.ui.registry.addMenuItem("unlink", {
+        icon: 'unlink',
+        text: 'Remove link',
+        onAction: function (api) {
+          editor.execCommand('unlink');
         }
       });
       editor.addCommand('mceLink', function() {
@@ -102,40 +108,17 @@ TinyMCEEngine.prototype.init = function() {
         self.shell.linkDialog(self.getSelection());
       });
 
-      editor.ui.registry.addContextMenu('image', {
+      editor.ui.registry.addContextMenu('link', {
         update: function (elem) {
-          return elem.nodeName === 'A' ? 'link': '';
+          return elem.nodeName === 'A' ? 'link unlink': '';
         }
       });
     });
 
     self.opts.tinymce.init_instance_callback = function(editor) {
-      var cols = parseInt(self.shell.txtarea.attr("cols"), 10) || 10000,
+      var cols = parseInt(self.shell.txtarea.attr("cols"), 10),
           rows = parseInt(self.shell.txtarea.attr("rows"), 10),
           lineHeight = parseInt(self.shell.txtarea.css("line-height"), 10);
-
-      self.shell.log("initing instance");
-      self.editor = editor;
-
-      // only set the width if specified by a cols attribute and not any css styled width
-      if (typeof(cols) !== 'undefined' && cols > 0) {
-        self.setSize(`min(${cols}ch,100%)`);
-      }
-      if (typeof(rows) !== 'undefined' && rows > 0) {
-        rows = (rows*lineHeight);
-        self.setSize(null, rows);
-      }
-
-      if (self.opts.debug) {
-        window.editor = editor; // playground
-      }
-
-      self.updateContent().then(function() {
-        dfd.resolve();
-      }, function() {
-        dfd.reject();
-      });
-
 
       if (window.darkMode && window.darkMode.isActive) {
         //console.log("propagating darkmode to iframe");
@@ -146,39 +129,38 @@ TinyMCEEngine.prototype.init = function() {
           .attr("data-theme", "dark");
       }
 
+      // only set the width if specified by a cols attribute and not any css styled width
+      if (typeof(cols) !== 'undefined' && cols > 0) {
+        self.setSize(`${cols}ch`);
+      }
+      if (typeof(rows) !== 'undefined' && rows > 0) {
+        self.setSize(null, rows*lineHeight + 20); // magic 20 to spare the scrollbar
+      }
 
-/*
-      self.on("BeforeSetContent", function(ev) {
-        if (foswiki.getPreference("NatEditPlugin").ImagePluginEnabled) {
-          var paramsRegex = /(?:(\w+?)=)?&#34;(.*?)&#34;/g;
-          ev.content = ev.content.replace(/%IMAGE{(.*?)}%/, function(string, params) {
-            var args = [], match;
-            while ((match = paramsRegex.exec(params)) !== null) {
-              var key = match[1], val = match[2];
-              if (key) {
-                if (key === 'size') {
-                  args.push('height="'+val+'"');
-                } else {
-                  args.push(key+'="'+val+'"');
-                }
-              } else {
-                val = foswiki.getPubUrl(foswiki.getPreference("WEB"), foswiki.getPreference("TOPIC"), val);
-                args.push('src="'+val+'"');
-                args.push('data-mce-src="'+val+'"');
-              }
-            }
-            if (args.length) {
-              return "<img "+args.join(" ")+"/>";
-            } else {
-              return string;
-            }
-          });
-        }
+      self.updateContent().then(function() {
+        dfd.resolve();
+      }, function() {
+        dfd.reject();
       });
-      self.on("GetContent", function() { self.shell.log("got GetContent event"); });
-*/
     };
 
+    self.opts.tinymce.setup = function(editor) {
+      self.shell.log("setup instance");
+      self.editor = editor;
+
+      if (self.opts.debug) {
+        window.editor = editor; // playground
+      }
+
+      self.on("keyup", function(ev) {
+        return self.shell.handleKeyUp(ev);
+      });
+      self.on("keydown", function(ev) {
+        return self.shell.handleKeyDown(ev);
+      });
+    };
+
+    // finally
     tinymce.init(self.opts.tinymce);
 
   }).fail(function() {
@@ -263,13 +245,11 @@ TinyMCEEngine.prototype.setContent = function(val) {
 /*************************************************************************
  * get value and convert it to tml
  */
-/*
 TinyMCEEngine.prototype.getContent = function() {
   var self = this;
 
   return self.shell.html2tml(self.getValue());
 };
-*/
 
 /*************************************************************************
  * init gui
@@ -367,7 +347,6 @@ TinyMCEEngine.prototype.handleToolbarAction = function(ui) {
       data = $.extend({}, ui.data()),
       markup = data.markup;
 
-
   if (typeof(markup) !== 'undefined') {
     if (markup === 'numberedListMarkup') {
       self.shell.toolbar.find(".ui-natedit-numbered").addClass("ui-natedit-active");
@@ -383,7 +362,20 @@ TinyMCEEngine.prototype.handleToolbarAction = function(ui) {
       return;
     } 
 
-    if (self.editor.formatter.get(markup)) {
+    if (markup === 'indentMarkup') {
+      self.editor.execCommand("indent");
+      return;
+    }
+
+    if (markup === 'outdentMarkup') {
+      self.editor.execCommand("outdent");
+      return;
+    }
+
+    if (typeof(self.opts[markup]) !== 'undefined') {
+      delete data.markup;
+      data.value = self.opts[markup];
+    } else if (self.editor.formatter.get(markup)) {
       delete data.markup;
       self.editor.formatter.toggle(markup);
     }
@@ -401,44 +393,113 @@ TinyMCEEngine.prototype.insert = function(text) {
   self.editor.insertContent(text);
 };
 
+/*************************************************************************
+ * append content to the end
+ */
+TinyMCEEngine.prototype.append = function(text) {
+  var self = this,
+    editor = self.editor;
+
+  editor.selection.setCursorLocation(editor.getBody(), editor.getBody().children.length);
+  self.insert(text);
+};
+
 /*****************************************************************************
  * parse the currently selected image into a data hash
  */
 TinyMCEEngine.prototype.getImageData = function(data) {
   var self = this,
       imgElem = self.editor.selection.getNode(),
+      imgData = $(imgElem).data(),
       urlData,
       excludePattern = new RegExp("image(Simple|Float|Thumb|Frame|Plain)(_left|_right|_none|_center)?");
 
-  data = $.extend({}, {
-    web: foswiki.getPreference("WEB"),
-    topic: foswiki.getPreference("TOPIC")
-  }, data) || {};;
+
+  //console.log("called getImageData()",data);
+  data = data || {};
 
   if (imgElem && imgElem.nodeName === 'IMG') {
-    urlData = self.shell.parseUrl(imgElem.src);
+    urlData = imgData.file || imgElem.src;
+    urlData = self.shell.parseUrl(urlData);
 
+    data.web = imgData.web || urlData.web || data.web;
+    data.topic = imgData.topic || urlData.topic || data.topic;
+    const webTopic = foswiki.normalizeWebTopicName(data.web, data.topic);
+    data.web = webTopic[0];
+    data.topic = webTopic[1];
+    data.file = urlData.file || data.file;
+
+    //data.src = imgElem.src;
     data.width = imgElem.width || data.width; 
     data.height = imgElem.height || data.height; 
     data.align = imgElem.align || data.align; 
-    data.type = imgElem.dataset.type;
-    data.caption = imgElem.dataset.caption;
-    data.web = urlData.web || data.web;
-    data.topic = urlData.topic || data.topic;
-    data.file = urlData.file || data.file;
+    data.type = imgData.type;
+    data.href = imgData.href;
+    data.caption = imgData.caption;
+    data.id = imgElem.id;
+    data.align = imgElem.align;
+    data.type = imgData.type;
+    data.caption = imgData.caption || '';
 
     data.classList = Array.from(imgElem.classList).filter(function(item) {
       return !excludePattern.test(item);
     });
-    data.id = imgElem.id;
-    data.align = imgElem.align;
-    data.type = imgElem.dataset.type;
-    data.caption = imgElem.dataset.caption || '';
+
   }
+  //console.log("... data=",data);
 
   return data;
 };
 
+
+/*************************************************************************
+ * parse the current selection and return the data to be used generating the tmpl
+ */
+TinyMCEEngine.prototype.parseLink = function(text) {
+  var self = this, 
+    node = self.editor.selection.getNode(),
+    webTopic = node.getAttribute("data-topic"),
+    currWebTopic = self.shell.formManager.getWebTopic(),
+    data;
+
+
+  if (typeof(text) === 'undefined') {
+    text = self.getSelection();
+  }
+  //console.log("called parseLink()",text);
+
+  data = {
+    selection: text,
+    web: currWebTopic[0],
+    topic: currWebTopic[1],
+    type: 'topic',
+  };
+
+  if (webTopic) {
+    webTopic = foswiki.normalizeWebTopicName(data.web, webTopic);
+    data.web = webTopic[0];
+    data.topic = webTopic[1];
+    data.type = "topic";
+  } else if (node.nodeName === 'A') {
+    data.url = node.getAttribute("href");
+    data.type = "external";
+    if (data.url.match(/^(?:%ATTACHURL(?:PATH)?%\/)(.*)$/)) {
+      data.file = RegExp.$1;
+      data.type = "attachment";
+    } else if (data.url.match(/^(?:%PUBURL(?:PATH)?%\/)(.*)\/(.*?)\/(.*?)$/)) {
+      data.web = RegExp.$1;
+      data.topic = RegExp.$2;
+      data.file = RegExp.$3;
+      data.type = "attachment";
+    }
+  }
+
+  if (data.selection === data.topic) {
+    data.selection = ""
+  }
+
+  return data;
+};
 
 /***************************************************************************
  * insert an image
@@ -454,15 +515,28 @@ TinyMCEEngine.prototype.getImageData = function(data) {
  */
 TinyMCEEngine.prototype.insertImage = function(opts) {
   var self = this,
-      elem, src;
+      elem,
+      imgRegex = /\.(avif|jpe?g|gif|png|bmp|webp|svg|ico|tiff?|xcf|psd|heic|heif)$/i,
+      webTopic = self.shell.formManager.getWebTopic();
 
-  //console.log("insertImage, opts=",opts);
+  opts.web = opts.web || webTopic[0];
+  opts.topic = opts.topic || webTopic[1];
 
-  src= foswiki.getPubUrlPath(opts.web, opts.topic, opts.file);
-  elem = $("<img />").attr({
-    "src": src,
-    "data-mce-src": src
-  });
+  // get uri for image
+  if (!opts.src) {
+    if (imgRegex.test(opts.file)) {
+      // regular image
+      opts.src = foswiki.getPubUrlPath(opts.web, opts.topic, opts.file);
+    } else {
+      // using rest handler to process image
+      opts.src = foswiki.getScriptUrlPath("rest", "ImagePlugin", "process", {
+        topic: opts.web + "." + opts.topic,
+        file: opts.file
+      })
+    }
+  }
+
+  elem = $("<img />").attr("src", opts.src);
 
   if (opts.width) {
     elem.attr("width", opts.width);
@@ -486,17 +560,43 @@ TinyMCEEngine.prototype.insertImage = function(opts) {
   if (opts.type) {
     elem.attr("data-type", opts.type);
   }
+  if (opts.href) {
+    elem.attr("data-href", opts.href);
+  }
+  if (opts.topic !== webTopic[1] || opts.web !== webTopic[0]) {
+    elem.attr("data-topic", opts.web+"."+opts.topic);
+  }
+
+  elem.attr("data-file", opts.file);
 
   opts.prefix = opts.prefix === undefined ? "": opts.prefix;
   opts.suffix = opts.suffix === undefined ? "": opts.suffix;
 
   elem = opts.prefix + elem.get(0).outerHTML + opts.suffix;
 
-  //console.log("IMG=",elem);
-  if (!self.editor.selection.isCollapsed()) {
-    self.editor.selection.getNode().remove();
-  }
   self.insert(elem);
+};
+
+/*************************************************************************
+ * registered blobs can be used in editor
+ */
+TinyMCEEngine.prototype.registerBlob = function(info) {
+  var self = this;
+
+  return $.Deferred(function(dfd) {
+    var reader = new FileReader();
+
+    reader.addEventListener("load", function() {
+      var blobCache =  self.editor.editorUpload.blobCache,
+        base64 = reader.result.split(',')[1],
+        blobInfo = blobCache.create(info.id, info.file, base64);
+
+      blobCache.add( blobInfo );
+      dfd.resolve(blobInfo.blobUri());
+    });
+
+    reader.readAsDataURL(info.file);
+  }).promise();
 };
 
 /*************************************************************************
@@ -513,9 +613,39 @@ TinyMCEEngine.prototype.remove = function() {
  * returns the current selection
  */
 TinyMCEEngine.prototype.getSelection = function() {
-  var self = this;
+  var self = this,
+    selection = self.editor.selection,
+    node = selection.getNode();
 
-  return self.editor.selection.getContent();
+  if (selection.isCollapsed()) {
+    if (node.nodeName == 'BODY' || node.nodeName == 'IMG') {
+      return "";
+    } else {
+      return node.textContent;
+    }
+  } else {
+    return selection.getContent();
+  }
+};
+
+/*************************************************************************
+ * replace the selection with the given text.
+ * if the selection is collapsed append the text
+ */
+TinyMCEEngine.prototype.setSelection = function(text) {
+  var self = this,
+    selection = self.editor.selection,
+    node = self.editor.selection.getNode();
+
+  if (selection.isCollapsed()) {
+    if (node.nodeName == 'BODY') {
+      self.append(text);
+    } else {
+      $(self.editor.selection.getNode()).html(text);
+    }
+  } else {
+    self.editor.selection.setContent(text);
+  }
 };
 
 /*************************************************************************
@@ -523,12 +653,11 @@ TinyMCEEngine.prototype.getSelection = function() {
   */
 TinyMCEEngine.prototype.getSelectionLines = function() {
   var self = this, 
-      range = self.editor.selection.getRng(),
-      start = range.startOffset,
-      end = range.endOffset,
+      rng = self.editor.selection.getRng(),
+      start = rng.startOffset,
+      end = rng.endOffset,
       node = self.editor.selection.getNode(),
-      text = $(node).text();
-
+      text = self.getSelection();
 
   while (start > 0 && text.charCodeAt(start-1) !== 13 && text.charCodeAt(start-1) !== 10) {
     start--;
@@ -542,14 +671,45 @@ TinyMCEEngine.prototype.getSelectionLines = function() {
     end = text.length - 1;
   }
 
-//self.shell.log("start=",start,"end=",end,"range=",range,"text=",text,"len=",text.length);
+  //self.shell.log("start=",start,"end=",end,"rng=",rng,"text=",text,"len=",text.length);
 
-  range.setStart(node, start);
-  //range.setEnd(node, end);
+  rng.setStart(node, start);
+  //rng.setEnd(node, end);
 
-  self.editor.selection.setRng(range);
+  self.editor.selection.setRng(rng);
 
   return text;
+};
+
+/*************************************************************************
+ * sort the current selection
+ */
+TinyMCEEngine.prototype.sortSelection = function(dir) {
+  var self = this,
+    node = self.editor.selection.getNode(),
+    sortedNode;
+
+  if (self.editor.selection.isCollapsed()) {
+    return;
+  }
+  
+  sortedNode = $(node).children().sort(function(a, b) {
+    var vA, vB;
+
+    if (dir == 'asc') {
+      vA = $(a).text(),
+      vB = $(b).text();
+    } else {
+      vA = $(b).text(),
+      vB = $(a).text();
+    }
+
+    return (vA < vB) ? -1 : (vA > vB) ? 1 : 0;
+  });
+
+  self.editor.undoManager.add();
+  self.editor.selection.select(node);
+  self.editor.selection.setNode(sortedNode);
 };
 
 /*************************************************************************
@@ -569,6 +729,25 @@ TinyMCEEngine.prototype.getCaretPosition = function() {
   var self = this;
 
   return self.editor.selection.getEnd();
+};
+
+/*****************************************************************************
+ * get the coordinates of the cursor
+ */
+TinyMCEEngine.prototype.getCursorCoords = function(chOffset) {
+  var self = this,
+      rng = self.editor.selection.getRng(),
+      rect = rng.getBoundingClientRect(),
+      editorRect = self.editor.getContainer().getBoundingClientRect(),
+      editorTop = window.scrollY + editorRect.top,
+      editorLeft = window.scrollX + editorRect.left;
+
+  return {
+    top: editorTop + rect.top,
+    left: editorLeft + rect.left,
+    bottom: editorTop + rect.bottom,
+    right: editorLeft + rect.right
+  };
 };
 
 /*************************************************************************
@@ -690,74 +869,79 @@ TinyMCEEngine.prototype.insertTable = function(opts) {
  */
 TinyMCEEngine.prototype.insertLink = function(opts) {
   var self = this, markup, link,
-      web = foswiki.getPreference("WEB");
+    web = foswiki.getPreference("WEB"),
+    natEditOpts = foswiki.getPreference("NatEditPlugin"),
+    webTopic = self.shell.formManager.getWebTopic();
 
-  self.shell.log("called insertLink",opts);
+  return $.Deferred(function(dfd) {
 
-  if (typeof(opts.url) !== 'undefined') {
-    if (opts.url === '') {
-      return; // nop
-    }
+    if (typeof(opts.url) !== 'undefined') {
+      if (opts.url === '') {
+        dfd.reject();
+        return;
+      }
 
-    if (typeof(opts.text) !== 'undefined' && opts.text !== '') {
-      markup = "<a href='"+opts.url+"'>"+opts.text+"</a>";
+      if (typeof(opts.text) !== 'undefined' && opts.text !== '') {
+        markup = `<a href='${opts.url}'>${opts.text}</a>`;
+      } else {
+        markup = `<a href='${opts.url}'>${opts.url}</a>`;
+      }
+    } else if (typeof(opts.file) !== 'undefined') {
+      // attachment link
+
+      if (typeof(opts.web) === 'undefined' || opts.web === '' || 
+          typeof(opts.topic) === 'undefined' || opts.topic === '') {
+        dfd.reject();
+        return;
+      }
+
+      if (!opts.text && natEditOpts.TopicInteractionPluginEnabled) {
+        $.post(foswiki.getScriptUrlPath("rest", "TopicInteractionPlugin", "getlink"), {
+          id: foswiki.getUniqueID(),
+          topic: opts.web+"."+opts.topic,
+          filename: opts.file,
+          expand: true
+        }).then(function(data) {
+          var response = JSON.parse(data);
+
+          //var html = $(response.result.html);
+          //html.attr("data-tml", response.result.tml);
+
+          self.remove();
+          self.insert(response.result.tml);
+          dfd.resolve();
+        });
+        return;
+      } 
+
+      if (webTopic[0] === opts.web && webTopic[1] === opts.topic) {
+        link = `%ATTACHURLPATH%/${opts.file}`;
+      } else {
+        link = `%PUBURLPATH%/${opts.web}/${opts.topic}/${opts.file}`;
+        //link = foswiki.getPubUrlPath(opts.web, opts.topic, opts.file);
+      }
+      opts.text = opts.text || opts.file;
+      markup = `<a href='${link}'>${opts.text}</a>`;
+
     } else {
-      markup = "<a href='"+opts.url+"'>"+opts.url+"</a>";
-    }
-  } else if (typeof(opts.file) !== 'undefined') {
-    // attachment link
+      // wiki link
+      
+      if (typeof(opts.topic) === 'undefined' || opts.topic === '') {
+        dfd.reject();
+        return; // nop
+      }
 
-    if (typeof(opts.web) === 'undefined' || opts.web === '' || 
-        typeof(opts.topic) === 'undefined' || opts.topic === '') {
-      return; // nop
-    }
+      link = foswiki.getScriptUrlPath("view", opts.web, opts.topic);
 
-    link = '%PUBURLPATH%/'+opts.web+'/'+opts.topic+'/'+opts.file;
-
-    markup = "<a href='"+link+"'>";
-
-    if (typeof(opts.text) !== 'undefined' && opts.text !== '') {
-      markup += opts.text;
-    } else {
-      markup += opts.file;
-    }
-    markup += "</a>";
-
-  } else {
-    // wiki link
-    
-    if (typeof(opts.topic) === 'undefined' || opts.topic === '') {
-      return; // nop
+      opts.text = opts.text || opts.topic;
+      markup = `<a class='TMLlink' href='${link}' data-topic='${opts.web}.${opts.topic}'>${opts.text}</a>`;
     }
 
-    if (typeof(opts.web) !== 'undefined' && opts.web !== web) {
-      link = opts.web + '.';
-    } else {
-      link = "";
-    }
-    link += opts.topic; 
+    self.setSelection(markup);
 
-    markup = "<a href='"+link+"'>";
+    dfd.resolve();
 
-    if (typeof(opts.text) !== 'undefined' && opts.text !== '') {
-      markup += opts.text;
-    }  else {
-      markup += opts.topic;
-    }
-    markup += "</a>";
-  }
-
-  //self.shell.log("markup=",markup);
-
-  var selection = self.editor.selection.getContent();
-  if (self.editor.selection.isCollapsed()) {
-    var selRng = self.editor.selection.getRng();
-    selRng.expand("word");
-    self.editor.selection.setRng(selRng);
-  } 
-
-  self.remove();
-  self.insert(markup);
+  }).promise();
 };
 
 /*************************************************************************
@@ -775,19 +959,10 @@ TinyMCEEngine.prototype.setValue = function(val) {
 TinyMCEEngine.prototype.getValue = function() {
   var self = this;
 
-  self.shell.log("TinyMCEEngine::getValue");
-  return self.editor.getContent();
+  self.shell.log("TinyMCEEngine::getValue editor=",self.editor);
+  return self.editor ? self.editor.getContent() : "";
 };
 
-
-/*****************************************************************************
- * search & replace a term in the textarea
- */
-TinyMCEEngine.prototype.searchReplace = function(search, replace, ignoreCase) {
-  /*var self = this;*/
-
-  throw("not implemented: searchReplace(",search,replace,ignoreCase,")");
-};
 
 /*************************************************************************
  * get the DOM element that holds the editor engine
@@ -835,6 +1010,102 @@ TinyMCEEngine.prototype.toggleFullscreen = function() {
   self.editor.execCommand('mceFullScreen');
 };
 
+/*****************************************************************************
+ * get word at current cursor position
+ */
+TinyMCEEngine.prototype.getCurrentWord = function() {
+  var self = this;
+
+  return self.editor.selection.getSel().focusNode.nodeValue;
+};
+
+/*****************************************************************************
+ * get text from line start to cursor
+ */
+TinyMCEEngine.prototype.getBeforeCursor = function(include) {
+  var self = this,
+      selection = self.editor.selection,
+      rng = selection.getRng(),
+      data = rng.startContainer.data,
+      end = rng.startOffset + (include?1:0);
+
+  return data?data.slice(0, end):"";
+};
+
+/*****************************************************************************
+ * get text from cursor to line end
+ */
+TinyMCEEngine.prototype.getAfterCursor = function(include) {
+  var self = this,
+      selection = self.editor.selection,
+      rng = selection.getRng(),
+      data = rng.startContainer.data,
+      start = rng.startOffset + (include?0:1);
+
+  return data?data.slice(start):"";
+};
+
+/*************************************************************************
+ * process completion for a given string
+ */
+TinyMCEEngine.prototype.execCompletion = function(completion, string) {
+  var self = this,
+      coords = self.getCursorCoords(),
+      dropdown = self.shell.dropdown,
+      editorRect = self.editor.getContainer().getBoundingClientRect();
+
+  completion.search.call(self.shell, string).then(function(data) {
+      var list = [];
+
+      $.each(data, function(i, hit) {
+        list.push(
+          $("<li>"+completion.template.call(self.shell, hit)+"</li>")
+            .data("callback", function() {
+              var result = completion.result.call(self.shell, hit),
+                rng = self.editor.selection.getRng(),
+                offset = rng.startOffset - string.length;
+
+              rng.setStart(rng.startContainer, offset);
+              self.editor.selection.setRng(rng);
+              self.editor.selection.setContent(result); 
+            })
+            .on("click", function() {
+              dropdown.hide();
+              dropdown.callback($(this));
+              self.focus();
+            })
+        );
+      });
+
+      if (list.length) {
+        var rng = self.editor.selection.getRng().cloneRange(),
+          offset = rng.endOffset - string.length + 1,
+          rect;
+
+        if (offset >=0 ) {
+          rng.setEnd(rng.endContainer, offset);
+          rect = rng.getBoundingClientRect();
+          dropdown.set(list).show({
+            top: coords.bottom,
+            left: window.scrollX + editorRect.left + rect.x,
+          });
+        }
+      } else {
+        dropdown.hide();
+      }
+  });
+};
+
+/*************************************************************************
+ * replace text between two positions
+ */
+TinyMCEEngine.prototype.replace = function(text, from, to) {
+  var self = this,
+      content = self.editor.getContent(),
+      updatedContent = content.substring(0, from) + text + content.substring(to);
+
+  self.editor.setContent(updatedContent);
+};
 
 /***************************************************************************
  * editor defaults
@@ -847,6 +1118,7 @@ TinyMCEEngine.defaults = {
   tinymce: {
     deprecation_warnings: false, // need to fix them at some time in the future 
     selector: 'textarea#topic',
+    indentation:'35px',
     min_height: 300,
     menubar: false,
     toolbar: false,
@@ -855,8 +1127,14 @@ TinyMCEEngine.defaults = {
     remove_script_host: false,
     convert_urls: true,
     submit_patch: false,
+    browser_spellcheck: false,
+    //contextmenu: false,
     /*document_base_url: ... set later */
-    plugins: 'autolink fullscreen hr legacyoutput lists -natedit-image -natedit-link paste searchreplace table textpattern', 
+    plugins: 'autolink fullscreen hr lists -natedit-image -natedit-link paste searchreplace table textpattern', 
+    /*
+    spellchecker_language: 'en_US',
+    spellchecker_active: true,
+    */
     //table_toolbar : "tabledelete | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol",
     table_toolbar: "",
     table_appearance_options: false,
@@ -864,8 +1142,15 @@ TinyMCEEngine.defaults = {
     table_cell_advtab: false,
     table_row_advtab: false,
     object_resizing: "img",
+
     paste_data_images: true,
+    paste_tab_spaces: 3,
     keep_styles: false,
+    paste_preprocess: function(plugin, args) {
+      //console.log("paste_preprocess args=",args);
+      args.content = _clearClipboardContent(args.content);
+    },
+
     image_title: true,
     image_class_list: [
 	{ title: 'Left', value: '' },
@@ -882,7 +1167,8 @@ TinyMCEEngine.defaults = {
 	{title: 'Dog', value: 'mydog.jpg'},
 	{title: 'Cat', value: 'mycat.gif'}
       ]);
-    }, */ 
+    }, 
+    */ 
     content_css: [],
     style_formats_autohide: true,
     removeformat: [{ 
@@ -901,8 +1187,8 @@ TinyMCEEngine.defaults = {
       boldMarkup: { inline: "b", toolbar: ".ui-natedit-bold" },
       italicMarkup: { inline: "i", toolbar: ".ui-natedit-italic" },
       monoMarkup: { inline: "code", toolbar: ".ui-natedit-mono" },
-      underlineMarkup: { inline: "span", styles: { "text-decoration": "underline" }, toolbar: ".ui-natedit-underline"  },
-      strikeMarkup: { inline: "span", styles: { "text-decoration": "line-through" }, toolbar: ".ui-natedit-strike"  },
+      underlineMarkup: { inline: "u", toolbar: ".ui-natedit-underline"  },
+      strikeMarkup: { inline: "s", toolbar: ".ui-natedit-strike"  },
       superscriptMarkup: { inline: "sup", toolbar: ".ui-natedit-super" },
       subscriptMarkup: { inline: "sub", toolbar: ".ui-natedit-sub" },
       leftMarkup: { block: "p", attributes: { "align": "left" }, toolbar: ".ui-natedit-left" },

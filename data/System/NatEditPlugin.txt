@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="micha" comment="" date="1738173862" format="1.1" reprev="1" version="3"}%
+%META:TOPICINFO{author="micha" comment="" date="1761226002" format="1.1" reprev="1" version="5"}%
 ---+!! Natural Edit Plugin
 %FORMFIELD{"Description"}%
 
@@ -40,12 +40,22 @@ There are a couple of preference settings for the editor:
 
 | *Name* | *Description* | *Default* |
 | NOWYSIWYG | disables wysiwyg editing; the default wikiwyg edit; if NOWYSIWYG is =on= the =CodemirrorEngine= is used, otherwise =TinyMCEEngine= | =off= |
-| NATEDIT_ENGINE | name of the edit engine, possible values are =Code,irrorEngine= and =TinyMCEEngine= | depends on NOWYSIWYG |
+| NATEDIT_ENGINE | name of the edit engine, possible values are =CodeMirrorEngine= and =TinyMCEEngine= | depends on NOWYSIWYG |
 | NATEDIT_HELP | topic to be displayed in the help tab of the editor | %SYSTEMWEB%.NatEditHelpText |
 | NATEDIT_SPELLCHECK | boolean to enable/disable spell checking in the editor | =on= |
 | NATEDIT_NORMALIZETABLES | possible values are =on= (normalize table cells and rows), =off=, =full= (same as =on= but also align columns) | =off= |
 | NATEDIT_KEYMAP | editor mode of codemirror, possible values to diverge from the default key map: vim, sublime | default |
 | NATEDIT_LINEWRAPPING | boolean to enable/disable line wrapping | =off= |
+| NATEDIT_LINENUMBERS | boolean to enable/disable line numbers | =off= |
+| NATEDIT_FOLDGUTTER | boolean to enable/disable folding | =on= in edit mode, =off= everywhere else such as comments etc |
+| NATEDIT_OPTIONS | | |
+| NATEDIT_DEBUG | | |
+| NATEDIT_PURIFY | boolean to enable/disable sanitizing user inputs | on |
+| NATEDIT_PURIFY_ADDATTRS | additionally allowed html attributes | contenteditable, target |
+| NATEDIT_PURIFY_ADDTAGS | additional allowed html tags | verbatim, literal, sticky, nop, noautolink, dirtyarea, graphviz, dot, mermaid, latex |
+| NATEDIT_PURIFY_FOBIDATTRS | additional forbidden html attributes | |
+| NATEDIT_PURIFY_FOBIDTAGS | additional forbidden html tags | font |
+| NATEDIT_SHOWTABLEEDITORHELP| boolean to enable/disable the display of the table editor helper popup | on |
 | NATEDIT_CODEMIRROR_OPTIONS | options for codemirror, see codemirror documentation | |
 
 ---++ Table editor shortcuts
@@ -202,7 +212,7 @@ Within the WIKIWYG editor editing a table enables a few extra keyboard shortcuts
 %META:FIELD{name="Release" title="Release" value="%25$RELEASE%25"}%
 %META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
 %META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/distro"}%
-%META:FIELD{name="Copyright" title="Copyright" value="(c) 2007-2021 Foswiki Contributors, All Rights Reserved"}%
+%META:FIELD{name="Copyright" title="Copyright" value="(c) 2007-2025 Foswiki Contributors, All Rights Reserved"}%
 %META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
 %META:FIELD{name="Home" title="Home" value="https://foswiki.org/Extensions/%25$ROOTMODULE%25"}%
 %META:FIELD{name="Support" title="Support" value="https://foswiki.org/Support/%25$ROOTMODULE%25"}%

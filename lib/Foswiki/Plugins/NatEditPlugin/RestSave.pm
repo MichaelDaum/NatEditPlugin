@@ -21,6 +21,8 @@ use Foswiki::Plugins ();
 use Foswiki::Func ();
 use Encode ();
 use Error qw( :try );
+use URI ();
+
 my $types;
 
 sub handle {
@@ -38,23 +40,44 @@ sub handle {
   my $request = $session->{request};
 
   # convert to utf8
+  my $redirect;
   foreach my $key ($request->multi_param()) {
-    my @val = $request->multi_param($key);
+    if ($key eq 'redirectto') {
+      $redirect = $request->param($key);
+      if ($redirect && $redirect ne 'none' && $redirect !~ /^https?:/) {
 
-    # hack to prevent redirecting
-    if ($key eq 'redirectto' && @val && $val[0] eq '') {
+        my $uri = URI->new($redirect);
 
-      #print STDERR "deleting bogus redirectto\n";
+        my $anchor = $uri->fragment // '';
+        $anchor = "#$anchor" if $anchor ne "";
+
+        my $path = $uri->path();
+        $path =~ s/^\///;
+        $path =~ s/\//./g;
+
+        my $query = $uri->query // '';
+        $query = "?" . $query if $query ne "";
+
+        my ($web, $topic) = Foswiki::Func::normalizeWebTopicName($session->{webName}, $path);
+        $redirect = Foswiki::Func::getScriptUrl($web, $topic, 'view') . $query . $anchor;
+      }
       $request->delete($key);
       next;
     }
 
+    my @val = $request->multi_param($key);
     if (ref $val[0] eq 'ARRAY') {
       $request->param($key, [map(_toSiteCharSet($_), @{$val[0]})]);
     } else {
       $request->param($key, [map(_toSiteCharSet($_), @val)]);
     }
   }
+
+  my $web = $request->param("web") || $session->{webName};
+  my $topic = $request->param("topic") || $session->{topicName};
+  ($web, $topic) = Foswiki::Func::normalizeWebTopicName($web, $topic);
+
+  Foswiki::Func::pushTopicContext($web, $topic); #SMELL: Foswiki::UI::Save does not respect the web url param
 
   # do a normal save
   my $error;
@@ -68,22 +91,34 @@ sub handle {
 
     if ($request->param("action_checkpoint")) {
       # get a new lease
-      my $topicObject = Foswiki::Meta->new($session, $session->{webName}, $session->{topicName});
+      my $topicObject = Foswiki::Meta->new($session, $web, $topic);
       $topicObject->setLease($Foswiki::cfg{LeaseLength});
     }
   } catch Foswiki::OopsException with {
     $error = shift;
-    if ($error->{def} eq 'merge_notice') {
-      $error = "Topic has been merged";
-    }
-    $status = 419;
-  };
+    my $def = $error->{def};
+    $status = $error->{status} || 419;
 
-  try {
-    processUploads($session, $response);
-  } catch Error with {
-    $error = shift;
-    $status = $error eq 'access denied' ? 403 : 500;
+    # short version of messages.tmpl
+    if ($def eq 'merge_notice') {
+      $error = "The topic has been changed by somebody else while you were still editing. Those changes have been mereged.";
+    } elsif ($def eq 'topic_exists') {
+      $error = "Cannot create topic because it already exists.";
+    } elsif ($def eq 'bad_script_parameters') {
+      $error = "Incorrect parameters to the =save= script.";
+    } elsif ($def eq 'invalid_topic_name') {
+      $error = "The name of the topic contains invalid characters.";
+    } elsif ($def eq 'invalid_topic_parameter') {
+      $error = "Invalid topic parameter";
+    } elsif ($def eq 'mandatory_field') {
+      $error = "Required fields were not filled out";
+    } elsif ($def eq 'no_such_topic_template') {
+      $error = "Template does not exist";
+    } elsif ($def eq 'not_wikiword') {
+      $error = "Topic name is not a WikiWord";
+    } else {
+      $error = $def;
+    }
   };
 
   my $requestedWith = $request->http("X-Requested-With");
@@ -91,9 +126,10 @@ sub handle {
 
   # clear redirect enforced by a checkpoint action
   # preserve redirect location in another header to be performed client side 
-  my $redirect = $response->getHeader("Location");
+
+  $redirect = $response->getHeader("Location") if !defined($redirect) || $redirect eq '' || $redirect ne 'none';
   $response->deleteHeader("Location", "Status");
-  $response->pushHeader('X-Location', $redirect) if $redirect;
+  $response->pushHeader('X-Location', $redirect) if $redirect && $redirect ne 'none';
   $response->status($status);
 
   # add validation key to HTTP header, if required
@@ -115,8 +151,7 @@ sub processUploads {
   my $request = $session->{request};
   my $uploads = $request->uploads();
   return unless $uploads;
-
-  #print STDERR "found " . scalar(keys %$uploads) . " uploads\n" if $uploads;
+  return unless scalar(keys %$uploads);
 
   my $web = $session->{webName};
   my $topic = $session->{topicName};
@@ -130,13 +165,13 @@ sub processUploads {
         if defined $Foswiki::cfg{ScriptUrlSeparator};
     }
   }
-  #print STDERR "web=$web, topic=$topic\n";
   return unless Foswiki::Func::topicExists($web, $topic);
 
   my ($meta, $text) = Foswiki::Func::readTopic($web, $topic);
 
-  throw Error::Simple("access denied")
-    unless Foswiki::Func::checkAccessPermission("CHANGE", Foswiki::Func::getWikiName(), $text, $topic, $web, $meta);
+  my $wikiName = Foswiki::Func::getWikiName();
+  return
+    unless Foswiki::Func::checkAccessPermission("CHANGE", $wikiName , $text, $topic, $web, $meta);
 
   my $maxSize = Foswiki::Func::getPreferencesValue('ATTACHFILESIZELIMIT') // "";
   $maxSize = 0 unless ($maxSize =~ /([0-9]+)/);
@@ -144,7 +179,6 @@ sub processUploads {
   foreach my $fileName (keys %$uploads) {
     my $upload = $uploads->{$fileName};
 
-    #print STDERR "found upload $fileName\n";
     my $tmpFileName = $upload->tmpFileName;
     my $origName;
     ($fileName, $origName) = Foswiki::Sandbox::sanitizeAttachmentName($fileName);
@@ -180,8 +214,6 @@ sub processUploads {
     my $fileHide = ($prevAttachment->{attr} && $prevAttachment->{attr} =~ /h/) ? 'on' : 'off';
     $fileHide = $fileHide eq 'on' ? 1 : 0;
 
-    #print STDERR "web=$web, topic=$topic, fileName=$fileName, origName=$origName, tmpFileName=$tmpFileName, fileComment=$fileComment, fileHide=$fileHide\n";
-
     my $error;
     try {
       $error = Foswiki::Func::saveAttachment(
@@ -200,7 +232,6 @@ sub processUploads {
       $error = shift->{-text};
     };
     close($stream) if $stream;
-
     throw Error::Simple($error) if $error;
   }
 }
@@ -234,12 +265,12 @@ sub _isValidRequest {
   my $session = shift;
 
   my $request = $session->{request};
-  return unless $Foswiki::cfg{Validation}{Method} eq 'strikeone';
+  return 1 unless $Foswiki::cfg{Validation}{Method} eq 'strikeone';
 
   my $nonce = $request->param('validation_key');
   my $cgiSession = $session->getCGISession();
 
-  return unless defined $cgiSession;
+  return 1 unless defined $cgiSession;
 
   return Foswiki::Validation::isValidNonce($cgiSession, $nonce);
 }

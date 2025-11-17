@@ -11,8 +11,17 @@
       boldMonoRegExp   = /\=\=(?:\S+|(?:\S.*?\S))\=\=(?=$|[\s,.;:!?\)])/,
       colorTagRegExp   = /(AQUA|BLACK|BLUE|BROWN|GRAY|GREEN|LIME|MAROON|NAVY|OLIVE|ORANGE|PINK|PURPLE|RED|SILVER|TEAL|WHITE|YELLOW)/,
 
-      headingsRegExp = /\-\-\-+(\++|\#+)(?:!!)?(?=\s)/,
+      headingsRegExp = /^\-\-\-+(\++|\#+)(?:!!)?(?=\s)/,
       hrRegExp = /\-\-\-+\s*$/,
+      tmplDefExp = /%TMPL:DEF{"(.*?)"}%/,
+      tmplEndExp = /%TMPL:END%/,
+      tmplIncludeExp = /%TMPL:INCLUDE{"(.*?)"}%/,
+
+      startVerbatimExp = /^\s*<verbatim[^>]*?>/,
+      stopVerbatimExp = /^\s*<\/verbatim>/,
+
+      startIncludeExp = /^\s*%(STARTINCLUDE|STARTSECTION{(.*?)})%/,
+      stopIncludeExp = /%(STOPINCLUDE|ENDSECTION{(.*?)})%/,
 
       squareBracketRegExp = /\[\[(.+?)(?:\]\[(.+?))?\]\]/,
 
@@ -47,8 +56,8 @@
       listRegExp = /(\*|(?:[1AaIi]\.)|(?:\d+\.?)|:)(?= )/,
       listIndentRegExp = /^((?:\t| {3})+)(\*|(?:[1AaIi]\.)|(?:\d+\.?)|:)(\s*)(.*)$/,
 
-      simpleMacroRegExp = /\%([A-Za-z\d\:]+)(?:\{\s*\})?\%/,
-      macroStartRegExp = /\%([A-Za-z\d:]+){/,
+      simpleMacroRegExp = /\%([A-Za-z\d\:_]+)(?:\{\s*\})?\%/,
+      macroStartRegExp = /\%([A-Za-z\d:_]+){/,
       macroEndRegExp = /\}\%/,
       macroCommentRegExp = /%{|}%/,
 
@@ -100,7 +109,7 @@
       } 
 
       // TML 
-      if (typeof(prevChar) === "undefined" || prevChar.match(/\s|\(/)) { // simulate look behind
+      if (prevChar === undefined || prevChar.match(/\s|\(/)) { // simulate look behind
         // bold italic
         if (stream.match(boldItalicRegExp, 1)) {
           return "strong em";
@@ -318,52 +327,150 @@
     return this.pos > 0 ? this.string.charAt(this.pos - 1) : undefined;
   };
 
+
+  // support foswiki tml folding
   CodeMirror.registerHelper("fold", "foswiki", function(cm, start) {
-    var firstLine, lastLine, lastLineNo, firstLevel,
-        level, lineNo;
+    var section = _getTmplFold(cm, start);
 
-    function headerLevel(line) {
-      var match = line.match(headingsRegExp);
-
-      if (match) {
-        return match[1].length;
-      }
-
+    if (section && section.from === undefined) {
       return;
     }
 
-    firstLine = cm.getLine(start.line);
-    firstLevel = headerLevel(firstLine);
-    if (typeof(firstLevel) === 'undefined') {
-      if (start.line === 0 && !/^\s*$/.test(firstLine)) {
-        firstLevel = 2; // when the first line doesn't have a heading, then simulate a h2
-      } else {
-        return;
-      }
+    return section 
+      /*|| _getVerbatimFold(cm, start) */
+      /*|| _getSectionFold(cm, start) */
+      || _getHeaderFold(cm, start);
+  });
+
+  function _getTmplFold(cm, start) {
+    var firstLine = cm.getLine(start.line),
+        lineNo;
+
+    if (tmplIncludeExp.test(firstLine) || (tmplDefExp.test(firstLine) && tmplEndExp.test(firstLine))) {
+      return {};
     }
 
-    lastLineNo = cm.lastLine();
+    if (tmplDefExp.test(firstLine)) {
+
+      const lastLineNo = cm.lastLine();
+
+      lineNo = start.line + 1;
+      while (lineNo < lastLineNo) {
+        if (tmplEndExp.test(cm.getLine(lineNo))) {
+          break;
+        }
+        lineNo++;
+      }
+
+      let lastLine = cm.getLine(lineNo) || cm.getLine(lastLineNo);
+
+      return {
+        from: CodeMirror.Pos(start.line, firstLine.length),
+        to: CodeMirror.Pos(lineNo, lastLine.length)
+      };
+    }
+  }
+
+  function _getVerbatimFold(cm, start) {
+    var firstLine = cm.getLine(start.line),
+        lineNo;
+
+    if (startVerbatimExp.test(firstLine)) {
+
+      const lastLineNo = cm.lastLine();
+
+      lineNo = start.line + 1;
+      while (lineNo < lastLineNo) {
+        if (stopVerbatimExp.test(cm.getLine(lineNo))) {
+          break;
+        }
+        lineNo++;
+      }
+
+      let lastLine = cm.getLine(lineNo) || cm.getLine(lastLineNo);
+
+      return {
+        from: CodeMirror.Pos(start.line, firstLine.length),
+        to: CodeMirror.Pos(lineNo, lastLine.length)
+      };
+    }
+  }
+
+  function _getSectionFold(cm, start) {
+    var firstLine = cm.getLine(start.line),
+        lineNo;
+
+    if (startIncludeExp.test(firstLine) && !stopIncludeExp.test(firstLine)) {
+
+      const lastLineNo = cm.lastLine();
+
+      lineNo = start.line + 1;
+      while (lineNo < lastLineNo) {
+        if (stopIncludeExp.test(cm.getLine(lineNo))) {
+          break;
+        }
+        lineNo++;
+      }
+
+      let lastLine = cm.getLine(lineNo) || cm.getLine(lastLineNo);
+
+      return {
+        from: CodeMirror.Pos(start.line, firstLine.length),
+        to: CodeMirror.Pos(lineNo, lastLine.length)
+      };
+    }
+  }
+
+  function _getHeaderFold(cm, start) {
+    var firstLine = cm.getLine(start.line),
+      firstLevel = _headerLevel(firstLine),
+      level, lineNo;
+
+    if (firstLevel === undefined) {
+      return;
+    }
+
+    const lastLineNo = cm.lastLine();
 
     lineNo = start.line + 1;
     while (lineNo < lastLineNo) {
-      level = headerLevel(cm.getLine(lineNo));
-      if (typeof(level) !== 'undefined' && firstLevel >= level) {
+      level = _headerLevel(cm.getLine(lineNo));
+      if (level !== undefined && firstLevel >= level) {
         break;
       }
       lineNo++;
     }
 
-    if (typeof(level) !== 'undefined') {
+    if (level !== undefined) {
       lineNo--;
     }
 
-    lastLine = cm.getLine(lineNo) || cm.getLine(lastLineNo);
+    let lastLine = cm.getLine(lineNo) || cm.getLine(lastLineNo);
 
     return {
       from: CodeMirror.Pos(start.line, firstLine.length),
       to: CodeMirror.Pos(lineNo, lastLine.length)
     };
-  });
+  }
+
+  function _headerLevel(line) {
+    var match = line.match(headingsRegExp);
+
+    if (match) {
+      return match[1].length;
+    }
+
+    return;
+  }
+
+  var _foldStatus = "unfold";
+  CodeMirror.commands.toggleFoldAll = function(cm) {
+    _foldStatus = _foldStatus === "unfold" ? "fold" : "unfold";
+    cm.operation(function() {
+      for (var i = cm.firstLine(), e = cm.lastLine(); i <= e; i++)
+        cm.foldCode(CodeMirror.Pos(i, 0), { scanUp: false }, _foldStatus);
+    });
+  };
 
   CodeMirror.commands.newlineAndIndentContinueFoswikiList = function(cm) {
     var ranges, replacements = [];

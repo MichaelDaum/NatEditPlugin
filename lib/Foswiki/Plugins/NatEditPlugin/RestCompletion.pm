@@ -1,4 +1,4 @@
-# Copyright (C) 2021-2022 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2021-2025 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@ use Foswiki::Meta ();
 use JSON ();
 
 use constant DBCACHE_ENABLED => 1;
-use constant SOLR_ENABLED => 0;
+use constant SOLR_ENABLED => 1;
 
 sub handle {
   my ($session, $plugin, $verb, $response) = @_;
@@ -29,10 +29,10 @@ sub handle {
 
   my $impl = "Foswiki::Plugins::NatEditPlugin::RestCompletion::";
 
-  if (DBCACHE_ENABLED && $context->{DBCachePluginEnabled}) {
-    $impl .= "DBCache";
-  } elsif (SOLR_ENABLED && $context->{SolrPluginEanabled}) {
+  if (SOLR_ENABLED && $context->{SolrPluginEnabled}) {
     $impl .= "Solr";
+  } elsif (DBCACHE_ENABLED && $context->{DBCachePluginEnabled}) {
+    $impl .= "DBCache";
   } else {
     $impl .= "Default";
   }

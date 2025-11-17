@@ -1,4 +1,4 @@
-# Copyright (C) 2021-2023 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2021-2025 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -49,6 +49,8 @@ sub handleMention {
   while (my $obj = $hits->next) {
     my $topic = $obj->fastget("topic");
     next if $topic =~ /^(ProjectContributor|WikiGuest|AdminUser|UnknownUser|RegistrationAgent)$/; # exclude base users TODO: make this configurable?
+
+    next unless Foswiki::Func::getCanonicalUserID($topic);
 
     push @result, {
       web => $web,
@@ -118,7 +120,7 @@ sub handleTopic {
       push @result, {
         web => $thisWeb,
         topic => $topic,
-        title => Foswiki::Func::getTopicTitle($thisWeb, $topic),
+        title => _getTopicTitle($thisWeb, $topic),
       };
       $index++;
       last if $limit && $index >= $limit;
@@ -134,6 +136,20 @@ sub _writeDebug {
   return unless TRACE;
   my $msg = shift // "";
   print STDERR "RestCompletion::DBCache - $msg\n";
+}
+
+sub _getTopicTitle {
+  my $web = shift;
+  my $topic = shift;
+
+  return Foswiki::Func::getTopicTitle($web, $topic, @_) if $Foswiki::cfg{Plugins}{TopicTitlePlugin}{Enabled};
+
+  return $topic if $topic ne $Foswiki::cfg{HomeTopicName};
+
+  my $webTitle = $web;
+  $webTitle =~ s/^.*[\/\.]//;
+
+  return $webTitle;
 }
 
 1;

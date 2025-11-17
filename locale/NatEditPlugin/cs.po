@@ -22,6 +22,11 @@ msgstr ""
 msgid "$action"
 msgstr "Akce"
 
+#. ("Foswiki")
+#: lib/Foswiki/Plugins/NatEditPlugin/RestSave.pm:33
+msgid "%1 has received a suspicious change request from your browser."
+msgstr ""
+
 #. ("$theWeb.$theTopic")
 #: lib/Foswiki/Plugins/NatEditPlugin/FormButton.pm:78
 msgid "Add a new form to <nop>%1"
@@ -41,6 +46,10 @@ msgstr "Přidej formulář"
 msgid "Add row"
 msgstr "Přidej formulář"
 
+#: templates/editdialog.natedit.tmpl:106
+msgid "Advanced"
+msgstr ""
+
 #: templates/edittoolbar.natedit.tmpl:90
 msgid "Align left"
 msgstr "Zarovej vlevo"
@@ -49,12 +58,12 @@ msgstr "Zarovej vlevo"
 msgid "Align right"
 msgstr "Zarovnej vpravo"
 
-#: templates/editdialog.natedit.tmpl:103
+#: templates/editdialog.natedit.tmpl:96
 #, fuzzy
 msgid "Alignment"
 msgstr "Zarovej vlevo"
 
-#: templates/editdialog.natedit.tmpl:130
+#: templates/editdialog.natedit.tmpl:144
 msgid "Attachment"
 msgstr "Příloha"
 
@@ -66,16 +75,16 @@ msgstr "Citace"
 msgid "Bold"
 msgstr "Tučné"
 
-#: templates/edittoolbar.natedit.tmpl:99
+#: templates/edittoolbar.natedit.tmpl:99 templates/settings.natedit.tmpl:50
 msgid "Bullet list"
 msgstr "Odrážky"
 
-#: templates/edit.natedit.tmpl:70 templates/edittoolbar.natedit.tmpl:223
+#: templates/edittoolbar.natedit.tmpl:223
 #: templates/edittoolbar.natedit.tmpl:227
 msgid "Cancel"
 msgstr "Přerušit"
 
-#: templates/editdialog.natedit.tmpl:88
+#: templates/editdialog.natedit.tmpl:85
 #, fuzzy
 msgid "Caption"
 msgstr "Vlastnosti"
@@ -93,7 +102,7 @@ msgstr "Změň formulář"
 msgid "Change the current form of <nop>%1"
 msgstr "Změň aktuální formulář pro <nop>%1"
 
-#: templates/editdialog.natedit.tmpl:92
+#: templates/editdialog.natedit.tmpl:117
 msgid "Class"
 msgstr ""
 
@@ -101,7 +110,16 @@ msgstr ""
 msgid "Clear floating objects"
 msgstr ""
 
+#: templates/editdialog.natedit.tmpl:204
+msgid "Click to upload a new file"
+msgstr ""
+
+#: templates/editdialog.natedit.tmpl:81
+msgid "Click to upload a new image"
+msgstr ""
+
 #: templates/edittoolbar.natedit.tmpl:157 templates/preview.natedit.tmpl:6
+#: templates/settings.natedit.tmpl:58
 msgid "Close"
 msgstr "Zavřít"
 
@@ -129,7 +147,7 @@ msgstr "Vytvoří novou revizi článku při ukládání"
 msgid "Data rows"
 msgstr "Záznamy"
 
-#: templates/edit.natedit.tmpl:204 templates/edit.natedit.tmpl:257
+#: templates/edit.natedit.tmpl:196 templates/edit.natedit.tmpl:249
 msgid "Default"
 msgstr "Výchozí"
 
@@ -142,7 +160,7 @@ msgstr ""
 msgid "Delete row"
 msgstr "Záznamy"
 
-#: templates/settings.natedit.tmpl:30
+#: templates/settings.natedit.tmpl:31
 msgid "Each preference has the syntax"
 msgstr "Každá preference má syntaxi"
 
@@ -154,7 +172,7 @@ msgstr "Změň"
 msgid "Emoticon"
 msgstr "Emotikon"
 
-#: templates/editbase.natedit.tmpl:22
+#: templates/editbase.natedit.tmpl:15
 msgid "Enter your comment"
 msgstr ""
 
@@ -162,15 +180,15 @@ msgstr ""
 msgid "Escape markup"
 msgstr "Znak [Esc]ape"
 
-#: templates/edit.natedit.tmpl:211
+#: templates/edit.natedit.tmpl:203
 msgid "Everybody"
 msgstr "Každý"
 
-#: templates/editdialog.natedit.tmpl:131
+#: templates/editdialog.natedit.tmpl:145
 msgid "External"
 msgstr "Externí"
 
-#: templates/editdialog.natedit.tmpl:184
+#: templates/editdialog.natedit.tmpl:200
 msgid "File"
 msgstr "Soubor"
 
@@ -199,7 +217,11 @@ msgstr "Formátovat vybraný text"
 msgid "Formula"
 msgstr "Vzorec"
 
-#: templates/settings.natedit.tmpl:36
+#: templates/editdialog.natedit.tmpl:74
+msgid "General"
+msgstr ""
+
+#: templates/settings.natedit.tmpl:37
 msgid "Get help on setting topic preferences"
 msgstr "Získej nápovědu jak nastavovat vlastnosti článku"
 
@@ -231,8 +253,8 @@ msgstr "Nadpis 5"
 msgid "Heading 6"
 msgstr "Nadpis 6"
 
-#: templates/edit.natedit.tmpl:95 templates/settings.natedit.tmpl:25
-#: templates/settings.natedit.tmpl:28
+#: templates/edit.natedit.tmpl:87 templates/settings.natedit.tmpl:26
+#: templates/settings.natedit.tmpl:29
 msgid "Help"
 msgstr "Nápověda"
 
@@ -245,11 +267,11 @@ msgstr "Horizontální pravítko"
 msgid "Icon"
 msgstr "Ikona"
 
-#: templates/editdialog.natedit.tmpl:83
+#: templates/editdialog.natedit.tmpl:77
 msgid "Image"
 msgstr "Obraz"
 
-#: templates/edittoolbar.natedit.tmpl:100
+#: templates/edittoolbar.natedit.tmpl:100 templates/settings.natedit.tmpl:51
 msgid "Indent"
 msgstr "Odsazení"
 
@@ -271,7 +293,7 @@ msgstr "Vložit barevný kód"
 msgid "Insert a horizontal ruler"
 msgstr "Vložit horizontální pravítko"
 
-#: templates/editdialog.natedit.tmpl:126 templates/edittoolbar.natedit.tmpl:107
+#: templates/editdialog.natedit.tmpl:140 templates/edittoolbar.natedit.tmpl:107
 msgid "Insert a link"
 msgstr "Vložit odkaz"
 
@@ -308,13 +330,17 @@ msgstr "Vložit datum"
 msgid "Italic"
 msgstr "Kurzíva"
 
-#: templates/edit.natedit.tmpl:225 templates/edit.natedit.tmpl:271
+#: templates/edit.natedit.tmpl:217 templates/edit.natedit.tmpl:263
 msgid "Just me"
 msgstr "Pouze já"
 
 #: templates/edittoolbar.natedit.tmpl:92
 msgid "Justify text"
 msgstr "Zarovnej text"
+
+#: templates/editdialog.natedit.tmpl:121
+msgid "Link"
+msgstr "Odkaz"
 
 #: templates/edittoolbar.natedit.tmpl:239
 #, fuzzy
@@ -354,7 +380,7 @@ msgstr ""
 msgid "Move row up"
 msgstr ""
 
-#: templates/edit.natedit.tmpl:232 templates/edit.natedit.tmpl:278
+#: templates/edit.natedit.tmpl:224 templates/edit.natedit.tmpl:270
 msgid "Nobody"
 msgstr "Nikdo"
 
@@ -366,21 +392,25 @@ msgstr ""
 msgid "Numbered list"
 msgstr "Číslovaný seznam"
 
-#: templates/edittoolbar.natedit.tmpl:101
+#: templates/edittoolbar.natedit.tmpl:101 templates/settings.natedit.tmpl:52
 msgid "Outdent"
 msgstr "Zruš odrážku"
 
-#: templates/edit.natedit.tmpl:110
+#: templates/edit.natedit.tmpl:102
 msgid "Permissions"
 msgstr "Oprávnění"
 
-#: templates/edit.natedit.tmpl:67
-msgid "Please validate"
-msgstr "Prosím zkontrolujte"
-
-#: templates/settings.natedit.tmpl:19
+#: templates/settings.natedit.tmpl:20
 msgid "Preferences"
 msgstr "Preference"
+
+#: lib/Foswiki/Plugins/NatEditPlugin/RestSave.pm:35
+msgid "Press Cancel otherwise."
+msgstr ""
+
+#: lib/Foswiki/Plugins/NatEditPlugin/RestSave.pm:34
+msgid "Press OK to confirm that this change was intentional."
+msgstr ""
 
 #: templates/edittoolbar.natedit.tmpl:215
 #: templates/edittoolbar.natedit.tmpl:219 templates/preview.natedit.tmpl:1
@@ -391,7 +421,7 @@ msgstr "Náhled"
 msgid "Redo previous change"
 msgstr "Opakuj předchozí změnu"
 
-#: templates/edit.natedit.tmpl:218 templates/edit.natedit.tmpl:264
+#: templates/edit.natedit.tmpl:210 templates/edit.natedit.tmpl:256
 msgid "Registered users"
 msgstr "Registrovaní uživatelé"
 
@@ -401,6 +431,7 @@ msgid "Remove Format"
 msgstr "Odstraň členy..."
 
 #: templates/editdialog.natedit.tmpl:20 templates/edittoolbar.natedit.tmpl:157
+#: templates/settings.natedit.tmpl:58
 msgid "Replace"
 msgstr "Nahraď"
 
@@ -414,7 +445,7 @@ msgstr "Obnov"
 msgid "Restore and Continue"
 msgstr "Obnov a pokračuj"
 
-#: templates/edit.natedit.tmpl:69 templates/edittoolbar.natedit.tmpl:184
+#: templates/edittoolbar.natedit.tmpl:184
 #: templates/edittoolbar.natedit.tmpl:188
 msgid "Save"
 msgstr "Ulož"
@@ -430,6 +461,7 @@ msgid "Search"
 msgstr "Hledej"
 
 #: templates/editdialog.natedit.tmpl:12 templates/edittoolbar.natedit.tmpl:157
+#: templates/settings.natedit.tmpl:58
 msgid "Search && Replace"
 msgstr "Vyhledej && nahraď"
 
@@ -437,27 +469,27 @@ msgstr "Vyhledej && nahraď"
 msgid "Signature"
 msgstr "Podpis"
 
-#: templates/editdialog.natedit.tmpl:96
+#: templates/editdialog.natedit.tmpl:89
 msgid "Size"
 msgstr "Velikost"
 
-#: templates/edittoolbar.natedit.tmpl:151
+#: templates/edittoolbar.natedit.tmpl:151 templates/settings.natedit.tmpl:56
 msgid "Sort ascending"
 msgstr "Seřadit vzestupně"
 
-#: templates/edittoolbar.natedit.tmpl:152
+#: templates/edittoolbar.natedit.tmpl:152 templates/settings.natedit.tmpl:57
 msgid "Sort descending"
 msgstr "Seřadit sestupně"
 
-#: templates/edittoolbar.natedit.tmpl:151
+#: templates/edittoolbar.natedit.tmpl:151 templates/settings.natedit.tmpl:56
 msgid "Sort selected lines ascending"
 msgstr "Seřadit vybrané řádky vzestupně"
 
-#: templates/edittoolbar.natedit.tmpl:152
+#: templates/edittoolbar.natedit.tmpl:152 templates/settings.natedit.tmpl:57
 msgid "Sort selected lines descending"
 msgstr "Seřadit vybrané řádky sestupně"
 
-#: templates/edit.natedit.tmpl:239 templates/edit.natedit.tmpl:285
+#: templates/edit.natedit.tmpl:231 templates/edit.natedit.tmpl:277
 msgid "Specific users/groups"
 msgstr "Vybraní uživatelé/skupiny"
 
@@ -494,30 +526,30 @@ msgstr ""
 msgid "Symbol"
 msgstr "Symbol"
 
-#: templates/edit.natedit.tmpl:92 templates/editdialog.natedit.tmpl:152
-#: templates/editdialog.natedit.tmpl:166 templates/editdialog.natedit.tmpl:189
+#: templates/edit.natedit.tmpl:84 templates/editdialog.natedit.tmpl:166
+#: templates/editdialog.natedit.tmpl:180 templates/editdialog.natedit.tmpl:208
 msgid "Text"
 msgstr "Text"
 
-#: templates/edit.natedit.tmpl:83
+#: templates/edit.natedit.tmpl:75
 #, fuzzy
 msgid "Title"
 msgstr "Název:"
 
-#: templates/editbase.natedit.tmpl:21
+#: templates/editbase.natedit.tmpl:14
 msgid "Title/Subject"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:129 templates/editdialog.natedit.tmpl:148
-#: templates/editdialog.natedit.tmpl:180 templates/editdialog.natedit.tmpl:79
+#: templates/editdialog.natedit.tmpl:113 templates/editdialog.natedit.tmpl:143
+#: templates/editdialog.natedit.tmpl:162 templates/editdialog.natedit.tmpl:196
 msgid "Topic"
 msgstr "Článek"
 
-#: templates/editdialog.natedit.tmpl:116
+#: templates/editdialog.natedit.tmpl:130
 msgid "Type"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:162
+#: templates/editdialog.natedit.tmpl:176
 msgid "URL"
 msgstr "URL"
 
@@ -534,12 +566,12 @@ msgstr "Zruš poslední změnu"
 msgid "Unescape markup"
 msgstr "Neeskejpovany :) znak"
 
-#: templates/edit.natedit.tmpl:251
+#: templates/edit.natedit.tmpl:243
 #, fuzzy
 msgid "Users who may edit"
 msgstr "Uživatelé, kteří mohou editovat:"
 
-#: templates/edit.natedit.tmpl:198
+#: templates/edit.natedit.tmpl:190
 #, fuzzy
 msgid "Users who may view"
 msgstr "Uživatelé, kteří mohou prohlížet:"
@@ -548,14 +580,14 @@ msgstr "Uživatelé, kteří mohou prohlížet:"
 msgid "Verbatim"
 msgstr "Doslovně"
 
-#: templates/edit.natedit.tmpl:148
+#: templates/edit.natedit.tmpl:140
 msgid ""
 "Warning: Incompatible permission settings detected. Use the =Edit settings= "
 "dialog to change the ACLs."
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:144 templates/editdialog.natedit.tmpl:176
-#: templates/editdialog.natedit.tmpl:75
+#: templates/editdialog.natedit.tmpl:109 templates/editdialog.natedit.tmpl:158
+#: templates/editdialog.natedit.tmpl:192
 msgid "Web"
 msgstr "Web"
 
@@ -563,26 +595,26 @@ msgstr "Web"
 msgid "Wrap text"
 msgstr ""
 
-#: templates/settings.natedit.tmpl:33
+#: templates/settings.natedit.tmpl:34
 msgid ""
 "[multiple of 3 spaces] * [space] Set [space] VARIABLENAME [space] = [value]"
 msgstr ""
 "[násobek 3 mezer] * [mezera] Nastav [mezera] VARIABLENAME [mezera] = [mezera]"
 
-#: templates/editdialog.natedit.tmpl:107
+#: templates/editdialog.natedit.tmpl:100
 msgid "center"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:120
+#: templates/editdialog.natedit.tmpl:134
 msgid "decorated"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:118
+#: templates/editdialog.natedit.tmpl:132
 #, fuzzy
 msgid "default"
 msgstr "Výchozí"
 
-#: templates/edit.natedit.tmpl:202 templates/edit.natedit.tmpl:255
+#: templates/edit.natedit.tmpl:194 templates/edit.natedit.tmpl:247
 msgid "default as defined in the %1"
 msgstr "Výchozí, jak je definováno v %1"
 
@@ -594,7 +626,11 @@ msgstr "editovat"
 msgid "edit form"
 msgstr "formuláŕ pro editaci"
 
-#: templates/editdialog.natedit.tmpl:99
+#: templates/editdialog.natedit.tmpl:182
+msgid "fetch document title from external url"
+msgstr ""
+
+#: templates/editdialog.natedit.tmpl:92
 msgid "height"
 msgstr ""
 
@@ -603,7 +639,7 @@ msgstr ""
 msgid "ignore case"
 msgstr "ignoruj"
 
-#: templates/editdialog.natedit.tmpl:119
+#: templates/editdialog.natedit.tmpl:133
 msgid "img"
 msgstr ""
 
@@ -611,16 +647,16 @@ msgstr ""
 msgid "indicates mandatory fields"
 msgstr "označuje povinné pole"
 
-#: templates/editdialog.natedit.tmpl:105
+#: templates/editdialog.natedit.tmpl:98
 #, fuzzy
 msgid "inline"
 msgstr "Podtržení"
 
-#: templates/editdialog.natedit.tmpl:106
+#: templates/editdialog.natedit.tmpl:99
 msgid "left"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:121
+#: templates/editdialog.natedit.tmpl:135
 #, fuzzy
 msgid "lightbox"
 msgstr "Zarovnej vpravo"
@@ -629,7 +665,7 @@ msgstr "Zarovnej vpravo"
 msgid "new"
 msgstr "nové"
 
-#: templates/edit.natedit.tmpl:209
+#: templates/edit.natedit.tmpl:201
 msgid "public view access"
 msgstr "Veřejný přístup pro prohlížení"
 
@@ -641,38 +677,41 @@ msgstr "obnov"
 msgid "restore form"
 msgstr "obnov formulář"
 
-#: templates/edit.natedit.tmpl:223 templates/edit.natedit.tmpl:269
+#: templates/edit.natedit.tmpl:215 templates/edit.natedit.tmpl:261
 msgid "restrict access to %1"
 msgstr "zakaž přístup k %1"
 
-#: templates/edit.natedit.tmpl:216
+#: templates/edit.natedit.tmpl:208
 msgid "restrict read access to users that have an account on this site"
 msgstr "zakaž právo čtení všem uživatelům majícím účet na tomto webu"
 
-#: templates/edit.natedit.tmpl:262
+#: templates/edit.natedit.tmpl:254
 msgid "restrict write access to users that have an account on this site"
 msgstr "zakaž právo zápisu všem uživatelům majícím účet na tomto webu"
 
-#: templates/editdialog.natedit.tmpl:108
+#: templates/editdialog.natedit.tmpl:101
 #, fuzzy
 msgid "right"
 msgstr "Zarovnej vpravo"
 
-#: templates/edit.natedit.tmpl:237 templates/edit.natedit.tmpl:283
+#: templates/edit.natedit.tmpl:229 templates/edit.natedit.tmpl:275
 msgid "specify a list of users and/or groups"
 msgstr "definuj seznam uživatelů a/nebo skupin"
 
-#: templates/edit.natedit.tmpl:230
+#: templates/edit.natedit.tmpl:222
 msgid "strictly deny any access to this topic"
 msgstr "striktně zakaž jakýkoli přístup na tento článek"
 
-#: templates/edit.natedit.tmpl:276
+#: templates/edit.natedit.tmpl:268
 msgid "strictly deny write access to this topic"
 msgstr "striktně zakaž jakoukoli editaci tohoto článku"
 
-#: templates/editdialog.natedit.tmpl:98
+#: templates/editdialog.natedit.tmpl:91
 msgid "width"
 msgstr ""
+
+#~ msgid "Please validate"
+#~ msgstr "Prosím zkontrolujte"
 
 #, fuzzy
 #~ msgid "Format table"
@@ -696,9 +735,6 @@ msgstr ""
 
 #~ msgid "Insert a link to a user-profile"
 #~ msgstr "Vložit odkaz na profil uživatele"
-
-#~ msgid "Link"
-#~ msgstr "Odkaz"
 
 #~ msgid "Macro"
 #~ msgstr "Makro"

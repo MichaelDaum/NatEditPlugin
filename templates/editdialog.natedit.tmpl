@@ -1,4 +1,4 @@
-%TMPL:DEF{"image::exts"}%avif|jpe?g|gif|png|bmp|webp|svg|ico|tiff?|xcf|psd|heic|heif|AVIF|JPE?PG|GIF|PNG|BMP|WEBP|SVG|ICO|TIFF|XCF|PSD?|HEIC|HEIF%TMPL:END%
+%TMPL:DEF{"image::exts"}%avif|jpe?g|gif|png|bmp|webp|svg|ico|tiff?|xcf|psd|heic|heif|pdf|AVIF|JPE?PG|GIF|PNG|BMP|WEBP|SVG|ICO|TIFF|XCF|PSD?|HEIC|HEIF|PDF%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"insertcolor"}%<div class="ui-natedit-dialog-content ui-natedit-insert-color-content" data-title="%MAKETEXT{"Insert a color code"}%">
@@ -70,30 +70,20 @@
 
 %{ ################################################################################ }%
 %TMPL:DEF{"insertimage"}%<div class="ui-natedit-dialog-content ui-natedit-insert-image-content" data-title="%MAKETEXT{"Insert/Update image"}%">
+%TABPANE{class="plain"}%
+%TAB{"%MAKETEXT{"General"}%"}%
   <table class="foswikiLayoutTable">
-    <tr>
-      <th>%MAKETEXT{"Web"}%</th>
-      <td><input type="text" size="50" name="web" class="foswikiInputField" value="{{:web}}" /></td>
-    </tr>
-    <tr>
-      <th>%MAKETEXT{"Topic"}%</th>
-      <td><input type="text" size="50" name="topic" class="foswikiInputField" value="{{:topic}}" /></td>
-    </tr>
     <tr>
       <th>%MAKETEXT{"Image"}%</th>
       <td>
         <select name='file' class='natEditAttachmentSelector jqSelect2' data-allow-clear="true" data-placeholder="none" data-width="21em" data-selection="{{:file}}" data-filter="\.(%TMPL:P{"image::exts"}%)$"><option></option></select>
-        <input type="file" name="attachments" id="file-upload" class="natEditFileUpload" style="display:none" accept="image/*" />
-        <label for="file-upload" style="margin-left:0.5em;cursor:pointer"><a>%JQICON{"ma-file-upload"}%</a></label>
+        <input type="file" name="attachments" id="file-upload" class="natEditFileUpload" style="display:none" accept="image/*, application/pdf" />
+        <label for="file-upload" style="margin-left:0.5em;cursor:pointer" title="%MAKETEXT{"Click to upload a new image"}%"><a>%JQICON{"fa-upload"}%</a></label>
       </td>    
     </tr>
     <tr>
       <th>%MAKETEXT{"Caption"}%</th>
       <td><input type="text" size="50" name="caption" class="foswikiInputField" value="{{:caption}}" /></td>
-    </tr>
-    <tr>
-      <th>%MAKETEXT{"Class"}%</th>
-      <td><input type="text" size="50" name="classList" class="foswikiInputField" value="{{:classList}}" /></td>
     </tr>
     <tr>
         <th>%MAKETEXT{"Size"}%</th>
@@ -113,13 +103,34 @@
     </tr>
     %TMPL:P{context="ImagePluginEnabled" then="insertimage::imageplugin::opts"}%<!-- -->
   </table>
+%ENDTAB%
+%TAB{"%MAKETEXT{"Advanced"}%"}%
+  <table class="foswikiLayoutTable">
+    <tr>
+      <th>%MAKETEXT{"Web"}%</th>
+      <td><input type="text" size="50" name="web" class="foswikiInputField" value="{{:web}}" /></td>
+    </tr>
+    <tr>
+      <th>%MAKETEXT{"Topic"}%</th>
+      <td><input type="text" size="50" name="topic" class="foswikiInputField" value="{{:topic}}" /></td>
+    </tr>
+    <tr>
+      <th>%MAKETEXT{"Class"}%</th>
+      <td><input type="text" size="50" name="classList" class="foswikiInputField" value="{{:classList}}" /></td>
+    </tr>
+    <tr>
+      <th>%MAKETEXT{"Link"}%</th>
+      <td><input type="text" size="50" name="href" class="foswikiInputField" value="{{:href}}" /></td>
+    </tr>
+  </table>
+%ENDTAB%
 </div>%TMPL:END%
 
 %TMPL:DEF{"insertimage::imageplugin::opts"}%<tr>
-  <th>%MAKETEXT{"Type"}%</th>
+  <th>%MAKETEXT{"Format"}%</th>
   <td>
-    <label><input type="radio" name="type" value="simple" class="foswikiRadioButton" {{if !type || type === 'simple'}}checked{{/if}}>%MAKETEXT{"default"}%</label>
-    <label><input type="radio" name="type" value="plain" class="foswikiRadioButton" {{if type === 'plain'}}checked{{/if}}>%MAKETEXT{"img"}%</label>
+    <label><input type="radio" name="type" value="plain" class="foswikiRadioButton" {{if type === 'plain'}}checked{{/if}}>%MAKETEXT{"simple"}%</label>
+    <label><input type="radio" name="type" value="simple" class="foswikiRadioButton" {{if !type || type === 'simple'}}checked{{/if}}>%MAKETEXT{"linked"}%</label>
     <label><input type="radio" name="type" value="frame" class="foswikiRadioButton" {{if type === 'frame'}}checked{{/if}}>%MAKETEXT{"decorated"}%</label>
     <label><input type="radio" name="type" value="photoswipe" class="foswikiRadioButton" {{if type === 'photoswipe'}}checked{{/if}}>%MAKETEXT{"lightbox"}%</label>
   </td>
@@ -167,7 +178,9 @@
     </tr>
     <tr>
       <th>%MAKETEXT{"Text"}%</th>
-      <td><input type="text" size="50" name="linktext_external" class="foswikiInputField" value="{{:selection}}" /></td>
+      <td>
+        <input type="text" size="50" name="linktext_external" class="foswikiInputField" value="{{:selection}}" /><a class="getDocumentTitle" style="margin-left:0.5em;cursor:pointer" title="%MAKETEXT{"Fetch document title from external url"}%">%JQICON{"fa-refresh"}%</a>
+      </td>
     </tr>
   </table>
 <!-- -->%TMPL:END%
@@ -188,7 +201,7 @@
       <td>
         <select name='file' class='natEditAttachmentSelector jqSelect2' data-allow-clear="true" data-placeholder="none" data-width="21em" data-selection="{{:file}}"><option></option></select>
         <input type="file" name="attachments" id="file-upload" class="natEditFileUpload" style="display:none" />
-        <label for="file-upload" style="margin-left:0.5em;cursor:pointer"><a>%JQICON{"ma-file-upload"}%</a></label>
+        <label for="file-upload" style="margin-left:0.5em;cursor:pointer" title="%MAKETEXT{"Click to upload a new file"}%"><a>%JQICON{"fa-upload"}%</a></label>
       </td>    
     </tr>
     <tr>

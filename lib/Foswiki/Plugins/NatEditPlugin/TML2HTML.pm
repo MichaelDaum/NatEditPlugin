@@ -65,15 +65,9 @@ sub convert {
 
   return $tml if $tml =~ /<!--$Foswiki::Plugins::WysiwygPlugin::Handlers::SECRET_ID-->/;
 
-  # SMELL: dunno better
-  $tml =~ s/%BR%/<br \/>/g;
-
   my $html = Foswiki::Plugins::WysiwygPlugin::Handlers::TranslateTML2HTML($tml,
     clearHtml => "<img src='$Foswiki::cfg{PubUrlPath}/$Foswiki::cfg{SystemWebName}/NatEditPlugin/images/clear-float.svg' class='WYSIWYG_CLEAR' data-mce-resize='false' data-mce-placeholder='1' />",
   );
-
-  # SMELL: don't know how to fix <br /> otherwise
-  #$html =~ s/<br \/> <span class='WYSIWYG_HIDDENWHITESPACE'.*?<\/span>/<br \/>\n/g;
 
   return $html;
 }

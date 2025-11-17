@@ -63,7 +63,7 @@ sub new {
                 'button',                             'loader',
                 'JQUERYPLUGIN::UPLOADER',             'blockui',
                 'render',                             'imagesloaded',
-                'image', 'select2'
+                'image', 'select2', 
             ],
         ),
         $class
@@ -106,16 +106,16 @@ sub init {
     "EmojiPluginEnabled": %IF{"context EmojiPluginEnabled" then="true" else="false"}%,
     "FarbtasticEnabled": %IF{"context FarbtasticEnabled" then="true" else="false"}%,
     "ImagePluginEnabled": %IF{"context ImagePluginEnabled" then="true" else="false"}%,
-    "MathEnabled": %IF{"context MathModePluginEnabled or context MathJaxPluginEnabled" then="true" else="false"}%,
     "TopicInteractionPluginEnabled": %IF{"context TopicInteractionPluginEnabled" then="true" else="false"}%,
+    "MentionsPluginEnabled": %IF{"context MentionsPluginEnabled" then="true" else="false"}%,
     "NoAutolink": %IF{"'%NOAUTOLINK{default=""}%'='on'" then="true" else="false"}%,
     "debug": %IF{"'%NATEDIT_DEBUG{default="off"}%'='on'" then="true" else="false"}%,
     "purifyInput": %IF{"'%NATEDIT_PURIFY{default="true"}%'=~'(on|1|true)'" then="true" else="false"}%,
     "purify": {
-      "ADD_ATTR": "%NATEDIT_PURIFY_ADDATTRS{default="contenteditable"}%",
+      "ADD_ATTR": "%NATEDIT_PURIFY_ADDATTRS{default="contenteditable, target"}%",
       "ADD_TAGS": "%NATEDIT_PURIFY_ADDTAGS{default="verbatim, literal, sticky, nop, noautolink, dirtyarea, graphviz, dot, mermaid, latex"}%",
       "FORBID_ATTRS": "%NATEDIT_PURIFY_FORBIDATTRS{default=""}%",
-      "FORBID_TAGS": "%NATEDIT_PURIFY_FORBIDTAGS{default=""}%"
+      "FORBID_TAGS": "%NATEDIT_PURIFY_FORBIDTAGS{default="font"}%"
     }
   }
 }</script>

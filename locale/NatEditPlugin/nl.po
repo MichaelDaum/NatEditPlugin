@@ -23,6 +23,11 @@ msgstr ""
 msgid "$action"
 msgstr "Actie"
 
+#. ("Foswiki")
+#: lib/Foswiki/Plugins/NatEditPlugin/RestSave.pm:33
+msgid "%1 has received a suspicious change request from your browser."
+msgstr ""
+
 #. ("$theWeb.$theTopic")
 #: lib/Foswiki/Plugins/NatEditPlugin/FormButton.pm:78
 msgid "Add a new form to <nop>%1"
@@ -42,6 +47,10 @@ msgstr "Formulier toevoegen"
 msgid "Add row"
 msgstr "Formulier toevoegen"
 
+#: templates/editdialog.natedit.tmpl:106
+msgid "Advanced"
+msgstr ""
+
 #: templates/edittoolbar.natedit.tmpl:90
 msgid "Align left"
 msgstr "Naar links zetten"
@@ -50,12 +59,12 @@ msgstr "Naar links zetten"
 msgid "Align right"
 msgstr "Naar rechts zetten"
 
-#: templates/editdialog.natedit.tmpl:103
+#: templates/editdialog.natedit.tmpl:96
 #, fuzzy
 msgid "Alignment"
 msgstr "Naar links zetten"
 
-#: templates/editdialog.natedit.tmpl:130
+#: templates/editdialog.natedit.tmpl:144
 msgid "Attachment"
 msgstr "Bijlage"
 
@@ -67,16 +76,16 @@ msgstr "Citaat"
 msgid "Bold"
 msgstr "Vet"
 
-#: templates/edittoolbar.natedit.tmpl:99
+#: templates/edittoolbar.natedit.tmpl:99 templates/settings.natedit.tmpl:50
 msgid "Bullet list"
 msgstr ""
 
-#: templates/edit.natedit.tmpl:70 templates/edittoolbar.natedit.tmpl:223
+#: templates/edittoolbar.natedit.tmpl:223
 #: templates/edittoolbar.natedit.tmpl:227
 msgid "Cancel"
 msgstr "Afbreken"
 
-#: templates/editdialog.natedit.tmpl:88
+#: templates/editdialog.natedit.tmpl:85
 #, fuzzy
 msgid "Caption"
 msgstr "Opties"
@@ -94,7 +103,7 @@ msgstr "Wijzig formulier"
 msgid "Change the current form of <nop>%1"
 msgstr "Huidig formulier van <nop>%1 vervangen"
 
-#: templates/editdialog.natedit.tmpl:92
+#: templates/editdialog.natedit.tmpl:117
 msgid "Class"
 msgstr ""
 
@@ -102,7 +111,16 @@ msgstr ""
 msgid "Clear floating objects"
 msgstr ""
 
+#: templates/editdialog.natedit.tmpl:204
+msgid "Click to upload a new file"
+msgstr ""
+
+#: templates/editdialog.natedit.tmpl:81
+msgid "Click to upload a new image"
+msgstr ""
+
 #: templates/edittoolbar.natedit.tmpl:157 templates/preview.natedit.tmpl:6
+#: templates/settings.natedit.tmpl:58
 msgid "Close"
 msgstr "Sluiten"
 
@@ -130,7 +148,7 @@ msgstr "Maakt een nieuwe versie van de pagina bij het bewaren"
 msgid "Data rows"
 msgstr "Data rijen"
 
-#: templates/edit.natedit.tmpl:204 templates/edit.natedit.tmpl:257
+#: templates/edit.natedit.tmpl:196 templates/edit.natedit.tmpl:249
 msgid "Default"
 msgstr "Standaard"
 
@@ -143,7 +161,7 @@ msgstr ""
 msgid "Delete row"
 msgstr "Data rijen"
 
-#: templates/settings.natedit.tmpl:30
+#: templates/settings.natedit.tmpl:31
 msgid "Each preference has the syntax"
 msgstr "Elke voorkeurinstelling heeft de syntax"
 
@@ -155,7 +173,7 @@ msgstr "Bewerken"
 msgid "Emoticon"
 msgstr "Emoticon"
 
-#: templates/editbase.natedit.tmpl:22
+#: templates/editbase.natedit.tmpl:15
 msgid "Enter your comment"
 msgstr ""
 
@@ -163,15 +181,15 @@ msgstr ""
 msgid "Escape markup"
 msgstr ""
 
-#: templates/edit.natedit.tmpl:211
+#: templates/edit.natedit.tmpl:203
 msgid "Everybody"
 msgstr "Iedereen"
 
-#: templates/editdialog.natedit.tmpl:131
+#: templates/editdialog.natedit.tmpl:145
 msgid "External"
 msgstr "Extern"
 
-#: templates/editdialog.natedit.tmpl:184
+#: templates/editdialog.natedit.tmpl:200
 msgid "File"
 msgstr "Bestand"
 
@@ -200,7 +218,11 @@ msgstr ""
 msgid "Formula"
 msgstr "Formule"
 
-#: templates/settings.natedit.tmpl:36
+#: templates/editdialog.natedit.tmpl:74
+msgid "General"
+msgstr ""
+
+#: templates/settings.natedit.tmpl:37
 msgid "Get help on setting topic preferences"
 msgstr "Hulp bij pagina-instellingen"
 
@@ -232,8 +254,8 @@ msgstr "Kop 5"
 msgid "Heading 6"
 msgstr "Kop 6"
 
-#: templates/edit.natedit.tmpl:95 templates/settings.natedit.tmpl:25
-#: templates/settings.natedit.tmpl:28
+#: templates/edit.natedit.tmpl:87 templates/settings.natedit.tmpl:26
+#: templates/settings.natedit.tmpl:29
 msgid "Help"
 msgstr "Help"
 
@@ -246,11 +268,11 @@ msgstr "Horizontale lijn"
 msgid "Icon"
 msgstr "Pictogram"
 
-#: templates/editdialog.natedit.tmpl:83
+#: templates/editdialog.natedit.tmpl:77
 msgid "Image"
 msgstr "Afbeelding"
 
-#: templates/edittoolbar.natedit.tmpl:100
+#: templates/edittoolbar.natedit.tmpl:100 templates/settings.natedit.tmpl:51
 msgid "Indent"
 msgstr ""
 
@@ -272,7 +294,7 @@ msgstr "Kleurencode hier invoegen"
 msgid "Insert a horizontal ruler"
 msgstr "Horizontale lijn invoegen"
 
-#: templates/editdialog.natedit.tmpl:126 templates/edittoolbar.natedit.tmpl:107
+#: templates/editdialog.natedit.tmpl:140 templates/edittoolbar.natedit.tmpl:107
 msgid "Insert a link"
 msgstr ""
 
@@ -309,13 +331,17 @@ msgstr "Datum invoegen"
 msgid "Italic"
 msgstr ""
 
-#: templates/edit.natedit.tmpl:225 templates/edit.natedit.tmpl:271
+#: templates/edit.natedit.tmpl:217 templates/edit.natedit.tmpl:263
 msgid "Just me"
 msgstr ""
 
 #: templates/edittoolbar.natedit.tmpl:92
 msgid "Justify text"
 msgstr ""
+
+#: templates/editdialog.natedit.tmpl:121
+msgid "Link"
+msgstr "Link"
 
 #: templates/edittoolbar.natedit.tmpl:239
 #, fuzzy
@@ -354,7 +380,7 @@ msgstr ""
 msgid "Move row up"
 msgstr ""
 
-#: templates/edit.natedit.tmpl:232 templates/edit.natedit.tmpl:278
+#: templates/edit.natedit.tmpl:224 templates/edit.natedit.tmpl:270
 msgid "Nobody"
 msgstr "Niemand"
 
@@ -366,21 +392,25 @@ msgstr ""
 msgid "Numbered list"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:101
+#: templates/edittoolbar.natedit.tmpl:101 templates/settings.natedit.tmpl:52
 msgid "Outdent"
 msgstr ""
 
-#: templates/edit.natedit.tmpl:110
+#: templates/edit.natedit.tmpl:102
 msgid "Permissions"
 msgstr ""
 
-#: templates/edit.natedit.tmpl:67
-msgid "Please validate"
-msgstr ""
-
-#: templates/settings.natedit.tmpl:19
+#: templates/settings.natedit.tmpl:20
 msgid "Preferences"
 msgstr "Instellingen"
+
+#: lib/Foswiki/Plugins/NatEditPlugin/RestSave.pm:35
+msgid "Press Cancel otherwise."
+msgstr ""
+
+#: lib/Foswiki/Plugins/NatEditPlugin/RestSave.pm:34
+msgid "Press OK to confirm that this change was intentional."
+msgstr ""
 
 #: templates/edittoolbar.natedit.tmpl:215
 #: templates/edittoolbar.natedit.tmpl:219 templates/preview.natedit.tmpl:1
@@ -391,7 +421,7 @@ msgstr "Voorvertoning"
 msgid "Redo previous change"
 msgstr ""
 
-#: templates/edit.natedit.tmpl:218 templates/edit.natedit.tmpl:264
+#: templates/edit.natedit.tmpl:210 templates/edit.natedit.tmpl:256
 msgid "Registered users"
 msgstr "Geregistreerde gebruikers"
 
@@ -401,6 +431,7 @@ msgid "Remove Format"
 msgstr "Verwijder leden..."
 
 #: templates/editdialog.natedit.tmpl:20 templates/edittoolbar.natedit.tmpl:157
+#: templates/settings.natedit.tmpl:58
 msgid "Replace"
 msgstr "Vervangen"
 
@@ -414,7 +445,7 @@ msgstr "Herstellen"
 msgid "Restore and Continue"
 msgstr "Herstellen en doorgaan"
 
-#: templates/edit.natedit.tmpl:69 templates/edittoolbar.natedit.tmpl:184
+#: templates/edittoolbar.natedit.tmpl:184
 #: templates/edittoolbar.natedit.tmpl:188
 msgid "Save"
 msgstr "Bewaren"
@@ -430,6 +461,7 @@ msgid "Search"
 msgstr "Zoeken"
 
 #: templates/editdialog.natedit.tmpl:12 templates/edittoolbar.natedit.tmpl:157
+#: templates/settings.natedit.tmpl:58
 msgid "Search && Replace"
 msgstr ""
 
@@ -437,27 +469,27 @@ msgstr ""
 msgid "Signature"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:96
+#: templates/editdialog.natedit.tmpl:89
 msgid "Size"
 msgstr "Grootte"
 
-#: templates/edittoolbar.natedit.tmpl:151
+#: templates/edittoolbar.natedit.tmpl:151 templates/settings.natedit.tmpl:56
 msgid "Sort ascending"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:152
+#: templates/edittoolbar.natedit.tmpl:152 templates/settings.natedit.tmpl:57
 msgid "Sort descending"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:151
+#: templates/edittoolbar.natedit.tmpl:151 templates/settings.natedit.tmpl:56
 msgid "Sort selected lines ascending"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:152
+#: templates/edittoolbar.natedit.tmpl:152 templates/settings.natedit.tmpl:57
 msgid "Sort selected lines descending"
 msgstr ""
 
-#: templates/edit.natedit.tmpl:239 templates/edit.natedit.tmpl:285
+#: templates/edit.natedit.tmpl:231 templates/edit.natedit.tmpl:277
 msgid "Specific users/groups"
 msgstr ""
 
@@ -494,30 +526,30 @@ msgstr ""
 msgid "Symbol"
 msgstr "Symbool"
 
-#: templates/edit.natedit.tmpl:92 templates/editdialog.natedit.tmpl:152
-#: templates/editdialog.natedit.tmpl:166 templates/editdialog.natedit.tmpl:189
+#: templates/edit.natedit.tmpl:84 templates/editdialog.natedit.tmpl:166
+#: templates/editdialog.natedit.tmpl:180 templates/editdialog.natedit.tmpl:208
 msgid "Text"
 msgstr "Tekst"
 
-#: templates/edit.natedit.tmpl:83
+#: templates/edit.natedit.tmpl:75
 #, fuzzy
 msgid "Title"
 msgstr "Titel:"
 
-#: templates/editbase.natedit.tmpl:21
+#: templates/editbase.natedit.tmpl:14
 msgid "Title/Subject"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:129 templates/editdialog.natedit.tmpl:148
-#: templates/editdialog.natedit.tmpl:180 templates/editdialog.natedit.tmpl:79
+#: templates/editdialog.natedit.tmpl:113 templates/editdialog.natedit.tmpl:143
+#: templates/editdialog.natedit.tmpl:162 templates/editdialog.natedit.tmpl:196
 msgid "Topic"
 msgstr "Pagina"
 
-#: templates/editdialog.natedit.tmpl:116
+#: templates/editdialog.natedit.tmpl:130
 msgid "Type"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:162
+#: templates/editdialog.natedit.tmpl:176
 msgid "URL"
 msgstr "URL"
 
@@ -533,12 +565,12 @@ msgstr "Laatste wijziging ongedaan maken"
 msgid "Unescape markup"
 msgstr ""
 
-#: templates/edit.natedit.tmpl:251
+#: templates/edit.natedit.tmpl:243
 #, fuzzy
 msgid "Users who may edit"
 msgstr "Gebruikers die mogen bewerken:"
 
-#: templates/edit.natedit.tmpl:198
+#: templates/edit.natedit.tmpl:190
 #, fuzzy
 msgid "Users who may view"
 msgstr "Gebuikers die mogen kijken:"
@@ -547,14 +579,14 @@ msgstr "Gebuikers die mogen kijken:"
 msgid "Verbatim"
 msgstr ""
 
-#: templates/edit.natedit.tmpl:148
+#: templates/edit.natedit.tmpl:140
 msgid ""
 "Warning: Incompatible permission settings detected. Use the =Edit settings= "
 "dialog to change the ACLs."
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:144 templates/editdialog.natedit.tmpl:176
-#: templates/editdialog.natedit.tmpl:75
+#: templates/editdialog.natedit.tmpl:109 templates/editdialog.natedit.tmpl:158
+#: templates/editdialog.natedit.tmpl:192
 msgid "Web"
 msgstr "Web"
 
@@ -562,27 +594,27 @@ msgstr "Web"
 msgid "Wrap text"
 msgstr ""
 
-#: templates/settings.natedit.tmpl:33
+#: templates/settings.natedit.tmpl:34
 msgid ""
 "[multiple of 3 spaces] * [space] Set [space] VARIABLENAME [space] = [value]"
 msgstr ""
 "[veelvoud van 3 spaties] * [spatie] Set [spatie] NAAMVANVARIABELE [spatie] = "
 "[waarde]"
 
-#: templates/editdialog.natedit.tmpl:107
+#: templates/editdialog.natedit.tmpl:100
 msgid "center"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:120
+#: templates/editdialog.natedit.tmpl:134
 msgid "decorated"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:118
+#: templates/editdialog.natedit.tmpl:132
 #, fuzzy
 msgid "default"
 msgstr "Standaard"
 
-#: templates/edit.natedit.tmpl:202 templates/edit.natedit.tmpl:255
+#: templates/edit.natedit.tmpl:194 templates/edit.natedit.tmpl:247
 msgid "default as defined in the %1"
 msgstr "standaard zoals gedefinieerd in de %1"
 
@@ -594,7 +626,11 @@ msgstr "bewerken"
 msgid "edit form"
 msgstr "formulier bewerken"
 
-#: templates/editdialog.natedit.tmpl:99
+#: templates/editdialog.natedit.tmpl:182
+msgid "fetch document title from external url"
+msgstr ""
+
+#: templates/editdialog.natedit.tmpl:92
 msgid "height"
 msgstr ""
 
@@ -602,7 +638,7 @@ msgstr ""
 msgid "ignore case"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:119
+#: templates/editdialog.natedit.tmpl:133
 msgid "img"
 msgstr ""
 
@@ -610,15 +646,15 @@ msgstr ""
 msgid "indicates mandatory fields"
 msgstr "velden zijn verplicht"
 
-#: templates/editdialog.natedit.tmpl:105
+#: templates/editdialog.natedit.tmpl:98
 msgid "inline"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:106
+#: templates/editdialog.natedit.tmpl:99
 msgid "left"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:121
+#: templates/editdialog.natedit.tmpl:135
 #, fuzzy
 msgid "lightbox"
 msgstr "Naar rechts zetten"
@@ -627,7 +663,7 @@ msgstr "Naar rechts zetten"
 msgid "new"
 msgstr "nieuw"
 
-#: templates/edit.natedit.tmpl:209
+#: templates/edit.natedit.tmpl:201
 msgid "public view access"
 msgstr "voor iedereen toegankelijk"
 
@@ -639,36 +675,36 @@ msgstr "herstellen"
 msgid "restore form"
 msgstr "formulier herstellen"
 
-#: templates/edit.natedit.tmpl:223 templates/edit.natedit.tmpl:269
+#: templates/edit.natedit.tmpl:215 templates/edit.natedit.tmpl:261
 msgid "restrict access to %1"
 msgstr ""
 
-#: templates/edit.natedit.tmpl:216
+#: templates/edit.natedit.tmpl:208
 msgid "restrict read access to users that have an account on this site"
 msgstr ""
 
-#: templates/edit.natedit.tmpl:262
+#: templates/edit.natedit.tmpl:254
 msgid "restrict write access to users that have an account on this site"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:108
+#: templates/editdialog.natedit.tmpl:101
 #, fuzzy
 msgid "right"
 msgstr "Naar rechts zetten"
 
-#: templates/edit.natedit.tmpl:237 templates/edit.natedit.tmpl:283
+#: templates/edit.natedit.tmpl:229 templates/edit.natedit.tmpl:275
 msgid "specify a list of users and/or groups"
 msgstr ""
 
-#: templates/edit.natedit.tmpl:230
+#: templates/edit.natedit.tmpl:222
 msgid "strictly deny any access to this topic"
 msgstr ""
 
-#: templates/edit.natedit.tmpl:276
+#: templates/edit.natedit.tmpl:268
 msgid "strictly deny write access to this topic"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:98
+#: templates/editdialog.natedit.tmpl:91
 msgid "width"
 msgstr ""
 
@@ -684,9 +720,6 @@ msgstr ""
 
 #~ msgid "Insert a date"
 #~ msgstr "Datum invoegen"
-
-#~ msgid "Link"
-#~ msgstr "Link"
 
 #~ msgid "OEmbed"
 #~ msgstr "OEmbed"

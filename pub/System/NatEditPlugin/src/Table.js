@@ -124,15 +124,26 @@
     }
   };
 
-  TableCell.prototype.getWidth = function() {
+  TableCell.prototype.getWidth = function(flag) {
     var self = this;
-    return self.paddingLeft + self.content.length + self.paddingRight + (self.isHeader ? 2:0);
+      contentWidth = flag ? self.content.length : self.getContentWidth();
+
+    return self.paddingLeft + contentWidth + self.paddingRight + (self.isHeader ? 2:0);
+  };
+
+  TableCell.prototype.getContentWidth = function() {
+    var self = this,
+      content;
+
+    content = self.content.replace(/\[\[.*?\]\[(.+?)\]\]/g, "$1");
+
+    return content.length;
   };
 
   TableCell.prototype.setWidth = function(newWidth) {
     var self = this, 
       align = self.getAlignment(),
-      contentWidth = self.content.length + (self.isHeader ? 2:0);
+      contentWidth = self.getContentWidth() + (self.isHeader ? 2:0);
 
     newWidth = newWidth || 1;
 
@@ -286,7 +297,7 @@
   TableRow.prototype.getWidth = function(col) {
     var self = this, cell;
 
-    if (typeof(col) === 'undefined') {
+    if (col === undefined) {
       return self.cells.length;
     }
 
@@ -481,7 +492,7 @@
     cursor.ch = row.prefix.length;
 
     for (let i = self.position.col -1; i >= 0; i--) {
-      cursor.ch += row.cells[i].getWidth() + 1;
+      cursor.ch += row.cells[i].getWidth(1) + 1;
     }
     cursor.ch += row.cells[self.position.col].paddingLeft + 1;
 

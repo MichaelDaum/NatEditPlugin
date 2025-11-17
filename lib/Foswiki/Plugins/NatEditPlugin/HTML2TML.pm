@@ -44,7 +44,7 @@ sub DESTROY {
 
   undef $this->{session};
   undef $this->{types};
-  undef $this->{pendingAttachments};
+  undef $this->{queuedAttachments};
 }
 
 sub restConvert {
@@ -54,7 +54,9 @@ sub restConvert {
   my $html = $request->param('text');
   $html = Foswiki::urlDecode($html) if Foswiki::Func::getContext()->{command_line};
   my $tml = $this->convert($html);
-  $this->attachPending();
+
+  my $doAttach = Foswiki::Func::isTrue($request->param('attach', 1));
+  $this->saveQueuedAttachments() if $doAttach;
 
   $response->header(
     -status => 200,
@@ -82,6 +84,7 @@ sub convert {
       topic => $this->{session}{topicName},
       meta => $meta,
       very_clean => 1,
+      #br2nl =>1,
       #keepws => 1,
       stickybits => Foswiki::Func::getPreferencesValue('WYSIWYGPLUGIN_STICKYBITS'),
       ignoreattrs => Foswiki::Func::getPreferencesValue('WYSIWYGPLUGIN_IGNOREATTRS'),
@@ -92,9 +95,6 @@ sub convert {
     }
   );
 
-  # SMELL: dunno better
-  $tml =~ s/<br \/>/%BR%/g;
-
   return $tml;
 }
 
@@ -104,24 +104,42 @@ sub convertImage {
   return unless ref($img);
 
   #print STDERR "called convertImage()\n";
-  #print STDERR "img=".dump($img)."\n";
 
   if (Foswiki::Func::getContext()->{ImagePluginEnabled}) {
-    my $src = Encode::encode_utf8($img->{attrs}{src});
-    $src = Foswiki::urlDecode($src);
-    my $web = $img->{attrs}{web} || $img->{context}{web} || $this->{session}{webName};
-    my $topic = $img->{attrs}{topic} || $img->{context}{topic} || $this->{session}{topicName};
-    my $file;
+    my $src = $img->{attrs}{src};
+    my $web = $img->{attrs}{"data-orig-web"} || $img->{attrs}{"data-web"} || $img->{context}{web} || $this->{session}{webName};
+    my $topic = $img->{attrs}{"data-orig-topic"} || $img->{attrs}{"data-topic"} || $img->{context}{topic} || $this->{session}{topicName};
+    my $file = $img->{attrs}{"data-orig-file"} || $img->{attrs}{"data-file"};
+    my $width = $img->{attrs}{"data-orig-width"} || $img->{attrs}{width};
+    my $height = $img->{attrs}{"data-orig-height"} || $img->{attrs}{height};
+    my $href = $img->{attrs}{"data-href"};# || $img->{attrs}{href};
+    my $type = $img->{attrs}{"data-orig-type"} || $img->{attrs}{"data-type"};
+    $type = "" unless $type && $type ne "none";
 
-    if ($src =~ /^(?:%ATTACHURL(?:PATH)?%\/)(.*?)$/) {
+    $src = Encode::encode_utf8($src);
+    $src = Foswiki::urlDecode($src);
+
+    my $restUrlPath = $this->getScriptUrlPath("ImagePlugin", "process", "rest");
+    if ($file) {
+      if ($src =~ /^data:(.*)$/) {
+        $this->queueAttachment($web, $topic, $img->{context}{meta}, $1, $file);
+      }
+    } elsif ($src =~ /^(?:%ATTACHURL(?:PATH)?%\/)(.*?)$/) {
       $file = $1;
     } elsif ($src =~ /(?:(?:%PUBURL(?:PATH)?%|\/pub)\/)(.*)\/(.*?)\/(.*?)$/) {
       $web = $1;
       $topic = $2;
       $file = $3;
+      return if $file =~ /\.svgz?$/;# don't convert svgs
     } elsif ($src =~ /^data:(.*)$/) {
-      $file = $this->attachBlobImage($web, $topic, $img->{context}{meta}, $1);
+      $file = $this->queueAttachment($web, $topic, $img->{context}{meta}, $1);
+    } elsif ($src =~ /^(?:$restUrlPath|(?:%SCRIPTURL(?:PATH)?%\/rest\/ImagePlugin)\/process)\?topic=(.*?);file=(.*)$/) {
+      $file = $2;
+    } else {
+      $file = $src;
     }
+
+  #print STDERR "web=$web, topic=$topic, file=$file\n";
 
     $web = "" if $web eq $this->{session}{webName};
     $topic = "" if $topic eq $this->{session}{topicName};
@@ -131,21 +149,28 @@ sub convertImage {
     $class =~ s/^\s+//;
     $class =~ s/\s+$//;
 
-    my $type = $img->{attrs}{"data-type"};
-    $type = "" unless $type && $type ne "none";
 
     my $align = $img->{attrs}{"align"};
     $align = "" unless $align && $align ne "none";
 
     my @params = ();
     push @params, "\"$file\"";
+
+    if ($topic) {
+      if ($web) {
+        push @params, "topic=\"$web.$topic\"";
+      } else {
+        push @params, "topic=\"$topic\"";
+      }
+    }
+
     push @params, 'caption="' . $img->{attrs}{"data-caption"} . '"' if $img->{attrs}{"data-caption"};
-    push @params, "topic=\"$web.$topic\"" if $web && $topic;
-    push @params, "width=\"$img->{attrs}{width}\"" if defined $img->{attrs}{width};
-    push @params, "height=\"$img->{attrs}{height}\"" if defined $img->{attrs}{height};
+    push @params, "width=\"$width\"" if defined $width;
+    push @params, "height=\"$height\"" if defined $height;
     push @params, "class=\"$class\"" if $class;
     push @params, "align=\"$align\"" if $align;
-    push @params, "type=\"$type\"" if $type;
+    push @params, "type=\"$type\"" if $type && $type ne 'simple';
+    push @params, "href=\"$href\"" if $href;
 
     return "%IMAGE{" . join(" ", @params) . "}%";
   }
@@ -153,9 +178,10 @@ sub convertImage {
   return;
 }
 
-sub attachBlobImage {
-  my ($this, $web, $topic, $meta, $blob) = @_;
+sub queueAttachment {
+  my ($this, $web, $topic, $meta, $blob, $fileName) = @_;
 
+  #print STDERR "called queueAttachment()\n";
   return unless $blob =~ /([a-z]+\/[a-z\-\.\+]+)?(;[a-z\-]+\=[a-z\-]+)?;base64,(.*)$/;
 
   my $mimeType = $1;
@@ -165,42 +191,55 @@ sub attachBlobImage {
   my $data = MIME::Base64::decode_base64($3);
 
   my $suffix = $this->mimeTypeToSuffix($mimeType);
-  my $size = do { use bytes; length $data };
   my $attachment = Digest::MD5::md5_hex($data) . '.' . $suffix;
+  if ($this->{queuedAttachments}{$attachment}) {
+    print STDERR "WARNING: already queued blob attachment ... skipping\n";
+  } else {
 
-  my $fh = File::Temp->new();
-  my $filename = $fh->filename;
-  binmode($fh);
+    my $fh = File::Temp->new();
+    binmode($fh);
+    $fileName ||= $fh->filename;
 
-  my $offset = 0;
-  my $r = $size;
-  while ($r) {
-    my $w = syswrite($fh, $data, $r, $offset);
-    die "system write error: $!\n" unless defined $w;
-    $offset += $w;
-    $r -= $w;
+    my $offset = 0;
+    my $size = do { use bytes; length $data };
+    my $r = $size;
+    while ($r) {
+      my $w = syswrite($fh, $data, $r, $offset);
+      die "system write error: $!\n" unless defined $w;
+      $offset += $w;
+      $r -= $w;
+    }
+
+    # queue blobs to be attached later on
+    $this->{queuedAttachments}{$attachment} = {
+      name => $fileName,
+      fh => $fh,
+      file => $fileName,
+      filesize => $size,
+    };
   }
-
-  # queue blobs to be attached later on
-  push @{$this->{pendingAttachments}}, {
-    name => $attachment,
-    fh => $fh,
-    file => $filename,
-    filesize => $size,
-  };
 
   return $attachment;
 }
 
-sub attachPending {
+sub saveQueuedAttachments {
   my ($this, $meta) = @_;
 
-  return unless $this->{pendingAttachments};
+  #print STDERR "called saveQueuedAttachments\n";
+  return unless defined $this->{queuedAttachments};
 
   ($meta) = Foswiki::Func::readTopic($this->{session}{webName}, $this->{session}{topicName})
     unless $meta;
 
-  foreach my $item (@{$this->{pendingAttachments}}) {
+  my $web = $meta->web;
+  my $topic = $meta->topic;
+  return unless Foswiki::Func::topicExists($web, $topic);
+
+  my $attachments = $this->{queuedAttachments};
+  undef $this->{queuedAttachments};
+
+  foreach my $item (values %$attachments) {
+  #print STDERR "attaching $item->{name} to ".$meta->getPath()."\n";
     $meta->attach(
       name => $item->{name},
       file => $item->{file},
@@ -208,11 +247,9 @@ sub attachPending {
       filesize => $item->{filesize},
       minor => 1,
       dontlog => 1,
-      comment => 'Auto-attached by <nop>NatEditPlugin',
+      comment => 'Auto-attached by NatEditPlugin',
     );
   }
-
-  undef $this->{pendingAttachments};
 }
 
 sub mimeTypeToSuffix {
@@ -240,6 +277,16 @@ sub readMimeTypes {
   }
 
   return $this->{types};
+}
+
+sub getScriptUrlPath {
+  my $this = shift;
+
+  my $scriptUrlPath = Foswiki::Func::getScriptUrlPath(@_);
+  my $urlHost = Foswiki::Func::getUrlHost();
+  $scriptUrlPath =~ s/^$urlHost//;
+
+  return $scriptUrlPath;
 }
 
 1;

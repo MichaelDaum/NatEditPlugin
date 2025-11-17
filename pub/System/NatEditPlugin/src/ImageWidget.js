@@ -26,8 +26,6 @@ function ImageWidget(editor, from, to) {
 ImageWidget.prototype.makeInteractive = function() {
   var self = this;
 
-console.log("called makeInteractive");
-
   self.elem.resizable({
     aspectRatio: true,
     handles: "se",
@@ -63,20 +61,16 @@ ImageWidget.prototype.init = function() {
   var self = this, 
       text;
 
-console.log("called init");
-
   if (/%IMAGE{(.*?)}%$/.test(self.getText())) {
     text = RegExp.$1;
   }
-console.log("text=",text);
 
   self.attrs = new foswiki.Attrs(text);
 
-  let webTopic = foswiki.normalizeWebTopicName(self.attrs.get("web") || foswiki.getPreference("WEB"), self.attrs.get("topic") || foswiki.getPreference("TOPIC"));
+  let webTopic = self.editor.shell.formManager.getWebTopic();
+  webTopic = foswiki.normalizeWebTopicName(self.attrs.get("web") || webTopic[0], self.attrs.get("topic") || webTopic[1]);
   self.web = webTopic[0];
   self.topic = webTopic[1];
-
-console.log("attrs="+self.attrs);
 
   if (typeof(self.elem) === 'undefined') {
     self.elem = $("<img>").appendTo("body");
@@ -111,7 +105,6 @@ console.log("attrs="+self.attrs);
         file: self.attrs.get("_default"),
       };
 
-console.log("opts=",opts);
       self.editor.shell.dialog({
         name: "insertimage",
         open: function(elem) {
@@ -131,7 +124,6 @@ console.log("opts=",opts);
         self.attrs.set("height", dialog.find("[name=height]").val());
         self.attrs.set("align", dialog.find("[name=align]:checked").val());
         self.attrs.set("type", dialog.find("[name=type]:checked").val());
-console.log("attrs=",self.attrs.values);
       });
     });
 
@@ -139,7 +131,6 @@ console.log("attrs=",self.attrs.values);
     //self.elem.resizable("destroy").removeClass("ui-resizable");
   }
 
-console.log("elem=",self.elem[0]);
   self.mark = self.editor.cm.markText(self.from, self.to, {
     replacedWith: self.elem[0],
     clearOnEnter: true,
@@ -182,8 +173,6 @@ console.log("elem=",self.elem[0]);
 ImageWidget.prototype.toString = function() {
   var self = this,
     result = "%IMAGE{" + self.attrs + "}%";
-
-console.log("result=",result);
 
   return result;
 };

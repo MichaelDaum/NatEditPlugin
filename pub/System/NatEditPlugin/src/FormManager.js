@@ -21,8 +21,8 @@ var defaults = {
   blockUnload: true,
   purifyInput: false,
   purify: {
-    ADD_ATTR: ['contenteditable'],
-    ADD_TAGS: ['verbatim', 'literal', 'sticky', 'nop', 'noautolink', 'dirtyarea', 'label'],
+    ADD_ATTR: ['contenteditable', 'target'],
+    ADD_TAGS: ['verbatim', 'literal', 'sticky', 'nop', 'noautolink', 'dirtyarea', 'graphviz', 'dot', 'mermaid', 'latex', 'math'],
     FORBID_ATTR: [],
     FORBID_TAGS: ['font'],
   }
@@ -36,26 +36,22 @@ var FormManager = function(elem, opts) {
 
   // init
   self.elem = $(elem);
+  self.formAction = self.elem.attr("action") || "";
   self.editCaptcha = $("#editcaptcha");
   self.origDocumentTitle = document.title;
   self.referrer = document.referrer;
   self.topicTitleCache = {};
 
   // options
+
   self.opts = $.extend({}, defaults, {
     web: foswiki.getPreference("WEB"),
     topic: foswiki.getPreference("TOPIC"),
     purifyInput: foswiki.getPreference("NatEditPlugin").purifyInput,
     purify: foswiki.getPreference("NatEditPlugin").purify,
     debug: foswiki.getPreference("NatEditPlugin").debug,
+    ajaxSubmitEnabled: /save/.test(self.formAction) ? true : false
   }, opts, self.elem.data());
-
-  var action = self.elem.attr("action");
-  //console.log("action=",action);
-  if (action && /bin\/save/.test(action)) {
-    //console.log("disabling ajax save for form",self.elem[0]);
-    self.opts.ajaxSubmitEnabled = false;
-  }
 
   // purify configs
   for (const key in self.opts.purify) {
@@ -92,6 +88,7 @@ var FormManager = function(elem, opts) {
 
   // clear input on reset event
   self.elem.on("reset", function() {
+    self.elem.find(".newFile").remove();
     self.editors().each(function() {
       this.setValue("");
     });
@@ -105,11 +102,26 @@ var FormManager = function(elem, opts) {
 
   // handling submit event
   self.elem.on("submit", function(ev) {
-    //console.log("got submit event");
     ev.preventDefault();
-    if (!ev.defaultPrevented) {
-      self.save();
+
+    if (self._submitInProgress) {
+      console.warn("submit already in progress");
+      return false;
     }
+    self.log("got submit event");
+    if (!/save/.test(self.formAction) && !self.opts.ajaxSubmitEnabled) {
+      self.log("not a save action, performing normal submit");
+      self.beforeSubmit(self.formAction).then(function() {
+        self.isBlockedUnload = false;
+        self.elem[0].submit();
+        self._submitInProgress = false;
+      });
+    } else {
+      self.save().then(function() {
+        self._submitInProgress = false;
+      });
+    }
+
     return false;
   });
 
@@ -202,16 +214,23 @@ var FormManager = function(elem, opts) {
     self.elem.find("input[type=text], input[type=password], input[type=search], input[type=email], input[type=url], textarea:not(.natedit)").addClass("pure");
 
     $.validator.addMethod("pure", function(value, element, params ) {
-      self.log("checking if element is pure", value);
-      const clean = DOMPurify.sanitize(value, self.opts.purify);
+      value = "x" + value; 
+      //self.log("checking if element is pure", value);
+      DOMPurify.sanitize(value, self.opts.purify);
       self.logInsecureTags();
-      return clean === value;
+      return DOMPurify.removed.length === 0;
     }, "Security warning: input contains dangerous content.");
 
     $.validator.addClassRules("pure", {
       pure: true
     });
   }
+
+  /* remove some access keys interfering with the table editor */
+  $("[accesskey=n],[accesskey=f]").each(function() {
+    $(this).removeAttr("accesskey"); 
+  });
+
 };
 /*************************************************************************
  * returns the list of included nateditors
@@ -238,10 +257,11 @@ FormManager.prototype.log = function() {
 };
 
 /*************************************************************************
- * block entering edit mode via back button as this might cause data loss
+ * block browser history.
  */
-FormManager.prototype.blockHistory = function() {
+FormManager.prototype.blockBrowserHistory = function() {
   var self = this;
+
   window.history.replaceState(null, "[blocked history entry]", self.referrer); 
 };
 
@@ -249,32 +269,52 @@ FormManager.prototype.blockHistory = function() {
  * get the title of a topic
  */
 FormManager.prototype.getTopicTitle = function(topic) {
-  var self = this, 
-      topicTitle,
-      dfd = $.Deferred();
+  var self = this;
 
-  topic = foswiki.normalizeWebTopicName(self.opts.web, topic).join(".");
+  return $.Deferred(function(dfd) {
+    var topicTitle = self.topicTitleCache[topic];
 
-  topicTitle = self.topicTitleCache[topic];
+    if (topicTitle) {
+      //self.log("found topicTitle in cache",topicTitle);
+      dfd.resolve(topicTitle);
+    } else {
+      topic = foswiki.normalizeWebTopicName(self.opts.web, topic).join(".");
+      //self.log("fetching topicTitle for", topic);
 
-  if (topicTitle) {
-    //self.log("found topicTitle in cache",topicTitle);
-    dfd.resolve(topicTitle);
-  } else {
-    //self.log("fetching topicTitle for", topic);
+      $.get(foswiki.getScriptUrl("rest", "NatEditPlugin", "topicTitle"), {
+        topic: self.getWebTopic().join("."),
+        location: topic
+      }).done(function(data) {
+        self.topicTitleCache[topic] = data;
+        dfd.resolve(data);
+      }).fail(function() {
+        dfd.reject("failed to get topic title for ",topic);
+      });;
+    }
+  }).promise();
+};
 
-    $.get(foswiki.getScriptUrl("rest", "NatEditPlugin", "topicTitle"), {
-      topic: self.opts.web + "." + self.opts.topic,
-      location : topic
-    }).done(function(data) {
-      self.topicTitleCache[topic] = data;
-      dfd.resolve(data);
-    }).fail(function() {
-      dfd.reject("failed to get topic title for ",topic);
-    });;
-  }
+/************************************************************************
+ * get the topic this form is supposed to address.
+ * this is taken from an input element named topic and defailts to the 
+ * one in the opts
+ */
+FormManager.prototype.getWebTopic = function() {
+  var self = this,
+    web, topic;
 
-  return dfd.promise();
+  web = self.elem.find("[name=web]").val() || self.opts.web;
+  topic = self.elem.find("[name=topic]").val() || self.opts.topic;
+
+  return foswiki.normalizeWebTopicName(web, topic);
+};
+
+FormManager.prototype.getWeb = function() {
+  return this.getWebTopic()[0];
+};
+
+FormManager.prototype.getTopic = function() {
+  return this.getWebTopic()[1];
 };
 
 /************************************************************************
@@ -314,12 +354,15 @@ FormManager.prototype.save = function() {
   var self = this,
     msg = self.elem.data("message") || $.i18n("Saving ...");
 
+  self.log("called save()");
+
   $.blockUI({
     message: `<h1>${msg}</h1>`
   });
 
   return self.submit("save").then(function(redirect) {
     if (redirect) {
+      self.blockBrowserHistory();
       window.location.href = redirect;
     } else {
       $.unblockUI();
@@ -344,6 +387,7 @@ FormManager.prototype.cancel = function() {
 
   return self.submit("cancel").then(function(redirect) {
     if (redirect) {
+      self.blockBrowserHistory();
       window.location.href = redirect;
     } else {
       $.unblockUI();
@@ -367,7 +411,7 @@ FormManager.prototype.checkPoint = function() {
   });
 
   return self.submit("checkpoint").then(function(redirect) {
-    if (redirect && self.opts.topic.match(/AUTOINC|XXXXXXXXXX/)) {
+    if (redirect && self.getTopic().match(/AUTOINC|XXXXXXXXXX/)) {
       window.location.href = redirect;
     } else {
       $.unblockUI();
@@ -384,16 +428,17 @@ FormManager.prototype.checkPoint = function() {
  */
 FormManager.prototype.submit = function(action) {
   var self = this,
-    dfd = $.Deferred(),
     msg;
 
   action = action || 'checkpoint';
 
   self.log("called submit action=",action);
-  self.checkCaptcha().then(function() {
+  self.hideMessages();
 
-    self.hideMessages();
+  return $.Deferred(function(dfd) {
+
     if (action === 'cancel' || self.elem.validate().form()) {
+
       self.beforeSubmit(action).then(function() {
         if (self.opts.ajaxSubmitEnabled) {
           self.elem.ajaxSubmit({
@@ -403,29 +448,34 @@ FormManager.prototype.submit = function(action) {
             },
             error: function(xhr, textStatus) {
               var message = self.extractErrorMessage(xhr.responseText || textStatus);
+              self.updateNonce(xhr.getResponseHeader('X-Foswiki-Validation'));
               if (xhr.status == 419) {
                 self.confirmSave(message).then(function() {
-                  self.updateNonce(xhr.getResponseHeader('X-Foswiki-Validation'));
-                  self.submit(action); // try again
+                  self._submitInProgress = false;
+                  self.submit(action).then(function(redirect) {
+                    if (redirect) {
+                      redirect = decodeURIComponent(redirect);
+                    }
+                    dfd.resolve(redirect);
+                  }, function(msg) {
+                    dfd.reject(msg);
+                  });
                 }, function() {
-                  self.showMessage("error", message);
+                  self.showMessage("error", message, "Error");
                 });
               } else {
-                self.showMessage("error", message);
+                self.showMessage("error", message, "Error");
                 dfd.reject(message);
               }
             },
             success: function(data, textStatus, xhr) {
               var redirect = xhr.getResponseHeader("X-Location") || xhr.getResponseHeader("Location");
-              dfd.resolve(redirect);
-            },
-            complete: function(xhr) {
               self.updateNonce(xhr.getResponseHeader('X-Foswiki-Validation'));
               $(".natEditTitleStatus").fadeOut();
-              self.documentTitle();
-              if (action === "checkpoint") {
-                $.unblockUI();
+              if (redirect) {
+                redirect = decodeURIComponent(redirect);
               }
+              dfd.resolve(redirect);
             }
           });
         } else {
@@ -437,10 +487,11 @@ FormManager.prototype.submit = function(action) {
         self.showMessage("error", $.i18n(msg), $.i18n(title));
         dfd.reject(msg);
       });
+    } else {
+      dfd.reject("Form validation failed");
+      $.unblockUI();
     }
-  });
-
-  return dfd.promise();
+  }).promise();
 };
 
 
@@ -471,13 +522,12 @@ FormManager.prototype.preview = function() {
         $.unblockUI();
         if (xhr.status == 419) {
           self.confirmSave(message).then(function() {
-            self.updateNonce(xhr.getResponseHeader('X-Foswiki-Validation'));
             self.preview(); // try again
-          }, function() {
-            self.showMessage("error", message);
+          }, function(msg) {
+            self.showMessage("error", msg, "Error");
           });
         } else {
-          self.showMessage("error", message);
+          self.showMessage("error", message, "Error");
         }
       },
       success: function(data) {
@@ -510,14 +560,19 @@ FormManager.prototype.preview = function() {
  */
 FormManager.prototype.confirmSave = function(msg) {
   var self = this,
-    html = `<div class="ui-natedit-dialog-content ui-natedit-confirm-dialog-content">${msg}</div>`;
+    html = `<div class="ui-natedit-dialog-content ui-natedit-confirm-dialog-content">${msg}</div>`,
+    msg = $(".blockPage h1").text();
 
+  $.unblockUI();
   return $.Deferred(function(dfd) {
     $(html).dialog({
       buttons: [{
         text: $.i18n("OK"),
         icon: "ui-icon-check",
         click: function() {
+          $.blockUI({
+            message: `<h1>${msg}</h1>`
+          });
           dfd.resolve(this);
           $(this).dialog("close");
           return true;
@@ -561,7 +616,7 @@ FormManager.prototype.updateNonce = function(val) {
 
   if (val) {
     self.elem.find("input[name='validation_key']").each(function() {
-      $(this).val("?" + val);
+      $(this).val("?" + val.split(/\s*,\s*/)[0]);
     });
   }
 };
@@ -584,40 +639,11 @@ FormManager.prototype.extractErrorMessage = function(text) {
 };
 
 /*************************************************************************
- * checks a captcha, if enabled. 
- * returns a deferred obj and resolves it as needed.
- */
-FormManager.prototype.checkCaptcha = function() {
-  var self = this,
-      dfd = $.Deferred(),
-      buttons;
-
-  self.log("called checkCaptcha");
-  if (self.editCaptcha.length) {
-    buttons = self.editCaptcha.dialog("option", "buttons");
-    buttons[0].click = function() {
-      if (self.editCaptcha.find(".jqCaptcha").data("captcha").validate()) {
-        self.editCaptcha.dialog("close");
-        dfd.resolve();
-      } else {
-        dfd.reject();
-      }
-    };
-    self.editCaptcha.dialog("option", "buttons", buttons).dialog("open");
-  } else {
-    dfd.resolve();
-  }
-
-  return dfd.promise();
-};
-
-/*************************************************************************
   * things to be done before the submit goes out
   */
 FormManager.prototype.beforeSubmit = function(action) {
   var self = this, 
     actionValue = 'foobar',
-    dfd = $.Deferred(),
     dfds = [];
 
   function doIt() {
@@ -662,6 +688,7 @@ FormManager.prototype.beforeSubmit = function(action) {
     return self.isPure().then(function() {
       return doIt();
     }, function(report) {
+      var dfd = $.Deferred();
       self.log("not pure");
       return dfd.reject("Input contains dangerous content:<ul class='foswikiNoIndent'><li>" + report.join("</li><li>")+"</li></ul>", "Security warning");
     });

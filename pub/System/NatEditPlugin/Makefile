@@ -18,7 +18,7 @@ TEXTAREA_ENGINE_SOURCE=\
   src/UndoManager.js \
   src/RawEngine.js 
 
-BUNDLE_SOURCE=\
+BUNDLE_JS=\
   lib/dompurify/purify.js \
   src/Utils.js \
   src/EmojiWidget.js \
@@ -34,6 +34,10 @@ BUNDLE_SOURCE=\
   src/CodemirrorEngine.js \
   src/TinyMCEEngine.js 
 
+#  src/KaTexWidget.js \
+
+BUNDLE_CSS=src/styles.css 
+
 .PRECIOUS: $(TARGET)
 
 clean:
@@ -45,10 +49,10 @@ build:
 build/TextareaEngine.js: $(TEXTAREA_ENGINE_SOURCE)
 	@echo generating $@; $(JSMIN) $^ > $@
 
-build/bundle.js: $(BUNDLE_SOURCE)
+build/bundle.js: $(BUNDLE_JS)
 	@echo generating $@; $(JSMIN) $^ > $@
 
-build/bundle.css: src/styles.css
+build/bundle.css: $(BUNDLE_CSS)
 	@echo generating $@; $(CAT) $^ | $(CSSMIN) $(CSSMIN_ARGS) > $@
 
 build/%.js: src/%.js

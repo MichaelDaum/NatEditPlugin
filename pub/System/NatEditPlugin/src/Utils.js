@@ -101,3 +101,75 @@ function _rangesOverlap(range1, range2) {
 function _escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
+
+function _clearClipboardContent(text) {
+
+  function _init() {
+    if (_clearClipboardContent.attrsRegex !== undefined) {
+      return;
+    }
+
+    const attrs = [
+      "align",
+      "border",
+      "cellpadding",
+      "cellspacing",
+      "class",
+      "data\-.*?",
+      "dir",
+      "height",
+      "id",
+      "itemprop",
+      "name",
+      "rel",
+      "style",
+      "tabindex",
+      "target",
+      "title",
+      "valign",
+      "width",
+    ];
+    const tags = [
+      "a\-img",
+      "a\-lightbox",
+      "body",
+      "code",
+      "col",
+      "colgroup",
+      "figure",
+      "font",
+      "footer",
+      "header",
+      "time",
+      "section",
+      "meta",
+    ];
+
+    _clearClipboardContent.attrsRegex = new RegExp("("+attrs.join("|")+")=[\"'].*?['\"]", "gis"),
+    _clearClipboardContent.tagsRegex = new RegExp("</?("+tags.join("|")+").*?>", "gis");
+    _clearClipboardContent.doubleBrRegex = new RegExp("<br */?>\s*<br */?>", "gis");
+    _clearClipboardContent.finalBrRegex = new RegExp("<br */?>$", "i");
+    _clearClipboardContent.preRegex = new RegExp("^ *<pre *>(.*)</pre> *$", "si");
+    _clearClipboardContent.strongRegex = new RegExp("<strong .*?>(.*)</strong>", "si");
+    _clearClipboardContent.xmlHeaderRegex = new RegExp("<!\\-\\-\\?xml.*?\\?\\-\\->", "i");
+    _clearClipboardContent.emptySpansRegex = new RegExp("<span [^>]*>(&nbsp;|\\s)*</span>", "gis");
+  }
+
+  _init();
+
+  //console.log("before='"+text+"'");
+
+  text = text
+    .replace(_clearClipboardContent.doubleBrRegex, "") // remove double br
+    .replace(_clearClipboardContent.attrsRegex, "") // remove unwanted attributes blocking html2tml translation
+    .replace(_clearClipboardContent.tagsRegex, "") // remove unwanted tags
+    .replace(_clearClipboardContent.preRegex, "$1") // clear pres at start and end
+    .replace(_clearClipboardContent.strongRegex, "<b>$1</b>") // rewrite strong to b
+    .replace(_clearClipboardContent.xmlHeaderRegex, "") // xml headers sometimes are part of a text/html blob
+    .replace(_clearClipboardContent.emptySpansRegex, "") // remove bogus spans
+    .replace(_clearClipboardContent.finalBrRegex, ""); // remove br at end of string
+
+  //console.log("after='"+text+"'");
+
+  return text;
+}
