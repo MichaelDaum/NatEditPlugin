@@ -20,11 +20,6 @@ msgstr ""
 "X-Poedit-Country: Taiwan\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
-#: templates/edittoolbar.natedit.tmpl:232
-#, fuzzy
-msgid "$action"
-msgstr "功能"
-
 #. ("Foswiki")
 #: lib/Foswiki/Plugins/NatEditPlugin/RestSave.pm:33
 msgid "%1 has received a suspicious change request from your browser."
@@ -35,7 +30,7 @@ msgstr ""
 msgid "Add a new form to <nop>%1"
 msgstr "為 <nop>%1 加一個新表單"
 
-#: templates/edittoolbar.natedit.tmpl:119
+#: templates/edittoolbar.natedit.tmpl:138
 #, fuzzy
 msgid "Add column"
 msgstr "增加表單"
@@ -44,55 +39,60 @@ msgstr "增加表單"
 msgid "Add form"
 msgstr "增加表單"
 
-#: templates/edittoolbar.natedit.tmpl:116
+#: templates/edittoolbar.natedit.tmpl:135
 #, fuzzy
 msgid "Add row"
 msgstr "增加表單"
 
-#: templates/editdialog.natedit.tmpl:106
+#: templates/editdialog.natedit.tmpl:117
 msgid "Advanced"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:90
+#: templates/edittoolbar.natedit.tmpl:109
 msgid "Align left"
 msgstr "靠左"
 
-#: templates/edittoolbar.natedit.tmpl:93
+#: templates/edittoolbar.natedit.tmpl:112
 msgid "Align right"
 msgstr "靠右"
 
-#: templates/editdialog.natedit.tmpl:96
+#: templates/editdialog.natedit.tmpl:106
 #, fuzzy
 msgid "Alignment"
 msgstr "靠左"
 
-#: templates/editdialog.natedit.tmpl:144
+#: templates/editdialog.natedit.tmpl:154
 msgid "Attachment"
 msgstr "附件"
 
-#: templates/edittoolbar.natedit.tmpl:46
+#: templates/edittoolbar.natedit.tmpl:40
+#, fuzzy
+msgid "Block"
+msgstr "區塊引用"
+
+#: templates/edittoolbar.natedit.tmpl:49
 msgid "Blockquote"
 msgstr "區塊引用"
 
-#: templates/edittoolbar.natedit.tmpl:50
+#: templates/edittoolbar.natedit.tmpl:69
 msgid "Bold"
 msgstr "粗體"
 
-#: templates/edittoolbar.natedit.tmpl:99 templates/settings.natedit.tmpl:50
+#: templates/edittoolbar.natedit.tmpl:118 templates/settings.natedit.tmpl:50
 msgid "Bullet list"
 msgstr "符號列表"
 
-#: templates/edittoolbar.natedit.tmpl:223
-#: templates/edittoolbar.natedit.tmpl:227
+#: templates/edittoolbar.natedit.tmpl:250
+#: templates/edittoolbar.natedit.tmpl:251
 msgid "Cancel"
 msgstr "取消"
 
-#: templates/editdialog.natedit.tmpl:85
+#: templates/editdialog.natedit.tmpl:90
 #, fuzzy
 msgid "Caption"
 msgstr "選項"
 
-#: templates/edittoolbar.natedit.tmpl:91
+#: templates/edittoolbar.natedit.tmpl:110
 msgid "Center align"
 msgstr "置中對齊"
 
@@ -105,28 +105,28 @@ msgstr "改自"
 msgid "Change the current form of <nop>%1"
 msgstr "變更目前 <nop>%1 的表單"
 
-#: templates/editdialog.natedit.tmpl:117
+#: templates/editdialog.natedit.tmpl:128
 msgid "Class"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:137
+#: templates/edittoolbar.natedit.tmpl:162
 msgid "Clear floating objects"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:204
+#: templates/editdialog.natedit.tmpl:213
 msgid "Click to upload a new file"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:81
+#: templates/editdialog.natedit.tmpl:86
 msgid "Click to upload a new image"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:157 templates/preview.natedit.tmpl:6
+#: templates/edittoolbar.natedit.tmpl:173 templates/preview.natedit.tmpl:6
 #: templates/settings.natedit.tmpl:58
 msgid "Close"
 msgstr "關閉"
 
-#: templates/edittoolbar.natedit.tmpl:134 templates/edittoolbar.natedit.tmpl:54
+#: templates/edittoolbar.natedit.tmpl:164 templates/edittoolbar.natedit.tmpl:73
 msgid "Color"
 msgstr "顏色"
 
@@ -142,7 +142,7 @@ msgstr "繼續編輯"
 msgid "Create a new table"
 msgstr "建立新表格"
 
-#: templates/edittoolbar.natedit.tmpl:238
+#: templates/edittoolbar.natedit.tmpl:264
 msgid "Creates a new topic revision when saving"
 msgstr "存檔後建立一個新的主題版本"
 
@@ -154,11 +154,11 @@ msgstr "資料行"
 msgid "Default"
 msgstr "預設"
 
-#: templates/edittoolbar.natedit.tmpl:120
+#: templates/edittoolbar.natedit.tmpl:139
 msgid "Delete column"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:117
+#: templates/edittoolbar.natedit.tmpl:136
 #, fuzzy
 msgid "Delete row"
 msgstr "資料行"
@@ -171,7 +171,7 @@ msgstr "個屬性都有語法"
 msgid "Edit"
 msgstr "編輯"
 
-#: templates/edittoolbar.natedit.tmpl:132
+#: templates/edittoolbar.natedit.tmpl:166
 msgid "Emoticon"
 msgstr "表情"
 
@@ -179,7 +179,11 @@ msgstr "表情"
 msgid "Enter your comment"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:154
+#: templates/edittoolbar.natedit.tmpl:54
+msgid "Error Message"
+msgstr ""
+
+#: templates/edittoolbar.natedit.tmpl:182
 msgid "Escape markup"
 msgstr "轉義標記"
 
@@ -187,19 +191,23 @@ msgstr "轉義標記"
 msgid "Everybody"
 msgstr "每個人"
 
-#: templates/editdialog.natedit.tmpl:145
+#: templates/editdialog.natedit.tmpl:155
 msgid "External"
 msgstr "外部"
 
-#: templates/editdialog.natedit.tmpl:200
+#: templates/editdialog.natedit.tmpl:191
+msgid "Fetch document title"
+msgstr ""
+
+#: templates/editdialog.natedit.tmpl:209
 msgid "File"
 msgstr "檔案"
 
-#: templates/edittoolbar.natedit.tmpl:239
+#: templates/edittoolbar.natedit.tmpl:265
 msgid "Flag the changes as being minor"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:238
+#: templates/edittoolbar.natedit.tmpl:264
 msgid "Force new revision"
 msgstr "強制新版本"
 
@@ -207,7 +215,7 @@ msgstr "強制新版本"
 msgid "Form"
 msgstr "表單"
 
-#: templates/edittoolbar.natedit.tmpl:23
+#: templates/editdialog.natedit.tmpl:140 templates/edittoolbar.natedit.tmpl:23
 #, fuzzy
 msgid "Format"
 msgstr "表單"
@@ -216,12 +224,16 @@ msgstr "表單"
 msgid "Format selected text"
 msgstr "格式選擇內文"
 
-#: templates/edittoolbar.natedit.tmpl:138
+#: templates/edittoolbar.natedit.tmpl:163
 msgid "Formula"
 msgstr "公式"
 
 #: templates/editdialog.natedit.tmpl:74
 msgid "General"
+msgstr ""
+
+#: templates/edittoolbar.natedit.tmpl:50
+msgid "Generic Message"
 msgstr ""
 
 #: templates/settings.natedit.tmpl:37
@@ -232,27 +244,27 @@ msgstr "取得主題設定的說明"
 msgid "Header rows"
 msgstr "標題行"
 
-#: templates/edittoolbar.natedit.tmpl:39
+#: templates/edittoolbar.natedit.tmpl:57
 msgid "Heading 1"
 msgstr "標題 1"
 
-#: templates/edittoolbar.natedit.tmpl:40
+#: templates/edittoolbar.natedit.tmpl:58
 msgid "Heading 2"
 msgstr "標題 2"
 
-#: templates/edittoolbar.natedit.tmpl:41
+#: templates/edittoolbar.natedit.tmpl:59
 msgid "Heading 3"
 msgstr "標題 3"
 
-#: templates/edittoolbar.natedit.tmpl:42
+#: templates/edittoolbar.natedit.tmpl:60
 msgid "Heading 4"
 msgstr "標題 4"
 
-#: templates/edittoolbar.natedit.tmpl:43
+#: templates/edittoolbar.natedit.tmpl:61
 msgid "Heading 5"
 msgstr "標題 5"
 
-#: templates/edittoolbar.natedit.tmpl:44
+#: templates/edittoolbar.natedit.tmpl:62
 msgid "Heading 6"
 msgstr "標題 6"
 
@@ -261,66 +273,70 @@ msgstr "標題 6"
 msgid "Help"
 msgstr "説明"
 
-#: templates/edittoolbar.natedit.tmpl:136
+#: templates/edittoolbar.natedit.tmpl:161
 #, fuzzy
 msgid "Horizontal Ruler"
 msgstr "水平標尺"
 
-#: templates/edittoolbar.natedit.tmpl:131
+#: templates/edittoolbar.natedit.tmpl:167
 msgid "Icon"
 msgstr "圖標"
 
-#: templates/editdialog.natedit.tmpl:77
+#: templates/editdialog.natedit.tmpl:82
 msgid "Image"
 msgstr "圖片"
 
-#: templates/edittoolbar.natedit.tmpl:100 templates/settings.natedit.tmpl:51
+#: templates/edittoolbar.natedit.tmpl:119 templates/settings.natedit.tmpl:51
 msgid "Indent"
 msgstr "縮排"
 
-#: templates/edittoolbar.natedit.tmpl:137
+#: templates/edittoolbar.natedit.tmpl:52
+msgid "Info Message"
+msgstr ""
+
+#: templates/edittoolbar.natedit.tmpl:162
 #, fuzzy
 msgid "Insert Clear"
 msgstr "插入一個巨集"
 
-#: templates/edittoolbar.natedit.tmpl:108
+#: templates/edittoolbar.natedit.tmpl:127
 #, fuzzy
 msgid "Insert Image"
 msgstr "插入日期"
 
-#: templates/editdialog.natedit.tmpl:4 templates/edittoolbar.natedit.tmpl:134
+#: templates/editdialog.natedit.tmpl:4 templates/edittoolbar.natedit.tmpl:164
 msgid "Insert a color code"
 msgstr "插入色碼"
 
-#: templates/edittoolbar.natedit.tmpl:136
+#: templates/edittoolbar.natedit.tmpl:161
 msgid "Insert a horizontal ruler"
 msgstr "插入水平線"
 
-#: templates/editdialog.natedit.tmpl:140 templates/edittoolbar.natedit.tmpl:107
+#: templates/editdialog.natedit.tmpl:150 templates/edittoolbar.natedit.tmpl:126
 msgid "Insert a link"
 msgstr "插入連結"
 
-#: templates/edittoolbar.natedit.tmpl:138
+#: templates/edittoolbar.natedit.tmpl:163
 msgid "Insert a mathematical formula"
 msgstr "插入一個數學公式"
 
-#: templates/edittoolbar.natedit.tmpl:114
+#: templates/edittoolbar.natedit.tmpl:133
 msgid "Insert a new table"
 msgstr "插入一個新表格"
 
-#: templates/edittoolbar.natedit.tmpl:133
+#: templates/edittoolbar.natedit.tmpl:165
 msgid "Insert a symbol"
 msgstr "插入一個符號"
 
-#: templates/edittoolbar.natedit.tmpl:132
+#: templates/edittoolbar.natedit.tmpl:166
 msgid "Insert an emoticon"
 msgstr "插入一個表情圖示"
 
-#: templates/edittoolbar.natedit.tmpl:131
+#: templates/edittoolbar.natedit.tmpl:167
 msgid "Insert an icon"
 msgstr "插入一個圖標"
 
-#: templates/edittoolbar.natedit.tmpl:135
+#: templates/edittoolbar.natedit.tmpl:160
 msgid "Insert your signature"
 msgstr "插入您的簽名"
 
@@ -329,7 +345,7 @@ msgstr "插入您的簽名"
 msgid "Insert/Update image"
 msgstr "插入日期"
 
-#: templates/edittoolbar.natedit.tmpl:51
+#: templates/edittoolbar.natedit.tmpl:70
 msgid "Italic"
 msgstr "斜體"
 
@@ -337,49 +353,57 @@ msgstr "斜體"
 msgid "Just me"
 msgstr "只有我"
 
-#: templates/edittoolbar.natedit.tmpl:92
+#: templates/edittoolbar.natedit.tmpl:111
 msgid "Justify text"
 msgstr "文本對齊"
 
-#: templates/editdialog.natedit.tmpl:121
+#: templates/editdialog.natedit.tmpl:132
 msgid "Link"
 msgstr "連結"
 
-#: templates/edittoolbar.natedit.tmpl:239
+#: templates/edittoolbar.natedit.tmpl:65
+msgid "Literal"
+msgstr ""
+
+#: templates/edittoolbar.natedit.tmpl:265
 #, fuzzy
 msgid "Minor change"
 msgstr "無變更"
 
-#: templates/edittoolbar.natedit.tmpl:53
+#: templates/edittoolbar.natedit.tmpl:82
+msgid "Monospace"
+msgstr ""
+
+#: templates/edittoolbar.natedit.tmpl:72
 msgid "More character formats"
 msgstr "多字格式"
 
-#: templates/edittoolbar.natedit.tmpl:109
+#: templates/edittoolbar.natedit.tmpl:128
 msgid "More objects to insert"
 msgstr "插入更多物件"
 
-#: templates/edittoolbar.natedit.tmpl:102
+#: templates/edittoolbar.natedit.tmpl:121
 #, fuzzy
 msgid "More table tools"
 msgstr "更多工具"
 
-#: templates/edittoolbar.natedit.tmpl:146
+#: templates/edittoolbar.natedit.tmpl:174
 msgid "More tools"
 msgstr "更多工具"
 
-#: templates/edittoolbar.natedit.tmpl:125
+#: templates/edittoolbar.natedit.tmpl:144
 msgid "Move column left"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:126
+#: templates/edittoolbar.natedit.tmpl:145
 msgid "Move column right"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:123
+#: templates/edittoolbar.natedit.tmpl:142
 msgid "Move row down"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:122
+#: templates/edittoolbar.natedit.tmpl:141
 msgid "Move row up"
 msgstr ""
 
@@ -387,15 +411,15 @@ msgstr ""
 msgid "Nobody"
 msgstr "無人"
 
-#: templates/edittoolbar.natedit.tmpl:38
+#: templates/edittoolbar.natedit.tmpl:56
 msgid "Normal"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:98
+#: templates/edittoolbar.natedit.tmpl:117
 msgid "Numbered list"
 msgstr "編號列表"
 
-#: templates/edittoolbar.natedit.tmpl:101 templates/settings.natedit.tmpl:52
+#: templates/edittoolbar.natedit.tmpl:120 templates/settings.natedit.tmpl:52
 msgid "Outdent"
 msgstr "凸排"
 
@@ -415,12 +439,12 @@ msgstr ""
 msgid "Press OK to confirm that this change was intentional."
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:215
-#: templates/edittoolbar.natedit.tmpl:219 templates/preview.natedit.tmpl:1
+#: templates/edittoolbar.natedit.tmpl:242
+#: templates/edittoolbar.natedit.tmpl:243 templates/preview.natedit.tmpl:1
 msgid "Preview"
 msgstr "預覽"
 
-#: templates/edittoolbar.natedit.tmpl:144
+#: templates/edittoolbar.natedit.tmpl:172
 msgid "Redo previous change"
 msgstr "重做前入改變"
 
@@ -428,33 +452,33 @@ msgstr "重做前入改變"
 msgid "Registered users"
 msgstr "註冊的使用者"
 
-#: templates/edittoolbar.natedit.tmpl:55
+#: templates/edittoolbar.natedit.tmpl:74
 #, fuzzy
 msgid "Remove Format"
 msgstr "移除使用者"
 
-#: templates/editdialog.natedit.tmpl:20 templates/edittoolbar.natedit.tmpl:157
+#: templates/editdialog.natedit.tmpl:20 templates/edittoolbar.natedit.tmpl:173
 #: templates/settings.natedit.tmpl:58
 msgid "Replace"
 msgstr "取代"
 
-#: templates/edittoolbar.natedit.tmpl:176
-#: templates/edittoolbar.natedit.tmpl:180
+#: templates/edittoolbar.natedit.tmpl:203
+#: templates/edittoolbar.natedit.tmpl:204
 msgid "Restore"
 msgstr "還原"
 
-#: templates/edittoolbar.natedit.tmpl:192
-#: templates/edittoolbar.natedit.tmpl:195
+#: templates/edittoolbar.natedit.tmpl:219
+#: templates/edittoolbar.natedit.tmpl:220
 msgid "Restore and Continue"
 msgstr "還原並續繼"
 
-#: templates/edittoolbar.natedit.tmpl:184
-#: templates/edittoolbar.natedit.tmpl:188
+#: templates/edittoolbar.natedit.tmpl:211
+#: templates/edittoolbar.natedit.tmpl:212
 msgid "Save"
 msgstr "儲存"
 
-#: templates/edittoolbar.natedit.tmpl:199
-#: templates/edittoolbar.natedit.tmpl:203
+#: templates/edittoolbar.natedit.tmpl:226
+#: templates/edittoolbar.natedit.tmpl:227
 msgid "Save and Continue"
 msgstr "存檔並繼續"
 
@@ -463,32 +487,31 @@ msgstr "存檔並繼續"
 msgid "Search"
 msgstr "搜尋"
 
-#: templates/editdialog.natedit.tmpl:12 templates/edittoolbar.natedit.tmpl:157
-#: templates/settings.natedit.tmpl:58
+#: templates/editdialog.natedit.tmpl:12 templates/settings.natedit.tmpl:58
 msgid "Search && Replace"
 msgstr "搜尋 && 取代"
 
-#: templates/edittoolbar.natedit.tmpl:135
+#: templates/edittoolbar.natedit.tmpl:160
 msgid "Signature"
 msgstr "簽名"
 
-#: templates/editdialog.natedit.tmpl:89
+#: templates/editdialog.natedit.tmpl:94
 msgid "Size"
 msgstr "大小"
 
-#: templates/edittoolbar.natedit.tmpl:151 templates/settings.natedit.tmpl:56
+#: templates/edittoolbar.natedit.tmpl:179 templates/settings.natedit.tmpl:56
 msgid "Sort ascending"
 msgstr "升序排序"
 
-#: templates/edittoolbar.natedit.tmpl:152 templates/settings.natedit.tmpl:57
+#: templates/edittoolbar.natedit.tmpl:180 templates/settings.natedit.tmpl:57
 msgid "Sort descending"
 msgstr "降序排序"
 
-#: templates/edittoolbar.natedit.tmpl:151 templates/settings.natedit.tmpl:56
+#: templates/edittoolbar.natedit.tmpl:179 templates/settings.natedit.tmpl:56
 msgid "Sort selected lines ascending"
 msgstr "選擇列升序排序"
 
-#: templates/edittoolbar.natedit.tmpl:152 templates/settings.natedit.tmpl:57
+#: templates/edittoolbar.natedit.tmpl:180 templates/settings.natedit.tmpl:57
 msgid "Sort selected lines descending"
 msgstr "選擇列降序排序"
 
@@ -500,37 +523,45 @@ msgstr "特別使用者/群組"
 msgid "State change from *%1* to *%2* (see [[%3][workflow definition]])."
 msgstr "說明由  *%1* 到 *%2* 的改變（參考 [[%3][工作流程定義]])。"
 
-#: templates/edittoolbar.natedit.tmpl:60
+#: templates/edittoolbar.natedit.tmpl:64
+msgid "Sticky"
+msgstr ""
+
+#: templates/edittoolbar.natedit.tmpl:79
 msgid "Strikethrough"
 msgstr "刪除線"
 
-#: templates/edittoolbar.natedit.tmpl:62
+#: templates/edittoolbar.natedit.tmpl:81
 msgid "Subscript"
 msgstr "下標"
 
-#: templates/edittoolbar.natedit.tmpl:243
+#: templates/edittoolbar.natedit.tmpl:51
+msgid "Success Message"
+msgstr ""
+
+#: templates/edittoolbar.natedit.tmpl:269
 msgid "Summary of changes"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:61
+#: templates/edittoolbar.natedit.tmpl:80
 msgid "Superscript"
 msgstr "上標"
 
-#: templates/edittoolbar.natedit.tmpl:145
+#: templates/edittoolbar.natedit.tmpl:189
 #, fuzzy
 msgid "Switch Editor"
 msgstr "切換成所見即所得"
 
-#: templates/edittoolbar.natedit.tmpl:163
+#: templates/edittoolbar.natedit.tmpl:190
 msgid "Switch to full-screen mode"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:133
+#: templates/edittoolbar.natedit.tmpl:165
 msgid "Symbol"
 msgstr "符號"
 
-#: templates/edit.natedit.tmpl:84 templates/editdialog.natedit.tmpl:166
-#: templates/editdialog.natedit.tmpl:180 templates/editdialog.natedit.tmpl:208
+#: templates/edit.natedit.tmpl:84 templates/editdialog.natedit.tmpl:174
+#: templates/editdialog.natedit.tmpl:187 templates/editdialog.natedit.tmpl:217
 msgid "Text"
 msgstr "內容"
 
@@ -543,28 +574,24 @@ msgstr "標題:"
 msgid "Title/Subject"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:113 templates/editdialog.natedit.tmpl:143
-#: templates/editdialog.natedit.tmpl:162 templates/editdialog.natedit.tmpl:196
+#: templates/editdialog.natedit.tmpl:124 templates/editdialog.natedit.tmpl:153
+#: templates/editdialog.natedit.tmpl:170 templates/editdialog.natedit.tmpl:205
 msgid "Topic"
 msgstr "主題"
 
-#: templates/editdialog.natedit.tmpl:130
-msgid "Type"
-msgstr ""
-
-#: templates/editdialog.natedit.tmpl:176
+#: templates/editdialog.natedit.tmpl:183
 msgid "URL"
 msgstr "網址"
 
-#: templates/edittoolbar.natedit.tmpl:52
+#: templates/edittoolbar.natedit.tmpl:71
 msgid "Underline"
 msgstr "底線"
 
-#: templates/edittoolbar.natedit.tmpl:143
+#: templates/edittoolbar.natedit.tmpl:171
 msgid "Undo last change"
 msgstr "回復最近的改變"
 
-#: templates/edittoolbar.natedit.tmpl:155
+#: templates/edittoolbar.natedit.tmpl:183
 msgid "Unescape markup"
 msgstr "反轉義標記"
 
@@ -578,9 +605,13 @@ msgstr "能編輯的使用者:"
 msgid "Users who may view"
 msgstr "能瀏覽的使用者:"
 
-#: templates/edittoolbar.natedit.tmpl:45
+#: templates/edittoolbar.natedit.tmpl:63
 msgid "Verbatim"
 msgstr "逐字"
+
+#: templates/edittoolbar.natedit.tmpl:53
+msgid "Warning Message"
+msgstr ""
 
 #: templates/edit.natedit.tmpl:140
 msgid ""
@@ -588,12 +619,12 @@ msgid ""
 "dialog to change the ACLs."
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:109 templates/editdialog.natedit.tmpl:158
-#: templates/editdialog.natedit.tmpl:192
+#: templates/editdialog.natedit.tmpl:120 templates/editdialog.natedit.tmpl:166
+#: templates/editdialog.natedit.tmpl:201
 msgid "Web"
 msgstr "子網"
 
-#: templates/edittoolbar.natedit.tmpl:158
+#: templates/edittoolbar.natedit.tmpl:184
 msgid "Wrap text"
 msgstr ""
 
@@ -602,18 +633,9 @@ msgid ""
 "[multiple of 3 spaces] * [space] Set [space] VARIABLENAME [space] = [value]"
 msgstr "[3 個空格] * [空格] Set [空格] VARIABLENAME [空格] = [值]"
 
-#: templates/editdialog.natedit.tmpl:100
+#: templates/editdialog.natedit.tmpl:110
 msgid "center"
 msgstr ""
-
-#: templates/editdialog.natedit.tmpl:134
-msgid "decorated"
-msgstr ""
-
-#: templates/editdialog.natedit.tmpl:132
-#, fuzzy
-msgid "default"
-msgstr "預設"
 
 #: templates/edit.natedit.tmpl:194 templates/edit.natedit.tmpl:247
 msgid "default as defined in the %1"
@@ -627,11 +649,11 @@ msgstr "編輯"
 msgid "edit form"
 msgstr "編輯自"
 
-#: templates/editdialog.natedit.tmpl:182
-msgid "fetch document title from external url"
+#: templates/editdialog.natedit.tmpl:144
+msgid "framed"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:92
+#: templates/editdialog.natedit.tmpl:97
 msgid "height"
 msgstr ""
 
@@ -639,31 +661,34 @@ msgstr ""
 msgid "ignore case"
 msgstr "忽略大小寫"
 
-#: templates/editdialog.natedit.tmpl:133
-msgid "img"
+#: templates/editdialog.natedit.tmpl:108
+msgid "in text flow"
 msgstr ""
 
 #: templates/form.natedit.tmpl:4
 msgid "indicates mandatory fields"
 msgstr "指出必填欄位"
 
-#: templates/editdialog.natedit.tmpl:98
-#, fuzzy
-msgid "inline"
-msgstr "底線"
+#: templates/editdialog.natedit.tmpl:100
+msgid "keep aspect ratio"
+msgstr ""
 
-#: templates/editdialog.natedit.tmpl:99
+#: templates/editdialog.natedit.tmpl:109
 msgid "left"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:135
-#, fuzzy
-msgid "lightbox"
-msgstr "靠右"
+#: templates/editdialog.natedit.tmpl:143
+msgid "linked"
+msgstr ""
 
 #: templates/edit.natedit.tmpl:10
 msgid "new"
 msgstr "新"
+
+#: templates/editdialog.natedit.tmpl:145
+#, fuzzy
+msgid "preview"
+msgstr "預覽"
 
 #: templates/edit.natedit.tmpl:201
 msgid "public view access"
@@ -689,10 +714,18 @@ msgstr "限制閱讀權限於有本站帳號的使用者"
 msgid "restrict write access to users that have an account on this site"
 msgstr "限制寫入權限於有本站帳號的使用者"
 
-#: templates/editdialog.natedit.tmpl:101
+#: templates/editdialog.natedit.tmpl:111
 #, fuzzy
 msgid "right"
 msgstr "靠右"
+
+#: templates/editdialog.natedit.tmpl:101
+msgid "scale image freely"
+msgstr ""
+
+#: templates/editdialog.natedit.tmpl:142
+msgid "simple"
+msgstr ""
 
 #: templates/edit.natedit.tmpl:229 templates/edit.natedit.tmpl:275
 msgid "specify a list of users and/or groups"
@@ -706,9 +739,25 @@ msgstr "嚴格禁止訪問本主題"
 msgid "strictly deny write access to this topic"
 msgstr "嚴格禁止編輯本主題"
 
-#: templates/editdialog.natedit.tmpl:91
+#: templates/editdialog.natedit.tmpl:96
 msgid "width"
 msgstr ""
+
+#, fuzzy
+#~ msgid "lightbox"
+#~ msgstr "靠右"
+
+#, fuzzy
+#~ msgid "inline"
+#~ msgstr "底線"
+
+#, fuzzy
+#~ msgid "$action"
+#~ msgstr "功能"
+
+#, fuzzy
+#~ msgid "default"
+#~ msgstr "預設"
 
 #~ msgid "Please validate"
 #~ msgstr "請驗證"

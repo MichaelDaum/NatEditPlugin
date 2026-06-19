@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2022 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2013-2026 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -42,6 +42,12 @@ sub handle {
         my $term    = $request->param("term");
 
         my $context = Foswiki::Func::getContext();
+        my $imageCore;
+        if ($context->{ImagePluginEnabled}) {
+          require Foswiki::Plugins::ImagePlugin;
+          $imageCore = Foswiki::Plugins::ImagePlugin::getCore();
+        }
+
         foreach
           my $attachment ( sort { $a->{name} cmp $b->{name} } @attachments )
         {
@@ -82,9 +88,15 @@ sub handle {
             {
                 $record->{img} = Foswiki::Func::getScriptUrlPath()
                   . "/rest/ImagePlugin/resize?topic=$web.$topic;file=$attachment->{name};size=48x48>&crop=northwest";
+                $web =~ s/\./\//g;
+                my $path = "$Foswiki::cfg{PubDir}/$web/$topic/$attachment->{name}";
+                my ($width, $height) = $imageCore->ping($path);
+                $record->{width} = $width;
+                $record->{height} = $height;
             }
 
             foreach my $key ( sort keys %{$attachment} ) {
+                next if $key eq 'path';
                 $record->{$key} = $attachment->{$key};
             }
 

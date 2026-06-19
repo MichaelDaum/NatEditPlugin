@@ -1,10 +1,12 @@
-%META:TOPICINFO{author="micha" comment="" date="1761226002" format="1.1" reprev="1" version="5"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1781861980" format="1.1"  version="1"}%
 ---+!! Natural Edit Plugin
+
 %FORMFIELD{"Description"}%
 
 %TOC%
 
 ---++ Description
+
 %STARTSECTION{"summary"}%
 The <nop>NatEdit is a pluggable editor providing a WYSIWYG and WIKIWYG editor modes.
 While WYSIWYG tries to provide an (almost) what-you-see-is-what-you-get experience, the WIKIWYG
@@ -15,23 +17,22 @@ visual feedback and syntax highlighting of the most important typographic proper
 WYSIWYG mode is implemented using <nop>TinyMCE; WIKIWYG mode is based on <nop>CodeMirror.
 %ENDSECTION{"summary"}%
 
----++ Screenshot
-<a href="%ATTACHURLPATH%/screenshot1.png" title="screenshot"><img src="%ATTACHURLPATH%/screenshot1.png" style="max-width:100%;height:auto" alt="screenshot" border="0" /></a>
+---++ Screenshots
+
+%IMAGE{"screenshot1.webp" class="imageResponsive" type="photoswipe"}%
 
 ---++ Configuration
 
-*PatternSkin:* 
+*PatternSkin:*
 
-To enable the <nop>NatEditPlugin add the identifier =natedit= to the =SKIN= 
+To enable the <nop>NatEditPlugin add the identifier =natedit= to the =SKIN=
 variable in %LOCALSITEPREFS% or %WEBPREFSTOPIC%, e.g.
-
 <verbatim>   * Set SKIN = natedit,pattern</verbatim>
 
-*NatSkin:* 
+*NatSkin:*
 
 No extra configuration steps are needed in case you are using <nop>NatSkin.
 <nop>NatEditPlugin is the default editor for <nop>NatSkin, that is the normal
-
 <verbatim>   * Set SKIN = nat</verbatim>
 
 is sufficient.
@@ -45,18 +46,22 @@ There are a couple of preference settings for the editor:
 | NATEDIT_SPELLCHECK | boolean to enable/disable spell checking in the editor | =on= |
 | NATEDIT_NORMALIZETABLES | possible values are =on= (normalize table cells and rows), =off=, =full= (same as =on= but also align columns) | =off= |
 | NATEDIT_KEYMAP | editor mode of codemirror, possible values to diverge from the default key map: vim, sublime | default |
-| NATEDIT_LINEWRAPPING | boolean to enable/disable line wrapping | =off= |
+| NATEDIT_LINEWRAPPING | boolean to enable/disable line wrapping | =on= |
 | NATEDIT_LINENUMBERS | boolean to enable/disable line numbers | =off= |
 | NATEDIT_FOLDGUTTER | boolean to enable/disable folding | =on= in edit mode, =off= everywhere else such as comments etc |
 | NATEDIT_OPTIONS | | |
 | NATEDIT_DEBUG | | |
-| NATEDIT_PURIFY | boolean to enable/disable sanitizing user inputs | on |
-| NATEDIT_PURIFY_ADDATTRS | additionally allowed html attributes | contenteditable, target |
-| NATEDIT_PURIFY_ADDTAGS | additional allowed html tags | verbatim, literal, sticky, nop, noautolink, dirtyarea, graphviz, dot, mermaid, latex |
-| NATEDIT_PURIFY_FOBIDATTRS | additional forbidden html attributes | |
-| NATEDIT_PURIFY_FOBIDTAGS | additional forbidden html tags | font |
-| NATEDIT_SHOWTABLEEDITORHELP| boolean to enable/disable the display of the table editor helper popup | on |
+| NATEDIT_SECURITY | boolean to enable/disable sanitizing user inputs | on |
+| NATEDIT_SECURITY_ALLOWCOMMENTS | boolean to enable/disable html comments; WARNING don't enable unless you know what you do as this might open your system for XSS attacks | off |
+| NATEDIT_SECURITY_ADDATTRS | additionally allowed html attributes | contenteditable, target |
+| NATEDIT_SECURITY_ADDTAGS | additional allowed html tags | verbatim, literal, sticky, nop, noautolink, dirtyarea, graphviz, dot, mermaid, latex |
+| NATEDIT_SECURITY_FOBIDATTRS | additional forbidden html attributes | |
+| NATEDIT_SECURITY_FOBIDTAGS | additional forbidden html tags | font, object, iframe |
+| NATEDIT_SHOWTABLEEDITORHELP | boolean to enable/disable the display of the table editor helper popup | on |
 | NATEDIT_CODEMIRROR_OPTIONS | options for codemirror, see codemirror documentation | |
+| NATEDIT_IMAGECLASS | additional css classes added to images being inserted | |
+| NATEDIT_IMAGEALIGN | default alignment of images, possible values are: none, left, center, right | none |
+| NATEDIT_IMAGEFORMAT | default format of images, possible values are: plain, simple, framed and photoswipe | simple |
 
 ---++ Table editor shortcuts
 
@@ -78,23 +83,26 @@ Within the WIKIWYG editor editing a table enables a few extra keyboard shortcuts
 | alt-right | move current column to the right |
 
 ---++ Installation Instructions
+
 %$INSTALL_INSTRUCTIONS%
 
 ---++ Dependencies
+
 %$DEPENDENCIES%
 
 ---++ Change History
+
 %TABLE{columnwidths="7em" tablewidth="100%"}%
 <noautolink>
 |  28 Aug 2021 | Foswikitask:Item14288: major rewrite |
 |  18 Dec 2017 | Foswikitask:Item14586: fixed height computation of natedit textarea |
 |  04 Dec 2017 | Foswikitask:Item13835: enable !TopicTitle field when feature available |
-|  04 May 2017 | Foswikitask:Item14388: NatEditPlugin does not honor the ScriptSuffix setting, and doesn't accommodate short URLs.<br/> \
+|  04 May 2017 | Foswikitask:Item14388: NatEditPlugin does not honor the ScriptSuffix setting, and doesn't accommodate short URLs.%BR%\
                  Foswikitask:Item14404: NatEdit Save and Continue action fails on mod_perl systems. |
-|  20 Jan 2017 | Foswikitask:Item14265: NatEdit plugin leaves UI blocked after some save errors<br/>\
+|  20 Jan 2017 | Foswikitask:Item14265: NatEdit plugin leaves UI blocked after some save errors%BR%\
                  Foswikitask:Item14285: fixed error clicking on disabled toolbar buttons |
 |  06 Jan 2016 | Add helper to insert a data form table header. |
-|  08 Sep 2015 | Remove RevCommentPlugin hooks from templates,  Hide ToipcTitle when unused. |
+|  08 Sep 2015 | Remove RevCommentPlugin hooks from templates, Hide ToipcTitle when unused. |
 |  30 Aug 2015 | fixed default implementation for =topictitle= |
 |  29 Jul 2015 | added missing image in documentation |
 |  06 Mar 2015 | fixed permissions editor |
@@ -111,7 +119,7 @@ Within the WIKIWYG editor editing a table enables a few extra keyboard shortcuts
 |  18 Jan 2013 | improved compatibility with !PatternSkin |
 |  15 Jan 2013 | added work-around for an IE8 bug in textareas |
 |  21 Dec 2012 | added in-edit upload support using Foswiki:Extensions/TopicInteractionPlugin |
-|  29 Oct 2012 | removed local button styles to allow theming via jquery-ui; use of NATEDIT_THEME is deprecated from now on|
+|  29 Oct 2012 | removed local button styles to allow theming via jquery-ui; use of NATEDIT_THEME is deprecated from now on |
 |  22 Oct 2012 | implemented improved list editing; rewrite of modal dialogs to use jquery-ui-dialog instead of the old simplemodal library |
 |  10 Jul 2012 | fixed character encoding when saving a topic on a non-utf8 site using a REST handler |
 |  21 Feb 2012 | only add one strikeone nonce to the http header |
@@ -197,12 +205,12 @@ Within the WIKIWYG editor editing a table enables a few extra keyboard shortcuts
 |  23 Apr 2007 | fixed IE freezing on resizing the edit window |
 |  05 Apr 2007 | added support for <nop>EditContrib and =editform= |
 |  04 Apr 2007 | added css file; \
-                   added monospace &lt;-&gt; propotional font toggles; \
-                   made signature text customizable; \
-                   minor refactoring of the javascript; \
-                   removed non-standard tags FORMATLIST and IFDEFINED |
+                 added monospace &lt;-&gt; propotional font toggles; \
+                 made signature text customizable; \
+                 minor refactoring of the javascript; \
+                 removed non-standard tags FORMATLIST and IFDEFINED |
 |  03 Apr 2007 | added NATEDIT_HELPTEXT variable; \
-                  be backwards compatible to <nop>PatternSkin |
+                 be backwards compatible to <nop>PatternSkin |
 |  31 Mar 2007 | Initial version |
 </noautolink>
 
@@ -212,8 +220,8 @@ Within the WIKIWYG editor editing a table enables a few extra keyboard shortcuts
 %META:FIELD{name="Release" title="Release" value="%25$RELEASE%25"}%
 %META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
 %META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/distro"}%
-%META:FIELD{name="Copyright" title="Copyright" value="(c) 2007-2025 Foswiki Contributors, All Rights Reserved"}%
+%META:FIELD{name="Copyright" title="Copyright" value="(c) 2007-2026 Foswiki Contributors, All Rights Reserved"}%
 %META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
 %META:FIELD{name="Home" title="Home" value="https://foswiki.org/Extensions/%25$ROOTMODULE%25"}%
 %META:FIELD{name="Support" title="Support" value="https://foswiki.org/Support/%25$ROOTMODULE%25"}%
-%META:FILEATTACHMENT{name="screenshot1.png" attachment="screenshot1.png" attr="" comment="" date="1733926926" size="154456" user="micha" version="1"}%
+%META:FILEATTACHMENT{name="screenshot1.webp" attachment="screenshot1.webp" attr="" comment="" date="1781861980" size="45100" user="ProjectContributor" version="1"}%

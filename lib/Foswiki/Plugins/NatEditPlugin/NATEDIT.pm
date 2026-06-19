@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2006-2025 Michael Daum, http://michaeldaumconsulting.com
+# Copyright (C) 2006-2026 Michael Daum, http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -63,7 +63,7 @@ sub new {
                 'button',                             'loader',
                 'JQUERYPLUGIN::UPLOADER',             'blockui',
                 'render',                             'imagesloaded',
-                'image', 'select2', 
+                'image', 'select2', 'emoji'
             ],
         ),
         $class
@@ -91,11 +91,11 @@ sub init {
       split /\s*,\s*/,
       Foswiki::Func::expandCommonVariables("%PUBURLPATH%/%SYSTEMWEB%/SkinTemplates/base.css, %FOSWIKI_STYLE_URL%, %FOSWIKI_COLORS_URL%");
 
-    push @files, "$Foswiki::cfg{PubUrlPath}/$Foswiki::cfg{SystemWebName}/ImagePlugin/image.css"
+    push @files, "$Foswiki::cfg{PubUrlPath}/$Foswiki::cfg{SystemWebName}/ImagePlugin/build/image.css"
       if Foswiki::Func::getContext("ImagePluginEnabled");
 
     my $contentCSS = join ", ", map {"\"$_\""} @files;
-   
+
     Foswiki::Func::addToZone(
         "script", "JQUERYPLUGIN::NATEDIT::PREFERENCES",
         <<"HERE", "JQUERYPLUGIN::FOSWIKI::PREFERENCES" );
@@ -110,12 +110,12 @@ sub init {
     "MentionsPluginEnabled": %IF{"context MentionsPluginEnabled" then="true" else="false"}%,
     "NoAutolink": %IF{"'%NOAUTOLINK{default=""}%'='on'" then="true" else="false"}%,
     "debug": %IF{"'%NATEDIT_DEBUG{default="off"}%'='on'" then="true" else="false"}%,
-    "purifyInput": %IF{"'%NATEDIT_PURIFY{default="true"}%'=~'(on|1|true)'" then="true" else="false"}%,
+    "purifyInput": %IF{"'%NATEDIT_SECURITY{default="true"}%'=~'(on|1|true)'" then="true" else="false"}%,
     "purify": {
-      "ADD_ATTR": "%NATEDIT_PURIFY_ADDATTRS{default="contenteditable, target"}%",
-      "ADD_TAGS": "%NATEDIT_PURIFY_ADDTAGS{default="verbatim, literal, sticky, nop, noautolink, dirtyarea, graphviz, dot, mermaid, latex"}%",
-      "FORBID_ATTRS": "%NATEDIT_PURIFY_FORBIDATTRS{default=""}%",
-      "FORBID_TAGS": "%NATEDIT_PURIFY_FORBIDTAGS{default="font"}%"
+      "ADD_ATTR": "%NATEDIT_SECURITY_ADDATTRS{default="contenteditable, target"}%",
+      "ADD_TAGS": "%NATEDIT_SECURITY_ADDTAGS{default="verbatim, literal, sticky, nop, noautolink, dirtyarea, graphviz, dot, mermaid, latex%IF{"'%NATEDIT_SECURITY_ALLOWCOMMENTS{default="off"}%'='on'" then=", comment"}%"}%",
+      "FORBID_ATTRS": "%NATEDIT_SECURITY_FORBIDATTRS{default=""}%",
+      "FORBID_TAGS": "%NATEDIT_SECURITY_FORBIDTAGS{default="font, iframe, object"}%"
     }
   }
 }</script>

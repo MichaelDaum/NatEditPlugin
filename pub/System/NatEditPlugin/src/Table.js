@@ -1,7 +1,7 @@
 /*
  * Table 
  *
- * Copyright (c) 2024-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2024-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -329,7 +329,7 @@
     self.rawContent = text;
     self.rows = [];
     self.offset = 0;
-    self.position = {row: 0, col:0 };
+    self.position = {row:0, col:0 };
 
     //log("called new Table for ",text);
     text.split("\n").forEach(function(line) {

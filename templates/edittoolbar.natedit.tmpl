@@ -20,7 +20,7 @@
 %TMPL:DEF{"edittoolbar::end"}%</div>%TMPL:END%
 
 %{ ################################################################################ }%
-%TMPL:DEF{"edittoolbar::paragraphbuttons"}%<a href="#" class="ui-natedit-menu-button ui-natedit-paragraph" data-menu=".ui-natedit-paragraph-menu" title="%MAKETEXT{"Format selected text"}%">%MAKETEXT{"Format"}%</a>%TMPL:END%
+%TMPL:DEF{"edittoolbar::paragraphbuttons"}%<a href='#' class="ui-natedit-menu-button ui-natedit-paragraph" data-menu=".ui-natedit-paragraph-menu" title="%MAKETEXT{"Format selected text"}%"><span class='ui-natedit-paragraph-label'>%MAKETEXT{"Format"}%</span></a>%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"edittoolbar::paragraphmenu"}%<ul class="ui-natedit-menu ui-natedit-paragraph-menu">
@@ -31,135 +31,162 @@
 %TMPL:P{"edittoolbar::paragraphmenu::h4"}%%{}%
 %TMPL:P{"edittoolbar::paragraphmenu::h5"}%%{}%
 %TMPL:P{"edittoolbar::paragraphmenu::h6"}%%{}%
+%TMPL:P{context="NatSkinPluginEnabled" then="edittoolbar::paragraphmenu::blocks"}%%{}%
 %TMPL:P{"edittoolbar::paragraphmenu::verbatim"}%%{}%
-%TMPL:P{"edittoolbar::paragraphmenu::quote"}%%{}%
+%TMPL:P{"edittoolbar::paragraphmenu::sticky"}%%{}%
+%TMPL:P{"edittoolbar::paragraphmenu::literal"}%%{}%
 </ul>%TMPL:END%
 
-%TMPL:DEF{"edittoolbar::paragraphmenu::normal"}%<li class="ui-natedit-normal"><a href="#" data-markup="normalMarkup" data-type="line">%MAKETEXT{"Normal"}%</a></li>%TMPL:END%
-%TMPL:DEF{"edittoolbar::paragraphmenu::h1"}%<li class="ui-natedit-h1"><a href="#" data-markup="h1Markup" data-type="line">%MAKETEXT{"Heading 1"}%</a></li>
-%TMPL:DEF{"edittoolbar::paragraphmenu::h2"}%<li class="ui-natedit-h2"><a href="#" data-markup="h2Markup" data-type="line">%MAKETEXT{"Heading 2"}%</a></li>
-%TMPL:DEF{"edittoolbar::paragraphmenu::h3"}%<li class="ui-natedit-h3"><a href="#" data-markup="h3Markup" data-type="line">%MAKETEXT{"Heading 3"}%</a></li>
-%TMPL:DEF{"edittoolbar::paragraphmenu::h4"}%<li class="ui-natedit-h4"><a href="#" data-markup="h4Markup" data-type="line">%MAKETEXT{"Heading 4"}%</a></li>
-%TMPL:DEF{"edittoolbar::paragraphmenu::h5"}%<li class="ui-natedit-h5"><a href="#" data-markup="h5Markup" data-type="line">%MAKETEXT{"Heading 5"}%</a></li>
-%TMPL:DEF{"edittoolbar::paragraphmenu::h6"}%<li class="ui-natedit-h6"><a href="#" data-markup="h6Markup" data-type="line">%MAKETEXT{"Heading 6"}%</a></li>
-%TMPL:DEF{"edittoolbar::paragraphmenu::verbatim"}%<li class="ui-natedit-verbatim"><a href="#" data-markup="verbatimMarkup">%MAKETEXT{"Verbatim"}%</a></li>
-%TMPL:DEF{"edittoolbar::paragraphmenu::quote"}%<li class="ui-natedit-quoted"><a href="#" data-markup="quoteMarkup">%MAKETEXT{"Blockquote"}%</a></li>
+%TMPL:DEF{"edittoolbar::paragraphmenu::blocks"}%<li><a>%MAKETEXT{"Block"}%</a><ul class='ui-natedit-paragraph-menu'>
+%TMPL:P{"edittoolbar::paragraphmenu::blocks::quote"}%%{}%
+%TMPL:P{"edittoolbar::paragraphmenu::blocks::genericmessage"}%%{}%
+%TMPL:P{"edittoolbar::paragraphmenu::blocks::successmessage"}%%{}%
+%TMPL:P{"edittoolbar::paragraphmenu::blocks::infomessage"}%%{}%
+%TMPL:P{"edittoolbar::paragraphmenu::blocks::warningmessage"}%%{}%
+%TMPL:P{"edittoolbar::paragraphmenu::blocks::errormessage"}%%{}%
+</ul>%TMPL:END%
+
+%TMPL:DEF{"edittoolbar::paragraphmenu::blocks::quote"}%<li class="ui-natedit-quoted"><a href='#' data-markup="quoteMarkup">%MAKETEXT{"Blockquote"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::paragraphmenu::blocks::genericmessage"}%<li class="ui-natedit-message"><a href="#" data-markup="messageMarkup">%MAKETEXT{"Generic Message"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::paragraphmenu::blocks::successmessage"}%<li class="ui-natedit-success-message"><a href="#" data-markup="successMessageMarkup">%MAKETEXT{"Success Message"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::paragraphmenu::blocks::infomessage"}%<li class="ui-natedit-info-message"><a href="#" data-markup="infoMessageMarkup">%MAKETEXT{"Info Message"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::paragraphmenu::blocks::warningmessage"}%<li class="ui-natedit-warning-message"><a href="#" data-markup="warningMessageMarkup">%MAKETEXT{"Warning Message"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::paragraphmenu::blocks::errormessage"}%<li class="ui-natedit-error-message"><a href="#" data-markup="errorMessageMarkup">%MAKETEXT{"Error Message"}%</a></li>%TMPL:END%
+
+%TMPL:DEF{"edittoolbar::paragraphmenu::normal"}%<li class="ui-natedit-normal"><a href='#' data-markup="normalMarkup" data-type="line">%MAKETEXT{"Normal"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::paragraphmenu::h1"}%<li class="ui-natedit-h1"><a href='#' data-markup="h1Markup" data-type="line">%MAKETEXT{"Heading 1"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::paragraphmenu::h2"}%<li class="ui-natedit-h2"><a href='#' data-markup="h2Markup" data-type="line">%MAKETEXT{"Heading 2"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::paragraphmenu::h3"}%<li class="ui-natedit-h3"><a href='#' data-markup="h3Markup" data-type="line">%MAKETEXT{"Heading 3"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::paragraphmenu::h4"}%<li class="ui-natedit-h4"><a href='#' data-markup="h4Markup" data-type="line">%MAKETEXT{"Heading 4"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::paragraphmenu::h5"}%<li class="ui-natedit-h5"><a href='#' data-markup="h5Markup" data-type="line">%MAKETEXT{"Heading 5"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::paragraphmenu::h6"}%<li class="ui-natedit-h6"><a href='#' data-markup="h6Markup" data-type="line">%MAKETEXT{"Heading 6"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::paragraphmenu::verbatim"}%<li class="ui-natedit-verbatim"><a href='#' data-markup="verbatimMarkup">%MAKETEXT{"Verbatim"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::paragraphmenu::sticky"}%<li class="ui-natedit-sticky"><a href='#' data-markup="stickyMarkup">%MAKETEXT{"Sticky"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::paragraphmenu::literal"}%<li class="ui-natedit-literal"><a href='#' data-markup="literalMarkup">%MAKETEXT{"Literal"}%</a></li>%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"edittoolbar::typobuttons"}%<div class="ui-natedit-buttons ui-natedit-typo-buttons">
-  <a class="ui-natedit-bold" href="#" title="%MAKETEXT{"Bold"}%" data-markup="boldMarkup"><i class="fa fa-bold"></i></a>
-  <a class="ui-natedit-italic" href="#" title="%MAKETEXT{"Italic"}%" data-markup="italicMarkup"><i class="fa fa-italic"></i></a>
-  <a class="ui-natedit-underline" href="#" title="%MAKETEXT{"Underline"}%" data-markup="underlineMarkup"><i class="fa fa-underline"></i></a>
-  <a class="ui-natedit-menu-button ui-natedit-more-typo" href="#" title="%MAKETEXT{"More character formats"}%" data-menu=".ui-natedit-more-typo-menu"><i class="fa fa-font"></i></a>
-  <a class="ui-natedit-menu-button ui-natedit-color" href="#" title="%MAKETEXT{"Color"}%" data-menu=".ui-natedit-color-menu"><i class="fa fa-eyedropper"></i></a>
-  <a class="ui-natedit-remove-format" href="#" title="%MAKETEXT{"Remove Format"}%" data-handler="handleRemoveFormat"><i class="fa fa-eraser"></i></a>
+  <a class="ui-natedit-bold" href='#' title="%MAKETEXT{"Bold"}%" data-markup="boldMarkup"><i class="fa fa-bold"></i></a>
+  <a class="ui-natedit-italic" href='#' title="%MAKETEXT{"Italic"}%" data-markup="italicMarkup"><i class="fa fa-italic"></i></a>
+  <a class="ui-natedit-underline" href='#' title="%MAKETEXT{"Underline"}%" data-markup="underlineMarkup"><i class="fa fa-underline"></i></a>
+  <a class="ui-natedit-menu-button ui-natedit-more-typo" href='#' title="%MAKETEXT{"More character formats"}%" data-menu=".ui-natedit-more-typo-menu"><i class="fa fa-font"></i></a>
+  <a class="ui-natedit-menu-button ui-natedit-color" href='#' title="%MAKETEXT{"Color"}%" data-menu=".ui-natedit-color-menu"><i class="fa fa-eyedropper"></i></a>
+  <a class="ui-natedit-remove-format" href='#' title="%MAKETEXT{"Remove Format"}%" data-handler="handleRemoveFormat"><i class="fa fa-eraser"></i></a>
 </div>%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"edittoolbar::typomenu"}%<ul class="ui-natedit-menu ui-natedit-more-typo-menu">
-  <li><a class="ui-natedit-strike" href="#" data-markup="strikeMarkup"><i class="ui-icon fa fa-strikethrough"></i> %MAKETEXT{"Strikethrough"}%</a></li>
-  <li><a class="ui-natedit-super" href="#" data-markup="superscriptMarkup"><i class="ui-icon fa fa-superscript"></i> %MAKETEXT{"Superscript"}%</a></li>
-  <li><a class="ui-natedit-sub" href="#" data-markup="subscriptMarkup"><i class="ui-icon fa fa-subscript"></i> %MAKETEXT{"Subscript"}%</a></li>
-  <li><a class="ui-natedit-mono" href="#" data-markup="monoMarkup"><i class="ui-icon fa fa-text-width"></i> %MAKETEXT{"Monospace"}%</a></li>
+  <li><a class="ui-natedit-strike" href='#' data-markup="strikeMarkup"><i class="ui-icon fa fa-strikethrough"></i> %MAKETEXT{"Strikethrough"}%</a></li>
+  <li><a class="ui-natedit-super" href='#' data-markup="superscriptMarkup"><i class="ui-icon fa fa-superscript"></i> %MAKETEXT{"Superscript"}%</a></li>
+  <li><a class="ui-natedit-sub" href='#' data-markup="subscriptMarkup"><i class="ui-icon fa fa-subscript"></i> %MAKETEXT{"Subscript"}%</a></li>
+  <li><a class="ui-natedit-mono" href='#' data-markup="monoMarkup"><i class="ui-icon fa fa-text-width"></i> %MAKETEXT{"Monospace"}%</a></li>
 </ul>%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"edittoolbar::colormenu"}%<ul class="ui-natedit-menu ui-natedit-color-menu">
- <li><a class="ui-natedit-insert-color" href="#" data-handler="handleApplyColor" data-color="YELLOW"><i class='ui-icon fa fa-square foswikiYellowFG'></i> Yellow</a></li>
- <li><a class="ui-natedit-insert-color" href="#" data-handler="handleApplyColor" data-color="ORANGE"><i class='ui-icon fa fa-square foswikiOrangeFG'></i> Orange</a></li>
- <li><a class="ui-natedit-insert-color" href="#" data-handler="handleApplyColor" data-color="RED"><i class='ui-icon fa fa-square foswikiRedFG'></i> Red</a></li>
- <li><a class="ui-natedit-insert-color" href="#" data-handler="handleApplyColor" data-color="PINK"><i class='ui-icon fa fa-square foswikiPinkFG'></i> Pink</a></li>
- <li><a class="ui-natedit-insert-color" href="#" data-handler="handleApplyColor" data-color="PURPLE"><i class='ui-icon fa fa-square foswikiPurpleFG'></i> Purple</a></li>
- <li><a class="ui-natedit-insert-color" href="#" data-handler="handleApplyColor" data-color="TEAL"><i class='ui-icon fa fa-square foswikiTealFG'></i> Teal</a></li>
- <li><a class="ui-natedit-insert-color" href="#" data-handler="handleApplyColor" data-color="NAVY"><i class='ui-icon fa fa-square foswikiNavyFG'></i> Navy</a></li>
- <li><a class="ui-natedit-insert-color" href="#" data-handler="handleApplyColor" data-color="BLUE"><i class='ui-icon fa fa-square foswikiBlueFG'></i> Blue</a></li>
- <li><a class="ui-natedit-insert-color" href="#" data-handler="handleApplyColor" data-color="AQUA"><i class='ui-icon fa fa-square foswikiAquaFG'></i> Aqua</a></li>
- <li><a class="ui-natedit-insert-color" href="#" data-handler="handleApplyColor" data-color="LIME"><i class='ui-icon fa fa-square foswikiLimeFG'></i> Lime</a></li>
- <li><a class="ui-natedit-insert-color" href="#" data-handler="handleApplyColor" data-color="GREEN"><i class='ui-icon fa fa-square foswikiGreenFG'></i> Green</a></li>
- <li><a class="ui-natedit-insert-color" href="#" data-handler="handleApplyColor" data-color="OLIVE"><i class='ui-icon fa fa-square foswikiOliveFG'></i> Olive</a></li>
- <li><a class="ui-natedit-insert-color" href="#" data-handler="handleApplyColor" data-color="MAROON"><i class='ui-icon fa fa-square foswikiMaroonFG'></i> Maroon</a></li>
- <li><a class="ui-natedit-insert-color" href="#" data-handler="handleApplyColor" data-color="BROWN"><i class='ui-icon fa fa-square foswikiBrownFG'></i> Brown</a></li>
- <li><a class="ui-natedit-insert-color" href="#" data-handler="handleApplyColor" data-color="BLACK"><i class='ui-icon fa fa-square foswikiBlackFG'></i> Black</a></li>
- <li><a class="ui-natedit-insert-color" href="#" data-handler="handleApplyColor" data-color="GRAY"><i class='ui-icon fa fa-square foswikiGrayFG'></i> Gray</a></li>
- <li><a class="ui-natedit-insert-color" href="#" data-handler="handleApplyColor" data-color="SILVER"><i class='ui-icon fa fa-square foswikiSilverFG'></i> Silver</a></li>
- <li><a class="ui-natedit-insert-color" href="#" data-handler="handleApplyColor" data-color="WHITE"><i class='ui-icon fa fa-square foswikiWhiteFG'></i> White</a></li>
+ <li><a class="ui-natedit-insert-color" href='#' data-handler="handleApplyColor" data-color="YELLOW"><i class='ui-icon fa fa-square foswikiYellowFG'></i> Yellow</a></li>
+ <li><a class="ui-natedit-insert-color" href='#' data-handler="handleApplyColor" data-color="ORANGE"><i class='ui-icon fa fa-square foswikiOrangeFG'></i> Orange</a></li>
+ <li><a class="ui-natedit-insert-color" href='#' data-handler="handleApplyColor" data-color="RED"><i class='ui-icon fa fa-square foswikiRedFG'></i> Red</a></li>
+ <li><a class="ui-natedit-insert-color" href='#' data-handler="handleApplyColor" data-color="PINK"><i class='ui-icon fa fa-square foswikiPinkFG'></i> Pink</a></li>
+ <li><a class="ui-natedit-insert-color" href='#' data-handler="handleApplyColor" data-color="PURPLE"><i class='ui-icon fa fa-square foswikiPurpleFG'></i> Purple</a></li>
+ <li><a class="ui-natedit-insert-color" href='#' data-handler="handleApplyColor" data-color="TEAL"><i class='ui-icon fa fa-square foswikiTealFG'></i> Teal</a></li>
+ <li><a class="ui-natedit-insert-color" href='#' data-handler="handleApplyColor" data-color="NAVY"><i class='ui-icon fa fa-square foswikiNavyFG'></i> Navy</a></li>
+ <li><a class="ui-natedit-insert-color" href='#' data-handler="handleApplyColor" data-color="BLUE"><i class='ui-icon fa fa-square foswikiBlueFG'></i> Blue</a></li>
+ <li><a class="ui-natedit-insert-color" href='#' data-handler="handleApplyColor" data-color="AQUA"><i class='ui-icon fa fa-square foswikiAquaFG'></i> Aqua</a></li>
+ <li><a class="ui-natedit-insert-color" href='#' data-handler="handleApplyColor" data-color="LIME"><i class='ui-icon fa fa-square foswikiLimeFG'></i> Lime</a></li>
+ <li><a class="ui-natedit-insert-color" href='#' data-handler="handleApplyColor" data-color="GREEN"><i class='ui-icon fa fa-square foswikiGreenFG'></i> Green</a></li>
+ <li><a class="ui-natedit-insert-color" href='#' data-handler="handleApplyColor" data-color="OLIVE"><i class='ui-icon fa fa-square foswikiOliveFG'></i> Olive</a></li>
+ <li><a class="ui-natedit-insert-color" href='#' data-handler="handleApplyColor" data-color="MAROON"><i class='ui-icon fa fa-square foswikiMaroonFG'></i> Maroon</a></li>
+ <li><a class="ui-natedit-insert-color" href='#' data-handler="handleApplyColor" data-color="BROWN"><i class='ui-icon fa fa-square foswikiBrownFG'></i> Brown</a></li>
+ <li><a class="ui-natedit-insert-color" href='#' data-handler="handleApplyColor" data-color="BLACK"><i class='ui-icon fa fa-square foswikiBlackFG'></i> Black</a></li>
+ <li><a class="ui-natedit-insert-color" href='#' data-handler="handleApplyColor" data-color="GRAY"><i class='ui-icon fa fa-square foswikiGrayFG'></i> Gray</a></li>
+ <li><a class="ui-natedit-insert-color" href='#' data-handler="handleApplyColor" data-color="SILVER"><i class='ui-icon fa fa-square foswikiSilverFG'></i> Silver</a></li>
+ <li><a class="ui-natedit-insert-color" href='#' data-handler="handleApplyColor" data-color="WHITE"><i class='ui-icon fa fa-square foswikiWhiteFG'></i> White</a></li>
 </ul>%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"edittoolbar::alignbuttons"}%<div class="ui-natedit-buttons ui-natedit-align-buttons">
-  <a class="ui-natedit-left" href="#" title="%MAKETEXT{"Align left"}%" data-markup="leftMarkup"><i class="fa fa-align-left"></i></a>
-  <a class="ui-natedit-center" href="#" title="%MAKETEXT{"Center align"}%" data-markup="centerMarkup"><i class="fa fa-align-center"></i></a>
-  <a class="ui-natedit-justify" href="#" title="%MAKETEXT{"Justify text"}%" data-markup="justifyMarkup"><i class="fa fa-align-justify"></i></a>
-  <a class="ui-natedit-right" href="#" title="%MAKETEXT{"Align right"}%" data-markup="rightMarkup"><i class="fa fa-align-right"></i></a>
+  <a class="ui-natedit-left" href='#' title="%MAKETEXT{"Align left"}%" data-markup="leftMarkup"><i class="fa fa-align-left"></i></a>
+  <a class="ui-natedit-center" href='#' title="%MAKETEXT{"Center align"}%" data-markup="centerMarkup"><i class="fa fa-align-center"></i></a>
+  <a class="ui-natedit-justify" href='#' title="%MAKETEXT{"Justify text"}%" data-markup="justifyMarkup"><i class="fa fa-align-justify"></i></a>
+  <a class="ui-natedit-right" href='#' title="%MAKETEXT{"Align right"}%" data-markup="rightMarkup"><i class="fa fa-align-right"></i></a>
 </div>%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"edittoolbar::listbuttons"}%<div class="ui-natedit-buttons ui-natedit-list-buttons">
-  <a class="ui-natedit-numbered" href="#" title="%MAKETEXT{"Numbered list"}%" data-markup="numberedListMarkup" data-type="line"><i class="fa fa-list-ol"></i></a>
-  <a class="ui-natedit-bullet" href="#" title="%MAKETEXT{"Bullet list"}%" data-markup="bulletListMarkup" data-type="line"><i class="fa fa-list-ul"></i></a>
-  <a class="ui-natedit-indent" href="#" title="%MAKETEXT{"Indent"}%" data-markup="indentMarkup" data-type="line"><i class="fa fa-indent"></i></a>
-  <a class="ui-natedit-outdent" href="#" title="%MAKETEXT{"Outdent"}%" data-markup="outdentMarkup" data-type="line"><i class="fa fa-outdent"></i></a>
-  <a href="#" class="ui-natedit-menu-button ui-natedit-table" title="%MAKETEXT{"More table tools"}%" data-menu=".ui-natedit-table-menu"><i class="fa fa-table"></i></a>
+  <a class="ui-natedit-numbered" href='#' title="%MAKETEXT{"Numbered list"}%" data-markup="numberedListMarkup" data-type="line"><i class="fa fa-list-ol"></i></a>
+  <a class="ui-natedit-bullet" href='#' title="%MAKETEXT{"Bullet list"}%" data-markup="bulletListMarkup" data-type="line"><i class="fa fa-list-ul"></i></a>
+  <a class="ui-natedit-indent" href='#' title="%MAKETEXT{"Indent"}%" data-markup="indentMarkup" data-type="line"><i class="fa fa-indent"></i></a>
+  <a class="ui-natedit-outdent" href='#' title="%MAKETEXT{"Outdent"}%" data-markup="outdentMarkup" data-type="line"><i class="fa fa-outdent"></i></a>
+  <a href='#' class="ui-natedit-menu-button ui-natedit-table" title="%MAKETEXT{"More table tools"}%" data-menu=".ui-natedit-table-menu"><i class="fa fa-table"></i></a>
 </div>%TMPL:P{"edittoolbar::tablemenu"}%%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"edittoolbar::insertbuttons"}%<div class="ui-natedit-buttons ui-natedit-insert-object-buttons">
-  <a href="#" title="%MAKETEXT{"Insert a link"}%" data-dialog="insertlink" data-okay-handler="handleInsertLink" data-open-handler="initLinkDialog" data-opts-handler="parseLink" data-dialog-width="550" data-dialog-height="400"><i class="fa fa-link"></i></a>
-  <a href="#" title="%MAKETEXT{"Insert Image"}%" data-dialog="insertimage" data-okay-handler="handleInsertImage" data-open-handler="initImageDialog" data-opts-handler="parseImageSelection" data-dialog-width="550" data-dialog-height="440"><i class="fa fa-picture-o"></i></a>
-  <a href="#" class="ui-natedit-menu-button ui-natedit-insert" title="%MAKETEXT{"More objects to insert"}%" data-menu=".ui-natedit-more-insert-menu"><i class="fa fa-plus"></i></a>
+  <a href='#' title="%MAKETEXT{"Insert a link"}%" data-dialog="insertlink" data-okay-handler="handleInsertLink" data-open-handler="initLinkDialog" data-opts-handler="parseLink" data-dialog-width="550" data-dialog-height="400"><i class="fa fa-link"></i></a>
+  <a href='#' title="%MAKETEXT{"Insert Image"}%" data-dialog="insertimage" data-okay-handler="handleInsertImage" data-open-handler="initImageDialog" data-opts-handler="parseImageSelection" data-dialog-width="550" data-dialog-height="440"><i class="fa fa-picture-o"></i></a>
+  <a href='#' class="ui-natedit-menu-button ui-natedit-insert" title="%MAKETEXT{"More objects to insert"}%" data-menu=".ui-natedit-more-insert-menu"><i class="fa fa-plus"></i></a>
 </div>%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"edittoolbar::tablemenu"}%<ul class="ui-natedit-menu ui-natedit-table-menu">
-  <li><a href="#" data-dialog="inserttable" data-okay-handler="handleInsertTable"><i class="ui-icon fa fa-table"></i>%MAKETEXT{"Insert a new table"}%</a></li>
+  <li><a href='#' data-dialog="inserttable" data-okay-handler="handleInsertTable"><i class="ui-icon fa fa-table"></i>%MAKETEXT{"Insert a new table"}%</a></li>
   <li></li>
-  <li><a href="#" data-handler="handleInsertRow"><i class="ui-icon fa fa-plus"></i>%MAKETEXT{"Add row"}%</a></li>
-  <li><a href="#" data-handler="handleDeleteRow"><i class="ui-icon fa fa-minus"></i>%MAKETEXT{"Delete row"}%</a></li>
+  <li><a href='#' data-handler="handleInsertRow"><i class="ui-icon fa fa-plus"></i>%MAKETEXT{"Add row"}%</a></li>
+  <li><a href='#' data-handler="handleDeleteRow"><i class="ui-icon fa fa-minus"></i>%MAKETEXT{"Delete row"}%</a></li>
   <li></li>
-  <li><a href="#" data-handler="handleInsertColumn"><i class="ui-icon fa fa-plus"></i>%MAKETEXT{"Add column"}%</a></li>
-  <li><a href="#" data-handler="handleDeleteColumn"><i class="ui-icon fa fa-minus"></i>%MAKETEXT{"Delete column"}%</a></li>
+  <li><a href='#' data-handler="handleInsertColumn"><i class="ui-icon fa fa-plus"></i>%MAKETEXT{"Add column"}%</a></li>
+  <li><a href='#' data-handler="handleDeleteColumn"><i class="ui-icon fa fa-minus"></i>%MAKETEXT{"Delete column"}%</a></li>
   <li></li>
-  <li><a href="#" data-handler="handleMoveRowUp"><i class="ui-icon fa fa-chevron-up"></i>%MAKETEXT{"Move row up"}%</a></li>
-  <li><a href="#" data-handler="handleMoveRowDown"><i class="ui-icon fa fa-chevron-down"></i>%MAKETEXT{"Move row down"}%</a></li>
+  <li><a href='#' data-handler="handleMoveRowUp"><i class="ui-icon fa fa-chevron-up"></i>%MAKETEXT{"Move row up"}%</a></li>
+  <li><a href='#' data-handler="handleMoveRowDown"><i class="ui-icon fa fa-chevron-down"></i>%MAKETEXT{"Move row down"}%</a></li>
   <li></li>
-  <li><a href="#" data-handler="handleMoveColumnLeft"><i class="ui-icon fa fa-chevron-left"></i>%MAKETEXT{"Move column left"}%</a></li>
-  <li><a href="#" data-handler="handleMoveColumnRight"><i class="ui-icon fa fa-chevron-right"></i>%MAKETEXT{"Move column right"}%</a></li>
+  <li><a href='#' data-handler="handleMoveColumnLeft"><i class="ui-icon fa fa-chevron-left"></i>%MAKETEXT{"Move column left"}%</a></li>
+  <li><a href='#' data-handler="handleMoveColumnRight"><i class="ui-icon fa fa-chevron-right"></i>%MAKETEXT{"Move column right"}%</a></li>
 </ul>%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"edittoolbar::insertmenu"}%<ul class="ui-natedit-menu ui-natedit-more-insert-menu">
-  <!-- li><a href="#" title="%MAKETEXT{"Insert an icon"}%"><i class="ui-icon fa fa-asterisk"></i> %MAKETEXT{"Icon"}%</a></li -->
-  <!-- li><a href='#' title='%MAKETEXT{"Insert an emoticon"}%'><i class='ui-icon fa fa-smile-o'></i> %MAKETEXT{"Emoticon"}%</a> </li -->
-  <!-- li><a href="#" title="%MAKETEXT{"Insert a symbol"}%"><i class="ui-icon fa">&#937;</i> %MAKETEXT{"Symbol"}%</a></li -->
-  <!-- li class="ui-natedit-colorpicker"><a href='#' title='%MAKETEXT{"Insert a color code"}%' data-dialog='insertcolor' data-open-handler='initColorDialog' data-okay-handler='handleInsertColorCode' data-opts-handler='parseColorCode'><i class='ui-icon fa fa-tint'></i> %MAKETEXT{"Color"}%</a></li -->
-  <li><a href="#" title="%MAKETEXT{"Insert your signature"}%" data-markup="signatureMarkup"><i class="ui-icon fa fa-pencil-square-o"></i> %MAKETEXT{"Signature"}%</a></li>
-  <li><a href="#" title="%MAKETEXT{"Insert a horizontal ruler"}%" data-markup="horizRulerMarkup"><i class="ui-icon fa fa-minus"></i> %MAKETEXT{"Horizontal Ruler"}%</a></li>
-  <li><a href="#" title="%MAKETEXT{"Clear floating objects"}%" data-markup="clearMarkup"><i class="ui-icon fa fa-paragraph"></i> %MAKETEXT{"Insert Clear"}%</a></li>
-  <!-- li class="ui-natedit-formula"><a href="#" title="%MAKETEXT{"Insert a mathematical formula"}%" data-markup="mathMarkup"><i class="ui-icon fa">&#931;</i> %MAKETEXT{"Formula"}%</a></li -->
+%TMPL:P{"DIS_edittoolbar::insertmenu::icon"}%%{}%
+%TMPL:P{"DIS_edittoolbar::insertmenu::emoji"}%%{}%
+%TMPL:P{"DIS_edittoolbar::insertmenu::symbol"}%%{}%
+%TMPL:P{"DIS_edittoolbar::insertmenu::color"}%%{}%
+%TMPL:P{"edittoolbar::insertmenu::signature"}%%{}%
+%TMPL:P{"edittoolbar::insertmenu::hr"}%%{}%
+%TMPL:P{"edittoolbar::insertmenu::clear"}%%{}%
+%TMPL:P{"DIS_edittoolbar::insertmenu::math"}%%{}%
 </ul>%TMPL:END%
+
+%TMPL:DEF{"edittoolbar::insertmenu::signature"}%<li><a href='#' title="%MAKETEXT{"Insert your signature"}%" data-markup="signatureMarkup"><i class="ui-icon fa fa-pencil-square-o"></i> %MAKETEXT{"Signature"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::insertmenu::hr"}%<li><a href='#' title="%MAKETEXT{"Insert a horizontal ruler"}%" data-markup="horizRulerMarkup"><i class="ui-icon fa fa-minus"></i> %MAKETEXT{"Horizontal Ruler"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::insertmenu::clear"}%<li><a href='#' title="%MAKETEXT{"Clear floating objects"}%" data-markup="clearMarkup"><i class="ui-icon fa fa-paragraph"></i> %MAKETEXT{"Insert Clear"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::insertmenu::math"}%<li class="ui-natedit-formula"><a href='#' title="%MAKETEXT{"Insert a mathematical formula"}%" data-markup="mathMarkup"><i class="ui-icon fa fa-calculator"></i> %MAKETEXT{"Formula"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::insertmenu::color"}%<li class="ui-natedit-colorpicker"><a href='#' title='%MAKETEXT{"Insert a color code"}%' data-dialog='insertcolor' data-dialog-height="450" data-open-handler='initColorDialog' data-okay-handler='handleInsertColorCode' data-opts-handler='parseColorCode'><i class='ui-icon fa fa-tint'></i> %MAKETEXT{"Color"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::insertmenu::symbol"}%<li><a href='#' title="%MAKETEXT{"Insert a symbol"}%"><i class="ui-icon fa fa-list"></i> %MAKETEXT{"Symbol"}%</a></li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::insertmenu::emoji"}%<li><a href='#' title='%MAKETEXT{"Insert an emoticon"}%'><i class='ui-icon fa fa-smile-o'></i> %MAKETEXT{"Emoticon"}%</a> </li>%TMPL:END%
+%TMPL:DEF{"edittoolbar::insertmenu::icon"}%<li><a href='#' title="%MAKETEXT{"Insert an icon"}%"><i class="ui-icon fa fa-asterisk"></i> %MAKETEXT{"Icon"}%</a></li>%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"edittoolbar::toolsbuttons"}%<div class="ui-natedit-buttons ui-natedit-tools-buttons">
   <a href='#' class="ui-natedit-undo" title='%MAKETEXT{"Undo last change"}%' data-handler='handleUndo'><i class='fa fa-rotate-left'></i></a>
   <a href='#' class="ui-natedit-redo" title='%MAKETEXT{"Redo previous change"}%' data-handler='handleRedo'><i class='fa fa-rotate-right'></i></a>
-  <a href="#" class="ui-natedit-menu-button ui-natedit-tools" title="%MAKETEXT{"More tools"}%" data-menu=".ui-natedit-tools-menu"><i class="fa fa-wrench"></i></a>
+  <a href='#' class="ui-natedit-search-replace" data-dialog="searchreplace" data-modal="false" data-okay-text="%MAKETEXT{"Replace"}%" data-cancel-text="%MAKETEXT{"Close"}%" data-okay-handler="handleSearchReplace"><i class="fa fa-search"></i></a>
+  <a href='#' class="ui-natedit-menu-button ui-natedit-tools" title="%MAKETEXT{"More tools"}%" data-menu=".ui-natedit-tools-menu"><i class="fa fa-wrench"></i></a>
 </div>%TMPL:P{"edittoolbar::toolsmenu"}%%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"edittoolbar::toolsmenu"}%<ul class="ui-natedit-menu ui-natedit-tools-menu">
-  <li><a href="#" title="%MAKETEXT{"Sort selected lines ascending"}%" data-handler="handleSortAscending"><i class="ui-icon fa fa-sort-amount-asc"></i> %MAKETEXT{"Sort ascending"}%</a></li>
-  <li><a href="#" title="%MAKETEXT{"Sort selected lines descending"}%" data-handler="handleSortDescending"><i class="ui-icon fa fa-sort-amount-desc"></i> %MAKETEXT{"Sort descending"}%</a></li>
+  <li><a href='#' title="%MAKETEXT{"Sort selected lines ascending"}%" data-handler="handleSortAscending"><i class="ui-icon fa fa-sort-amount-asc"></i> %MAKETEXT{"Sort ascending"}%</a></li>
+  <li><a href='#' title="%MAKETEXT{"Sort selected lines descending"}%" data-handler="handleSortDescending"><i class="ui-icon fa fa-sort-amount-desc"></i> %MAKETEXT{"Sort descending"}%</a></li>
   <li></li>
-  <li><a href="#" data-handler="handleEscapeTML"><i class="ui-icon fa fa-usd"></i> %MAKETEXT{"Escape markup"}%</a></li>
-  <li><a href="#" data-handler="handleUnescapeTML"><i class="ui-icon fa-percent"></i> %MAKETEXT{"Unescape markup"}%</a></li>
-  <li></li>
-  <li><a class="ui-natedit-search-replace" href="#" data-dialog="searchreplace" data-modal="false" data-okay-text="%MAKETEXT{"Replace"}%" data-cancel-text="%MAKETEXT{"Close"}%" data-okay-handler="handleSearchReplace"><i class="ui-icon fa fa-search"></i> %MAKETEXT{"Search && Replace"}%</a></li>
-  <li><a href="#" data-handler="handleWrapText"><i class="ui-icon fa-text-width"></i> %MAKETEXT{"Wrap text"}%</a></li>
+  <li><a href='#' data-handler="handleEscapeTML"><i class="ui-icon fa fa-usd"></i> %MAKETEXT{"Escape markup"}%</a></li>
+  <li><a href='#' data-handler="handleUnescapeTML"><i class="ui-icon fa-percent"></i> %MAKETEXT{"Unescape markup"}%</a></li>
+  <li><a href='#' data-handler="handleWrapText"><i class="ui-icon fa-text-width"></i> %MAKETEXT{"Wrap text"}%</a></li>
 </ul>%TMPL:END%
 
 %{ ################################################################################ }%
 %TMPL:DEF{"edittoolbar::right"}%<div class="ui-natedit-buttons foswikiRight">
-  <a href='#' class='ui-natedit-switch-editor' title='%MAKETEXT{"Switch Editor"}%' data-handler='handleSwitchEditor'><i class='fa fa-refresh'></i></a>
+  <a href='#' class='ui-natedit-switch-editor' title='%MAKETEXT{"Switch Editor"}%' data-handler='handleSwitchEditor'><i class='fa fa-exchange'></i></a>
   <a href='#' class="ui-natedit-fullscreen-button" title="%MAKETEXT{"Switch to full-screen mode"}%" accesskey="f" data-handler="handleFullscreen"><i class='fa fa-arrows-alt'></i></a>
 </div>%TMPL:END%
 
@@ -174,6 +201,7 @@
 %TMPL:END%
 %TMPL:DEF{"restorebutton"}%%BUTTON{
   "%MAKETEXT{"Restore"}%" 
+  title="%MAKETEXT{"Restore"}%"
   icon="fa-check" 
   class="ui-natedit-save" 
   href="#save"
@@ -181,6 +209,7 @@
 }%%TMPL:END%
 %TMPL:DEF{"savebutton"}%%BUTTON{
   "%MAKETEXT{"Save"}%" 
+  title="%MAKETEXT{"Save"}%"
   icon="fa-check" 
   class="ui-natedit-save" 
   href="#save"
@@ -188,12 +217,14 @@
 }%%TMPL:END%
 %TMPL:DEF{"restoreandcontinuebutton"}%%BUTTON{
   "%MAKETEXT{"Restore and Continue"}%" 
+  title="%MAKETEXT{"Restore and Continue"}%" 
   icon="fa-floppy-o" 
   class="ui-natedit-checkpoint" 
   accesskey="w" 
 }%%TMPL:END%
 %TMPL:DEF{"saveandcontinuebutton"}%%BUTTON{
   "%MAKETEXT{"Save and Continue"}%" 
+  title="%MAKETEXT{"Save and Continue"}%" 
   icon="fa-floppy-o"
   class="ui-natedit-checkpoint" 
   href="#checkpoint"
@@ -209,6 +240,7 @@
 }%</li>%TMPL:END%
 %TMPL:DEF{"previewbutton"}%<li class="natEditPreviewButton">%BUTTON{
   "%MAKETEXT{"Preview"}%" 
+  title="%MAKETEXT{"Preview"}%" 
   icon="fa-eye" 
   class="ui-natedit-preview" 
   href="#preview"
@@ -216,6 +248,7 @@
 }%</li>%TMPL:END%
 %TMPL:DEF{"cancelbutton"}%<li class="natEditCancelButton">%BUTTON{
   "%MAKETEXT{"Cancel"}%" 
+  title="%MAKETEXT{"Cancel"}%" 
   icon="fa-times" 
   class="ui-natedit-cancel" 
   href="#cancel"

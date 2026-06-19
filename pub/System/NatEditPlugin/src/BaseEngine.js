@@ -1,7 +1,7 @@
 /*
  * NatEdit: base engine
  *
- * Copyright (c) 2015-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2015-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -53,7 +53,7 @@ BaseEngine.prototype.initGui = function() {
   var self = this;
 
   if (self.shell.opts.resizable) {
-    self.getWrapperElement().resizable();
+    self.enableResizable();
   }
 
   self.getWrapperElement().addClass("ui-natedit-widget");
@@ -82,7 +82,20 @@ BaseEngine.prototype.initGui = function() {
     });
     */
   });
+};
 
+/*************************************************************************
+ * makes the editor area resizable by a handle in the bottom right corner
+ */
+BaseEngine.prototype.enableResizable = function() {
+  var self = this,
+      size = self.getSize();
+
+  self.getWrapperElement().resizable({
+    minWidth:size.width,
+    maxWidth:size.width,
+    minHeight:size.height
+  });
 };
 
 /*************************************************************************
@@ -407,6 +420,54 @@ BaseEngine.prototype.insertTable = function(opts) {
   self.setCaretPosition(cursor);
 };
 
+BaseEngine.prototype.insertTableRow = function() {
+  /*var self = this;*/
+
+  throw("not implemented: insertTableRow()");
+};
+
+BaseEngine.prototype.deleteTableRow = function() {
+  /*var self = this;*/
+
+  throw("not implemented: deleteTableRow()");
+};
+
+BaseEngine.prototype.insertTableColumn = function() {
+  /*var self = this;*/
+
+  throw("not implemented: insertTableColumn()");
+};
+
+BaseEngine.prototype.deleteTableColumn = function() {
+  /*var self = this;*/
+
+  throw("not implemented: deleteTableColumn()");
+};
+
+BaseEngine.prototype.moveTableRowUp = function() {
+  /*var self = this;*/
+
+  throw("not implemented: moveTableRowUp()");
+};
+
+BaseEngine.prototype.moveTableRowDown = function() {
+  /*var self = this;*/
+
+  throw("not implemented: moveTableRowUp()");
+};
+
+BaseEngine.prototype.moveTableColumnLeft = function() {
+  /*var self = this;*/
+
+  throw("not implemented: moveTableColumnLeft()");
+};
+
+BaseEngine.prototype.moveTableColumnRight = function() {
+  /*var self = this;*/
+
+  throw("not implemented: moveTableColumnLeft()");
+};
+
 /*************************************************************************
  * parse the current selection and return the data to be used generating the tmpl
  */
@@ -536,11 +597,21 @@ BaseEngine.prototype.insertLink = function(opts) {
     } else if (typeof(opts.file) !== 'undefined') {
       // attachment link
 
-      if (!opts.text && natEditOpts.TopicInteractionPluginEnabled) {
+      if (opts.file === '') {
+        dfd.reject();
+        return; // nop
+      }
+
+
+      if (natEditOpts.TopicInteractionPluginEnabled) {
+        opts.web ||= webTopic[0];
+        opts.topic ||= 'none';
+
         $.post(foswiki.getScriptUrlPath("rest", "TopicInteractionPlugin", "getlink"), {
           id: foswiki.getUniqueID(),
           topic: opts.web+"."+opts.topic,
-          filename: opts.file
+          filename: opts.file,
+          text: opts.text
         }).then(function(data) {
           var response = JSON.parse(data);
           self.remove();
@@ -550,16 +621,10 @@ BaseEngine.prototype.insertLink = function(opts) {
         return;
       } 
       
-      if (typeof(opts.web) === 'undefined' || opts.web === '' || 
-          typeof(opts.topic) === 'undefined' || opts.topic === '') {
-        dfd.reject();
-        return; // nop
-      }
-
       if (opts.web === webTopic[0] && opts.topic === webTopic[1]) {
-        markup = "[[%ATTACHURLPATH%/"+opts.file+"]";
+        markup = "[[%ATTACHURLPATH%/"+opts.file+"?t=%NOW%]";
       } else {
-        markup = "[[%PUBURLPATH%/"+opts.web+"/"+opts.topic+"/"+opts.file+"]";
+        markup = "[[%PUBURLPATH%/"+opts.web+"/"+opts.topic+"/"+opts.file+"?t=%NOW%]";
       }
 
       if (typeof(opts.text) !== 'undefined' && opts.text !== '') {
@@ -615,8 +680,11 @@ BaseEngine.prototype.insertImage = function(opts) {
   opts.prefix = opts.prefix === undefined ? "": opts.prefix;
   opts.suffix = opts.suffix === undefined ? "": opts.suffix;
 
+
   markup = opts.prefix + '%IMAGE{"'+opts.file+'"';
-  if (opts.web !== webTopic[0] || opts.topic !== webTopic[1]) {
+  if (opts.web !== '' && 
+      opts.topic !== '' && 
+      (opts.web !== webTopic[0] || opts.topic !== webTopic[1])) {
     markup += ' topic="';
     if (opts.web !== webTopic[0]) {
       markup += opts.web+'.';
@@ -625,35 +693,51 @@ BaseEngine.prototype.insertImage = function(opts) {
   }
 
   if (opts.width) {
-    markup += ' width="'+opts.width+'"';
+    markup += ` width="${opts.width}"`;
   }
 
   if (opts.height) {
-    markup += ' height="'+opts.height+'"';
+    markup += ` height="${opts.height}"`;
   } 
 
   if (opts.align) {
-    markup += ' align="'+opts.align+'"';
+    markup += ` align="${opts.align}"`;
   }
 
   if (opts.caption) {
-    markup += ' caption="'+opts.caption+'"';
+    markup += ` caption="${opts.caption}"`;
   }
 
   if (opts.type) {
-    markup += ' type="'+opts.type+'"';
+    markup += ` type="${opts.type}"`;
   }
 
   if (opts.id) {
-    markup += ' id="'+opts.id+'"';
+    markup += ` id="${opts.id}"`;
   }
 
   if (opts.classList) {
-    markup += ' class="'+opts.classList+'"';
+    markup += ` class="${opts.classList}"`;
   }
 
   if (opts.href) {
-    markup += ' href="'+opts.href+'"';
+    markup += ` href="${opts.href}"`;
+  }
+
+  if (opts.zoom === 'on') {
+    markup += ` zoom="${opts.zoom}"`
+  }
+
+  if (opts.output) {
+    markup += ` output="${opts.output}"`
+  }
+
+  if (opts.ratio !== 'on') {
+    markup += ` ratio="off"`
+  }
+
+  if (opts.filter) {
+    markup += ` filter="${opts.filter}"`
   }
 
   markup += '}%' + opts.suffix;

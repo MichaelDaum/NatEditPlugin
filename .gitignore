@@ -1,6 +1,7 @@
 *,v
 *,pfv
 *.gz
+*.store/
 /NatEditPlugin.md5
 /NatEditPlugin.sha1
 /NatEditPlugin.tgz

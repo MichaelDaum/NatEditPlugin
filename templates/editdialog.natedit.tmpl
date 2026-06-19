@@ -72,6 +72,11 @@
 %TMPL:DEF{"insertimage"}%<div class="ui-natedit-dialog-content ui-natedit-insert-image-content" data-title="%MAKETEXT{"Insert/Update image"}%">
 %TABPANE{class="plain"}%
 %TAB{"%MAKETEXT{"General"}%"}%
+  <input type="hidden" name="output" value="{{:output}}" >
+  <input type="hidden" name="zoom" value="{{:zoom}}" >
+  <input type="hidden" name="filter" value="{{:filter}}" >
+  <input type="hidden" name="origHeight" value="{{:origHeight}}" >
+  <input type="hidden" name="origWidth" value="{{:origWidth}}" >
   <table class="foswikiLayoutTable">
     <tr>
       <th>%MAKETEXT{"Image"}%</th>
@@ -88,20 +93,25 @@
     <tr>
         <th>%MAKETEXT{"Size"}%</th>
         <td>
-          <input type="text" size="10" name="width" class="foswikiInputField" value="{{:width}}" placeholder="%MAKETEXT{"width"}%" /> x 
-          <input type="text" size="10" name="height" class="foswikiInputField" value="{{:height}}" placeholder="%MAKETEXT{"height"}%" />
+          <input type="text" size="10" name="width" class="foswikiInputField" value="{{:width}}" placeholder="%MAKETEXT{"width"}%" title="%MAKETEXT{"width"}%" /> x 
+          <input type="text" size="10" name="height" class="foswikiInputField" value="{{:height}}" placeholder="%MAKETEXT{"height"}%" title="%MAKETEXT{"height"}%" />
+          <label class="ui-natedit-toggle">
+            <input type="checkbox" name="ratio" value="on" {{if ratio!=="off" }}checked="checked"{{/if}} /> 
+            %JQICON{"fa-chain" class="ui-natedit-toggle-on" title="%MAKETEXT{"keep aspect ratio"}%"}%
+            %JQICON{"fa-chain-broken" class="ui-natedit-toggle-off" title="%MAKETEXT{"scale image freely"}%"}%
+          </label>
         </td>
     </tr>
     <tr>
         <th>%MAKETEXT{"Alignment"}%</th>
         <td>
-          <label><input type="radio" name="align" value="" class="foswikiRadioButton" {{if !align || align === 'none' }}checked{{/if}}>%MAKETEXT{"inline"}%</label>
+          <label><input type="radio" name="align" value="" class="foswikiRadioButton" {{if !align || align === 'none' }}checked{{/if}}>%MAKETEXT{"in text flow"}%</label>
           <label><input type="radio" name="align" value="left" class="foswikiRadioButton" {{if align === 'left'}}checked{{/if}}>%MAKETEXT{"left"}%</label>
           <label><input type="radio" name="align" value="center" class="foswikiRadioButton" {{if align === 'center'}}checked{{/if}}>%MAKETEXT{"center"}%</label>
           <label><input type="radio" name="align" value="right" class="foswikiRadioButton" {{if align === 'right'}}checked{{/if}}>%MAKETEXT{"right"}%</label>
         </td>
     </tr>
-    %TMPL:P{context="ImagePluginEnabled" then="insertimage::imageplugin::opts"}%<!-- -->
+    %TMPL:P{context="ImagePluginEnabled" then="insertimage::imageplugin::type"}%<!-- -->
   </table>
 %ENDTAB%
 %TAB{"%MAKETEXT{"Advanced"}%"}%
@@ -126,13 +136,13 @@
 %ENDTAB%
 </div>%TMPL:END%
 
-%TMPL:DEF{"insertimage::imageplugin::opts"}%<tr>
+%TMPL:DEF{"insertimage::imageplugin::type"}%<tr>
   <th>%MAKETEXT{"Format"}%</th>
   <td>
     <label><input type="radio" name="type" value="plain" class="foswikiRadioButton" {{if type === 'plain'}}checked{{/if}}>%MAKETEXT{"simple"}%</label>
     <label><input type="radio" name="type" value="simple" class="foswikiRadioButton" {{if !type || type === 'simple'}}checked{{/if}}>%MAKETEXT{"linked"}%</label>
-    <label><input type="radio" name="type" value="frame" class="foswikiRadioButton" {{if type === 'frame'}}checked{{/if}}>%MAKETEXT{"decorated"}%</label>
-    <label><input type="radio" name="type" value="photoswipe" class="foswikiRadioButton" {{if type === 'photoswipe'}}checked{{/if}}>%MAKETEXT{"lightbox"}%</label>
+    <label><input type="radio" name="type" value="frame" class="foswikiRadioButton" {{if type === 'frame'}}checked{{/if}}>%MAKETEXT{"framed"}%</label>
+    <label><input type="radio" name="type" value="photoswipe" class="foswikiRadioButton" {{if type === 'photoswipe'}}checked{{/if}}>%MAKETEXT{"preview"}%</label>
   </td>
 </tr>%TMPL:END%
 
@@ -147,11 +157,9 @@
 %TMPL:P{"insertlink::end"}%
 </div>%TMPL:END%
 
-%{ ################################################################################ }%
 %TMPL:DEF{"insertlink::start"}%<form>%TMPL:END%
 %TMPL:DEF{"insertlink::end"}%</form>%TMPL:END%
 
-%{ ################################################################################ }%
 %TMPL:DEF{"insertlink::topic"}%<!-- -->
   <table class="foswikiLayoutTable">
     <tr>
@@ -169,7 +177,6 @@
   </table>
 <!-- -->%TMPL:END%
 
-%{ ################################################################################ }%
 %TMPL:DEF{"insertlink::external"}%<!-- -->
   <table class="foswikiLayoutTable">
     <tr>
@@ -179,13 +186,15 @@
     <tr>
       <th>%MAKETEXT{"Text"}%</th>
       <td>
-        <input type="text" size="50" name="linktext_external" class="foswikiInputField" value="{{:selection}}" /><a class="getDocumentTitle" style="margin-left:0.5em;cursor:pointer" title="%MAKETEXT{"Fetch document title from external url"}%">%JQICON{"fa-refresh"}%</a>
+        <input type="text" size="50" name="linktext_external" class="foswikiInputField" value="{{:selection}}" />
+        <div class="foswikiFormDescription">
+          <a class="ui-natedit-get-document-title" >%JQICON{"fa-refresh"}% <span>%MAKETEXT{"Fetch document title"}%</span></a>
+        </div>
       </td>
     </tr>
   </table>
 <!-- -->%TMPL:END%
 
-%{ ################################################################################ }%
 %TMPL:DEF{"insertlink::attachment"}%<!-- -->
   <table class="foswikiLayoutTable">
     <tr>

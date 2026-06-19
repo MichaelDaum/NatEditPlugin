@@ -1,7 +1,7 @@
 /*
  * FormManager: manages the edit interface and all of the engines inside
  *
- * Copyright (c) 2015-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2015-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -37,7 +37,6 @@ var FormManager = function(elem, opts) {
   // init
   self.elem = $(elem);
   self.formAction = self.elem.attr("action") || "";
-  self.editCaptcha = $("#editcaptcha");
   self.origDocumentTitle = document.title;
   self.referrer = document.referrer;
   self.topicTitleCache = {};
@@ -216,6 +215,7 @@ var FormManager = function(elem, opts) {
     $.validator.addMethod("pure", function(value, element, params ) {
       value = "x" + value; 
       //self.log("checking if element is pure", value);
+
       DOMPurify.sanitize(value, self.opts.purify);
       self.logInsecureTags();
       return DOMPurify.removed.length === 0;
@@ -230,7 +230,6 @@ var FormManager = function(elem, opts) {
   $("[accesskey=n],[accesskey=f]").each(function() {
     $(this).removeAttr("accesskey"); 
   });
-
 };
 /*************************************************************************
  * returns the list of included nateditors
@@ -716,7 +715,7 @@ FormManager.prototype.sanitize = function(text) {
     });
     return "";
   });
-
+  outText = outText.replace(/<!\-\-/g,'<comment>').replace(/-->/g,'</comment>');
   outText = DOMPurify.sanitize(outText, self.opts.purify);
 
   map.forEach(function(entry) {
@@ -727,6 +726,7 @@ FormManager.prototype.sanitize = function(text) {
     ].join('');
   });
 
+  //outText = outText.replace(/(<comment>/g,'<!--').replace(/<\/comment>/g,'-->');
   return outText;
 };
 

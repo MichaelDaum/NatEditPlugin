@@ -1,7 +1,7 @@
 /*
  * NatEdit: prosemirror engine
  *
- * Copyright (c) 2016-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2016-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -36,7 +36,7 @@ ProsemirrorEngine.prototype.init = function() {
       proseMirrorPath = pubUrlPath+'/'+systemWeb+'/ProseMirrorContrib',
       dfd = $.Deferred();
 
-  self.shell.getScript(proseMirrorPath+"/prosemirror.js").done(function() {
+  self.shell.loadScript(proseMirrorPath+"/prosemirror.js").done(function() {
     var $elem = $(self.shell.txtarea), opts,
         $place = $("<div />").insertAfter($elem);
 

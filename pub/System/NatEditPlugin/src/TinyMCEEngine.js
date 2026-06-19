@@ -1,7 +1,7 @@
 /*
  * NatEdit: tinymce engine
  *
- * Copyright (c) 2015-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2015-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -31,19 +31,19 @@ function TinyMCEEngine(shell, opts) {
   self.shell = shell;
   self.id = "TinyMCEEngine";
   self.type = "wysiwyg";
-  self.opts = $.extend({}, TinyMCEEngine.defaults, self.shell.opts.tinymce, opts);
-  self.opts.tinymce.selector = "#"+self.shell.id+" textarea";
+  self.opts = $.extend(true, {}, TinyMCEEngine.defaults, self.shell.opts.tinymce, opts);
   self.opts.tinymce.content_css = foswiki.getPreference("NatEditPlugin").ContentCSS;
   self.opts.tinymce.document_base_url = foswiki.getPreference("URLHOST");
   self.opts.tinymce.urlconverter_callback = function(url, node, onSave) {
     return self.convertURI(url, node, onSave);
   };
+  self.opts.tinymce.selector = "#txtarea_"+self.shell.id;
 
   self.opts.clearMarkup = ['', `<img src="${pubUrlPath}/System/NatEditPlugin/images/clear-float.svg" class="WYSIWYG_CLEAR" data-mce-resize="false" data-mce-placeholder="1" />`, ''];
   self.opts.signatureMarkup = ['-- ', `<a class='TMLlink' href="${wikiUserNameUrl}" data-topic="${wikiUserName}">${wikiName}</a>`, ` - ${serverTime}`];
   self.opts.horizRulerMarkup = ['', '<hr>', ''];
 
-  $.extend(self.shell.opts, self.opts.natedit);
+  $.extend(true, self.shell.opts, self.opts.natedit);
 }
 
 /*************************************************************************
@@ -63,7 +63,7 @@ TinyMCEEngine.prototype.init = function() {
 
   $.when(
     self.parent.init(),
-    self.shell.getScript(editorPath+'/tinymce.min.js')
+    self.shell.loadScript(editorPath+'/tinymce.min.js')
   ).done(function() {
 
     /* natedit-image plugin */
@@ -74,6 +74,90 @@ TinyMCEEngine.prototype.init = function() {
         onAction: function (ev) {
           self.shell.imageDialog();
         }
+      });
+
+      editor.addCommand('mceTableMoveRowUp', function() {
+        var selection = editor.selection,
+          focusNode = selection.getSel().focusNode,
+          td = focusNode.tagName ? $(focusNode) : $(focusNode).parents("td, th").first(),
+          table = td.parents("table").first(),
+          row, prevRow,
+          offset = selection.getEnd();
+
+        if (table.is("table")) {
+          row = td.parent("tr");
+          prevRow = row.prev();
+          if (prevRow.length) {
+            prevRow.before(row.detach());
+          }
+        }
+
+        selection.setCursorLocation(focusNode, offset);
+      });
+
+      editor.addCommand('mceTableMoveRowDown', function() {
+        var selection = editor.selection,
+          focusNode = selection.getSel().focusNode,
+          td = focusNode.tagName ? $(focusNode) : $(focusNode).parents("td, th").first(),
+          table = td.parents("table").first(),
+          row, nextRow,
+          offset = selection.getEnd();
+
+          if (table.is("table")) {
+            row = td.parent("tr");
+            nextRow = row.next();
+            if (nextRow.length) {
+              nextRow.after(row.detach());
+            }
+          }
+
+          selection.setCursorLocation(focusNode, offset);
+      });
+
+      editor.addCommand('mceTableMoveColumnLeft', function() {
+        var selection = editor.selection,
+          focusNode = selection.getSel().focusNode,
+          offset = selection.getEnd(),
+          td = focusNode.tagName ? $(focusNode) : $(focusNode).parents("td, th").first(),
+          row = td.parent(),
+          tbody = row.parent(),
+          column = row.children().index(td);
+
+
+        if (!column) {
+          return;
+        }
+
+        tbody.children().each(function() {
+          var td = $(this).children().eq(column);
+          td.prev().before(td.detach());
+        });
+
+
+        selection.setCursorLocation(focusNode, offset);
+      });
+
+      editor.addCommand('mceTableMoveColumnRight', function() {
+        var selection = editor.selection,
+          focusNode = selection.getSel().focusNode,
+          offset = selection.getEnd(),
+          td = focusNode.tagName ? $(focusNode) : $(focusNode).parents("td, th").first(),
+          row = td.parent(),
+          tbody = row.parent(),
+          maxCols = row.children().length - 1,
+          column = row.children().index(td);
+
+        if (column == maxCols) {
+          return;
+        }
+
+        tbody.children().each(function() {
+          var td = $(this).children().eq(column);
+          td.next().after(td.detach());
+        });
+
+
+        selection.setCursorLocation(focusNode, offset);
       });
 
       editor.addCommand('mceImage', function() {
@@ -115,10 +199,18 @@ TinyMCEEngine.prototype.init = function() {
       });
     });
 
+    if (self.shell.opts.resizable) {
+      self.opts.tinymce.resize = true;
+      self.opts.tinymce.statusbar = true;
+    }
+
     self.opts.tinymce.init_instance_callback = function(editor) {
       var cols = parseInt(self.shell.txtarea.attr("cols"), 10),
           rows = parseInt(self.shell.txtarea.attr("rows"), 10),
           lineHeight = parseInt(self.shell.txtarea.css("line-height"), 10);
+
+      self.editor = editor;
+      self.shell.log("called init_instance_callback");
 
       if (window.darkMode && window.darkMode.isActive) {
         //console.log("propagating darkmode to iframe");
@@ -137,26 +229,17 @@ TinyMCEEngine.prototype.init = function() {
         self.setSize(null, rows*lineHeight + 20); // magic 20 to spare the scrollbar
       }
 
+      self.on("keydown", function(ev) {
+        return self.handleKeyDown(ev);
+      });
+      self.on("keyup", function(ev) {
+        return self.handleKeyUp(ev);
+      });
+
       self.updateContent().then(function() {
         dfd.resolve();
       }, function() {
         dfd.reject();
-      });
-    };
-
-    self.opts.tinymce.setup = function(editor) {
-      self.shell.log("setup instance");
-      self.editor = editor;
-
-      if (self.opts.debug) {
-        window.editor = editor; // playground
-      }
-
-      self.on("keyup", function(ev) {
-        return self.shell.handleKeyUp(ev);
-      });
-      self.on("keydown", function(ev) {
-        return self.shell.handleKeyDown(ev);
       });
     };
 
@@ -265,12 +348,28 @@ TinyMCEEngine.prototype.initGui = function() {
   // highlight buttons on toolbar when the cursor moves into a format
   $.each(self.opts.tinymce.formats, function(formatName) {
     self.editor.formatter.formatChanged(formatName, function(state, args) {
-
       $.each(self.editor.formatter.get(formatName), function(i, format) {
+        self.shell.toolbar.find(".ui-natedit-paragraph-label").text(self.shell._origParagraphLabel);
+
         if (state) {
-          self.shell.toolbar.find(format.toolbar).addClass("ui-natedit-active");
+          if (format.toolbar) {
+            self.shell.toolbar.find(format.toolbar).addClass("ui-natedit-active");
+
+            if (format.paragraphLabel) {
+              const text = self.shell.toolbar.find(format.toolbar).text();
+              self.shell.toolbar.find(".ui-natedit-paragraph-label").text(text);
+            }
+          }
+          if (format.enableCallback) {
+            format.enableCallback.call(self, args.format);
+          }
         } else {
-          self.shell.toolbar.find(format.toolbar).removeClass("ui-natedit-active");
+          if (format.toolbar) {
+            self.shell.toolbar.find(format.toolbar).removeClass("ui-natedit-active");
+          }
+          if (format.disableCallback) {
+            format.disableCallback.call(self, args.format);
+          }
         }
       });
 
@@ -290,7 +389,7 @@ TinyMCEEngine.prototype.initGui = function() {
         }
       });
 
-    });
+    }, false);
   });
 
   // listen to change events and update stuff
@@ -305,6 +404,10 @@ TinyMCEEngine.prototype.initGui = function() {
   */
 
   self.updateUndoButtons();
+};
+
+TinyMCEEngine.prototype.enableResizable = function() {
+  // nop ... done during init();
 };
 
 /*************************************************************************
@@ -414,8 +517,7 @@ TinyMCEEngine.prototype.getImageData = function(data) {
       urlData,
       excludePattern = new RegExp("image(Simple|Float|Thumb|Frame|Plain)(_left|_right|_none|_center)?");
 
-
-  //console.log("called getImageData()",data);
+  //console.log("called getImageData()",imgElem);
   data = data || {};
 
   if (imgElem && imgElem.nodeName === 'IMG') {
@@ -433,6 +535,7 @@ TinyMCEEngine.prototype.getImageData = function(data) {
     data.width = imgElem.width || data.width; 
     data.height = imgElem.height || data.height; 
     data.align = imgElem.align || data.align; 
+
     data.type = imgData.type;
     data.href = imgData.href;
     data.caption = imgData.caption;
@@ -440,6 +543,12 @@ TinyMCEEngine.prototype.getImageData = function(data) {
     data.align = imgElem.align;
     data.type = imgData.type;
     data.caption = imgData.caption || '';
+    data.zoom = imgData.zoom || '';
+    data.output = imgData.output || '';
+    data.ratio = imgData.ratio || '';
+    data.filter = imgData.filter || '';
+    data.origWidth = imgData.origWidth || data.width; 
+    data.origHeight = imgData.origHeight || data.height; 
 
     data.classList = Array.from(imgElem.classList).filter(function(item) {
       return !excludePattern.test(item);
@@ -462,10 +571,10 @@ TinyMCEEngine.prototype.parseLink = function(text) {
     currWebTopic = self.shell.formManager.getWebTopic(),
     data;
 
-
   if (typeof(text) === 'undefined') {
     text = self.getSelection();
   }
+
   //console.log("called parseLink()",text);
 
   data = {
@@ -498,6 +607,8 @@ TinyMCEEngine.prototype.parseLink = function(text) {
     data.selection = ""
   }
 
+  //console.log("data=",data);
+
   return data;
 };
 
@@ -519,12 +630,16 @@ TinyMCEEngine.prototype.insertImage = function(opts) {
       imgRegex = /\.(avif|jpe?g|gif|png|bmp|webp|svg|ico|tiff?|xcf|psd|heic|heif)$/i,
       webTopic = self.shell.formManager.getWebTopic();
 
+  //console.log("insertImage",opts);
   opts.web = opts.web || webTopic[0];
   opts.topic = opts.topic || webTopic[1];
 
   // get uri for image
   if (!opts.src) {
-    if (imgRegex.test(opts.file)) {
+    if (/^(blob|data):/.test(opts.file)) {
+      opts.src = opts.file;
+      delete opts.file;
+    } else if (imgRegex.test(opts.file)) {
       // regular image
       opts.src = foswiki.getPubUrlPath(opts.web, opts.topic, opts.file);
     } else {
@@ -554,6 +669,18 @@ TinyMCEEngine.prototype.insertImage = function(opts) {
   if (opts.id) {
     elem.attr("id", opts.id);
   }
+  if (opts.zoom) {
+    elem.attr("data-zoom", opts.zoom);
+  }
+  if (opts.output) {
+    elem.attr("data-output", opts.output);
+  }
+  if (opts.ratio) {
+    elem.attr("data-ratio", opts.ratio);
+  }
+  if (opts.filter) {
+    elem.attr("data-filter", opts.filter);
+  }
   if (opts.caption) {
     elem.attr("data-caption", opts.caption);
   }
@@ -565,6 +692,12 @@ TinyMCEEngine.prototype.insertImage = function(opts) {
   }
   if (opts.topic !== webTopic[1] || opts.web !== webTopic[0]) {
     elem.attr("data-topic", opts.web+"."+opts.topic);
+  }
+  if (opts.origHeight) {
+    elem.attr("data-orig-height", opts.origHeight);
+  }
+  if (opts.origWidth) {
+    elem.attr("data-orig-width", opts.origWidth);
   }
 
   elem.attr("data-file", opts.file);
@@ -641,10 +774,11 @@ TinyMCEEngine.prototype.setSelection = function(text) {
     if (node.nodeName == 'BODY') {
       self.append(text);
     } else {
-      $(self.editor.selection.getNode()).html(text);
+      selection.select(node);
+      selection.setContent(text);
     }
   } else {
-    self.editor.selection.setContent(text);
+    selection.setContent(text);
   }
 };
 
@@ -800,12 +934,14 @@ TinyMCEEngine.prototype.insertLineTag = function(markup) {
  * insert a topic markup tag 
  */
 TinyMCEEngine.prototype.insertTag = function(markup) {
-  var self = this,
-      tagOpen = markup[0],
-      selection = self.getSelection() || markup[1],
-      tagClose = markup[2];
+  var self = this, selection;
 
-  self.editor.selection.setContent(tagOpen+selection+tagClose);
+  if (self.editor.selection.isCollapsed()) {
+    self.editor.insertContent(markup.join(""));
+  } else {
+    selection = self.getSelection() || markup[1];
+    self.editor.selection.setContent(markup[0]+selection+markup[2]);
+  }
 };
 
 /*************************************************************************
@@ -823,7 +959,12 @@ TinyMCEEngine.prototype.removeFormat = function() {
 TinyMCEEngine.prototype.applyColor = function(color) {
   var self = this;
 
-  self.editor.execCommand('mceApplyTextcolor', 'forecolor', color);
+  color = "foswiki"
+    + color.charAt(0).toUpperCase() 
+    + color.toLowerCase().slice(1)
+    + "FG";
+
+  self.editor.formatter.apply('foregroundMarkup', {color: color});
 };
 
 /*************************************************************************
@@ -840,6 +981,54 @@ TinyMCEEngine.prototype.insertTable = function(opts) {
 
   opts.init = new foswiki.Table(self.getSelection());
   self.insert(foswiki.Table.create(opts).toHtml());
+};
+
+TinyMCEEngine.prototype.insertTableRow = function() {
+  var self = this;
+
+  self.editor.execCommand('mceTableInsertRowAfter');
+};
+
+TinyMCEEngine.prototype.deleteTableRow = function() {
+  var self = this;
+
+  self.editor.execCommand('mceTableDeleteRow');
+};
+
+TinyMCEEngine.prototype.insertTableColumn = function() {
+  var self = this;
+
+  self.editor.execCommand('mceTableInsertColAfter');
+};
+
+TinyMCEEngine.prototype.deleteTableColumn = function() {
+  var self = this;
+
+  self.editor.execCommand('mceTableDeleteCol');
+};
+
+TinyMCEEngine.prototype.moveTableRowUp = function() {
+  var self = this;
+
+  self.editor.execCommand('mceTableMoveRowUp');
+};
+
+TinyMCEEngine.prototype.moveTableRowDown = function() {
+  var self = this;
+
+  self.editor.execCommand('mceTableMoveRowDown');
+};
+
+TinyMCEEngine.prototype.moveTableColumnLeft = function() {
+  var self = this;
+
+  self.editor.execCommand('mceTableMoveColumnLeft');
+};
+
+TinyMCEEngine.prototype.moveTableColumnRight = function() {
+  var self = this;
+
+  self.editor.execCommand('mceTableMoveColumnRight');
 };
 
 /***************************************************************************
@@ -895,11 +1084,12 @@ TinyMCEEngine.prototype.insertLink = function(opts) {
         return;
       }
 
-      if (!opts.text && natEditOpts.TopicInteractionPluginEnabled) {
+      if (natEditOpts.TopicInteractionPluginEnabled) {
         $.post(foswiki.getScriptUrlPath("rest", "TopicInteractionPlugin", "getlink"), {
           id: foswiki.getUniqueID(),
           topic: opts.web+"."+opts.topic,
           filename: opts.file,
+          text: opts.text,
           expand: true
         }).then(function(data) {
           var response = JSON.parse(data);
@@ -908,7 +1098,7 @@ TinyMCEEngine.prototype.insertLink = function(opts) {
           //html.attr("data-tml", response.result.tml);
 
           self.remove();
-          self.insert(response.result.tml);
+          self.insert(response.result.html);
           dfd.resolve();
         });
         return;
@@ -991,11 +1181,9 @@ TinyMCEEngine.prototype.setSize = function(width, height) {
 
   if (elem) {
     if (width) {
-      //console.log("width=",width);
       elem.css("width", width);
     }
     if (height) {
-      //console.log("height=",height);
       elem.css("height", height);
     }
   }
@@ -1067,7 +1255,7 @@ TinyMCEEngine.prototype.execCompletion = function(completion, string) {
 
               rng.setStart(rng.startContainer, offset);
               self.editor.selection.setRng(rng);
-              self.editor.selection.setContent(result); 
+              self.editor.selection.setContent(result+" "); 
             })
             .on("click", function() {
               dropdown.hide();
@@ -1096,6 +1284,96 @@ TinyMCEEngine.prototype.execCompletion = function(completion, string) {
   });
 };
 
+TinyMCEEngine.prototype.handleKeyUp = function(ev) {
+  var self = this;
+
+  return self.shell.handleKeyUp(ev);
+};
+
+TinyMCEEngine.prototype.handleKeyDown = function(ev) {
+  var self = this;
+
+  // some access keys aren't accessible if tinymce has got focus
+  if (ev.altKey) {
+    if (ev.key === "F") {
+      self.toggleFullscreen();
+      ev.preventDefault();
+      return false;
+    }
+
+    if (ev.key === "S") {
+      self.shell.formManager.save();
+      ev.preventDefault();
+      return false;
+    }
+    if (ev.key === "W") {
+      self.shell.formManager.checkPoint();
+      ev.preventDefault();
+      return false;
+    }
+    if (ev.key === "C") {
+      self.shell.formManager.cancel();
+      ev.preventDefault();
+      return false;
+    }
+  } 
+
+  if (self.isInsideTable()) {
+    if (ev.altKey) {
+      if (ev.key === "N" || (ev.key === "Delete" && ev.shiftKey)) {
+        self.editor.execCommand("mceTableDeleteCol");
+        ev.preventDefault();
+        return false;
+      }
+
+      if (ev.key === "Delete") {
+        self.editor.execCommand("mceTableDeleteRow");
+        ev.preventDefault();
+        return false;
+      }
+
+      if (ev.key === "n") {
+        self.editor.execCommand("mceTableInsertColAfter");
+        ev.preventDefault();
+        return false;
+      }
+
+      if (ev.key === "ArrowUp") {
+        self.editor.execCommand("mceTableMoveRowUp");
+        ev.preventDefault();
+        return false;
+      }
+
+      if (ev.key === "ArrowDown") {
+        self.editor.execCommand("mceTableMoveRowDown");
+        ev.preventDefault();
+        return false;
+      }
+
+      if (ev.key === "ArrowLeft") {
+        self.editor.execCommand("mceTableMoveColumnLeft");
+        ev.preventDefault();
+        return false;
+      }
+
+      if (ev.key === "ArrowRight") {
+        self.editor.execCommand("mceTableMoveColumnRight");
+        ev.preventDefault();
+        return false;
+      }
+    }
+  }
+
+  return self.shell.handleKeyDown(ev);
+};
+
+TinyMCEEngine.prototype.isInsideTable = function() {
+  var self = this,
+      focusNode = self.editor.selection.getSel().focusNode;
+
+  return $(focusNode).parents("table").length > 0;
+};
+
 /*************************************************************************
  * replace text between two positions
  */
@@ -1122,6 +1400,9 @@ TinyMCEEngine.defaults = {
     min_height: 300,
     menubar: false,
     toolbar: false,
+    elementpath:false,
+    branding: false,
+    resize: false,
     statusbar: false,
     relative_urls: false,
     remove_script_host: false,
@@ -1142,10 +1423,11 @@ TinyMCEEngine.defaults = {
     table_cell_advtab: false,
     table_row_advtab: false,
     object_resizing: "img",
+    schema: "html5",
 
+    keep_styles: false,
     paste_data_images: true,
     paste_tab_spaces: 3,
-    keep_styles: false,
     paste_preprocess: function(plugin, args) {
       //console.log("paste_preprocess args=",args);
       args.content = _clearClipboardContent(args.content);
@@ -1176,26 +1458,38 @@ TinyMCEEngine.defaults = {
       remove: 'all' 
     }],
     formats: {
-      h1Markup: { block: "h1", toolbar: ".ui-natedit-h1" },
-      h2Markup: { block: "h2", toolbar: ".ui-natedit-h2" },
-      h3Markup: { block: "h3", toolbar: ".ui-natedit-h3" },
-      h4Markup: { block: "h4", toolbar: ".ui-natedit-h4" },
-      h5Markup: { block: "h5", toolbar: ".ui-natedit-h5" },
-      h6Markup: { block: "h6", toolbar: ".ui-natedit-h6" },
       normalMarkup: { block: "p", toolbar: ".ui-natedit-normal"},
-      quoteMarkup: { block: "blockquote", toolbar: ".ui-natedit-quoted"},
+      h1Markup: { block: "h1", toolbar: ".ui-natedit-h1", paragraphLabel: true},
+      h2Markup: { block: "h2", toolbar: ".ui-natedit-h2", paragraphLabel: true},
+      h3Markup: { block: "h3", toolbar: ".ui-natedit-h3", paragraphLabel: true },
+      h4Markup: { block: "h4", toolbar: ".ui-natedit-h4", paragraphLabel: true },
+      h5Markup: { block: "h5", toolbar: ".ui-natedit-h5", paragraphLabel: true },
+      h6Markup: { block: "h6", toolbar: ".ui-natedit-h6", paragraphLabel: true },
+
+      quoteMarkup: { block: "blockquote", wrapper: true, block_expand: true, toolbar: ".ui-natedit-quoted", paragraphLabel: true},
+      messageMarkup: { block: "div", wrapper: true, block_expand: true, attributes: { class: "foswikiMessage TMLhtml"} , toolbar: ".ui-natedit-message" , paragraphLabel: true},
+      successMessageMarkup: { block: "div", wrapper: true, block_expand: true, attributes: { class: "foswikiSuccessMessage TMLhtml"} , toolbar: ".ui-natedit-success-message", paragraphLabel: true },
+      infoMessageMarkup: { block: "div", wrapper: true, block_expand: true, attributes: {class: "foswikiInfoMessage TMLhtml"}, toolbar: ".ui-natedit-info-message", paragraphLabel: true },
+      warningMessageMarkup: { block: "div", wrapper: true, block_expand: true, attributes: {class: "foswikiWarningMessage TMLhtml" }, toolbar: ".ui-natedit-warning-message", paragraphLabel: true },
+      errorMessageMarkup: { block: "div", wrapper: true, block_expand: true, attributes: {class: "foswikiErrorMessage TMLhtml" }, toolbar: ".ui-natedit-error-message", paragraphLabel: true },
+
+      verbatimMarkup: { block: "pre", classes: "TMLverbatim", toolbar: ".ui-natedit-verbatim", paragraphLabel: true },
+      stickyMarkup: { block: "div", classes: "WYSIWYG_STICKY", toolbar: ".ui-natedit-sticky", paragraphLabel: true },
+      literalMarkup: { block: "div", classes: "WYSIWYG_LITERAL", toolbar: ".ui-natedit-literal", paragraphLabel: true },
+
       boldMarkup: { inline: "b", toolbar: ".ui-natedit-bold" },
       italicMarkup: { inline: "i", toolbar: ".ui-natedit-italic" },
-      monoMarkup: { inline: "code", toolbar: ".ui-natedit-mono" },
+      monoMarkup: { inline: "span", classes: "WYSIWYG_TT", toolbar: ".ui-natedit-mono" },
       underlineMarkup: { inline: "u", toolbar: ".ui-natedit-underline"  },
-      strikeMarkup: { inline: "s", toolbar: ".ui-natedit-strike"  },
-      superscriptMarkup: { inline: "sup", toolbar: ".ui-natedit-super" },
-      subscriptMarkup: { inline: "sub", toolbar: ".ui-natedit-sub" },
+      strikeMarkup: { inline: "del", wrapper: true, toolbar: ".ui-natedit-strike"  },
+      superscriptMarkup: { inline: "sup", wrapper: true, toolbar: ".ui-natedit-super" },
+      subscriptMarkup: { inline: "sub", wrapper: true, toolbar: ".ui-natedit-sub" },
       leftMarkup: { block: "p", attributes: { "align": "left" }, toolbar: ".ui-natedit-left" },
       rightMarkup: { block: "p", attributes: { "align": "right" }, toolbar: ".ui-natedit-right" },
       centerMarkup: { block: "p", attributes: { "align": "center" }, toolbar: ".ui-natedit-center" },
       justifyMarkup: { block: "p", attributes: { "align": "justify" }, toolbar: ".ui-natedit-justify" },
-      verbatimMarkup: { block: "pre", classes: "TMLverbatim", toolbar: ".ui-natedit-verbatim" }
+
+      foregroundMarkup: {inline: "span", attributes: {class: "WYSIWYG_COLOR %color"} },
     },
     textpattern_patterns: [
       {start: '==', end: '==', format: ['boldMarkup','monoMarkup'] },
@@ -1211,7 +1505,9 @@ TinyMCEEngine.defaults = {
       {start: '---+++++ ', format: 'h5Markup'},
       {start: '---++++++ ', format: 'h6Markup'},
       {start: '1 ', cmd: 'InsertOrderedList'}, // SMELL: does not work with leading whitespaces
-      {start: '* ', cmd: 'InsertUnorderedList'} 
+      {start: '* ', cmd: 'InsertUnorderedList'},
+      //{start: '[[', end: ']]', cmd: "createLink"}
+
     ]
   }
 };

@@ -29,7 +29,7 @@ sub handle {
   my ($session, $plugin, $verb, $response) = @_;
 
    # validate request
-  unless (_isValidRequest($session)) {
+  unless(_isValidRequest($session)) {
     my $msg = $session->i18n->maketext("[_1] has received a suspicious change request from your browser.", "Foswiki");
     $msg .= $session->i18n->maketext("Press OK to confirm that this change was intentional.");
     $msg .= $session->i18n->maketext("Press Cancel otherwise.");
@@ -127,7 +127,7 @@ sub handle {
   # clear redirect enforced by a checkpoint action
   # preserve redirect location in another header to be performed client side 
 
-  $redirect = $response->getHeader("Location") if !defined($redirect) || $redirect eq '' || $redirect ne 'none';
+  $redirect = $response->getHeader("Location") if !defined($redirect) || $redirect eq '';
   $response->deleteHeader("Location", "Status");
   $response->pushHeader('X-Location', $redirect) if $redirect && $redirect ne 'none';
   $response->status($status);
@@ -143,8 +143,10 @@ sub handle {
 }
 
 sub processUploads {
-  my ($session, $response) = @_;
+  my ($web, $topic, $meta, $session, $response) = @_;
 
+  $web ||= $session->{webName};
+  $topic ||= $session->{topicName};
   $session ||= $Foswiki::Plugins::SESSION;
   $response ||= $session->{response};
 
@@ -152,9 +154,6 @@ sub processUploads {
   my $uploads = $request->uploads();
   return unless $uploads;
   return unless scalar(keys %$uploads);
-
-  my $web = $session->{webName};
-  my $topic = $session->{topicName};
 
   if ($topic =~ /AUTOINC|XXXXXXXXXX/) {
     # get expanded topic from redirect url
@@ -167,15 +166,13 @@ sub processUploads {
   }
   return unless Foswiki::Func::topicExists($web, $topic);
 
-  my ($meta, $text) = Foswiki::Func::readTopic($web, $topic);
-
-  my $wikiName = Foswiki::Func::getWikiName();
-  return
-    unless Foswiki::Func::checkAccessPermission("CHANGE", $wikiName , $text, $topic, $web, $meta);
+  ($meta) = Foswiki::Func::readTopic($web, $topic) unless defined $meta;
+  return unless $meta->haveAccess("CHANGE");
 
   my $maxSize = Foswiki::Func::getPreferencesValue('ATTACHFILESIZELIMIT') // "";
   $maxSize = 0 unless ($maxSize =~ /([0-9]+)/);
 
+  $request->uploads({}); # consume them
   foreach my $fileName (keys %$uploads) {
     my $upload = $uploads->{$fileName};
 
@@ -216,17 +213,14 @@ sub processUploads {
 
     my $error;
     try {
-      $error = Foswiki::Func::saveAttachment(
-        $web, $topic,
-        $fileName,
-        {
+      $meta->attach(
+          name => $fileName,
           comment => $fileComment,
           hide => $fileHide,
           stream => $stream,
           filesize => $fileSize,
           filedate => $fileDate,
           tmpFilename => $tmpFileName,
-        }
       );
     } catch Error::Simple with {
       $error = shift->{-text};

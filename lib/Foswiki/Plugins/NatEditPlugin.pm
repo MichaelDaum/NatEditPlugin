@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2025 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2007-2026 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -31,7 +31,7 @@ BEGIN {
     }
 }
 
-our $VERSION           = '9.996';
+our $VERSION           = '9.9991';
 our $RELEASE           = '%$RELEASE%';
 our $NO_PREFS_IN_TOPIC = 1;
 our $SHORTDESCRIPTION  = 'A Wikiwyg Editor';
@@ -42,6 +42,11 @@ our $tmlConverter;
 our $resourceLoader;
 
 sub initPlugin {
+
+    if ($Foswiki::cfg{Plugins}{TinyMCEPlugin}{Enabled}) {
+      Foswiki::Func::writeWarning("Forcing TinyMCEPlugin off, please fix it in your configuration.");
+      $Foswiki::cfg{Plugins}{TinyMCEPlugin}{Enabled} = 0;
+    }
 
     Foswiki::Plugins::JQueryPlugin::registerPlugin( "NatEdit",
         "Foswiki::Plugins::NatEditPlugin::NATEDIT" );
@@ -248,13 +253,13 @@ sub beforeSaveHandler {
 sub afterSaveHandler {
     my ( $text, $topic, $web, $error, $meta ) = @_;
 
-    #print STDERR "called afterSaveHandler\n";
+    #print STDERR "called afterSaveHandler(web=$web, topic=$topic)\n";
     return if $error;
 
     getHtmlConverter->saveQueuedAttachments($meta);
 
     require Foswiki::Plugins::NatEditPlugin::RestSave;
-    Foswiki::Plugins::NatEditPlugin::RestSave::processUploads();
+    Foswiki::Plugins::NatEditPlugin::RestSave::processUploads($web, $topic, $meta);
 }
 
 # make sure there's a new nonce for consecutive save+continues

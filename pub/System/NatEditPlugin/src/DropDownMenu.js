@@ -1,7 +1,7 @@
 /*
  * DropDownMenu for NatEdit
  *
- * Copyright (c) 2021-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2021-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -74,7 +74,10 @@ DropDownMenu.prototype.select = function(item) {
   self.list.children().removeClass(self.opts.activeClassName);
 
   item.addClass(self.opts.activeClassName);
-  item[0].scrollIntoView();
+  item[0].scrollIntoView({
+    "container": "nearest", 
+    "inline": "nearest",
+  });
 
   return item;
 };

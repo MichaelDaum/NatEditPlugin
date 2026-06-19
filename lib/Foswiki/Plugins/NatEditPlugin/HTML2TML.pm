@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2025 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2022-2026 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -105,77 +105,94 @@ sub convertImage {
 
   #print STDERR "called convertImage()\n";
 
-  if (Foswiki::Func::getContext()->{ImagePluginEnabled}) {
-    my $src = $img->{attrs}{src};
-    my $web = $img->{attrs}{"data-orig-web"} || $img->{attrs}{"data-web"} || $img->{context}{web} || $this->{session}{webName};
-    my $topic = $img->{attrs}{"data-orig-topic"} || $img->{attrs}{"data-topic"} || $img->{context}{topic} || $this->{session}{topicName};
-    my $file = $img->{attrs}{"data-orig-file"} || $img->{attrs}{"data-file"};
-    my $width = $img->{attrs}{"data-orig-width"} || $img->{attrs}{width};
-    my $height = $img->{attrs}{"data-orig-height"} || $img->{attrs}{height};
-    my $href = $img->{attrs}{"data-href"};# || $img->{attrs}{href};
-    my $type = $img->{attrs}{"data-orig-type"} || $img->{attrs}{"data-type"};
-    $type = "" unless $type && $type ne "none";
+  return unless Foswiki::Func::getContext()->{ImagePluginEnabled};
 
-    $src = Encode::encode_utf8($src);
-    $src = Foswiki::urlDecode($src);
+  my $defaultType = Foswiki::Func::getPreferencesValue("NATEDIT_IMAGEFORMAT") // '';
+  my $defaultAlign = Foswiki::Func::getPreferencesValue("NATEDIT_IMAGEALIGN") // '';
+  my $defaultClass = Foswiki::Func::getPreferencesValue("NATEDIT_IMAGECLAS") // '';
 
-    my $restUrlPath = $this->getScriptUrlPath("ImagePlugin", "process", "rest");
-    if ($file) {
-      if ($src =~ /^data:(.*)$/) {
-        $this->queueAttachment($web, $topic, $img->{context}{meta}, $1, $file);
-      }
-    } elsif ($src =~ /^(?:%ATTACHURL(?:PATH)?%\/)(.*?)$/) {
-      $file = $1;
-    } elsif ($src =~ /(?:(?:%PUBURL(?:PATH)?%|\/pub)\/)(.*)\/(.*?)\/(.*?)$/) {
-      $web = $1;
-      $topic = $2;
-      $file = $3;
-      return if $file =~ /\.svgz?$/;# don't convert svgs
-    } elsif ($src =~ /^data:(.*)$/) {
-      $file = $this->queueAttachment($web, $topic, $img->{context}{meta}, $1);
-    } elsif ($src =~ /^(?:$restUrlPath|(?:%SCRIPTURL(?:PATH)?%\/rest\/ImagePlugin)\/process)\?topic=(.*?);file=(.*)$/) {
-      $file = $2;
-    } else {
-      $file = $src;
+  my $src = $img->{attrs}{src};
+  my $web = $img->{attrs}{"data-orig-web"} || $img->{attrs}{"data-web"} || $img->{context}{web} || $this->{session}{webName};
+  my $topic = $img->{attrs}{"data-orig-topic"} || $img->{attrs}{"data-topic"} || $img->{context}{topic} || $this->{session}{topicName};
+  my $file = $img->{attrs}{"data-orig-file"} || $img->{attrs}{"data-file"};
+
+  my $width = $img->{attrs}{width};
+  my $height = $img->{attrs}{height};
+  my $size = $img->{attrs}{"data-size"} || '';
+  my $zoom = $img->{attrs}{"data-zoom"} || '';
+  my $output = $img->{attrs}{"data-output"} || '';
+  my $ratio = $img->{attrs}{"data-ratio"} || '';
+  my $filter = $img->{attrs}{"data-filter"} || '';
+
+  my $href = $img->{attrs}{"data-href"};# || $img->{attrs}{href};
+  my $type = $img->{attrs}{"data-orig-type"} || $img->{attrs}{"data-type"};
+  $type = $defaultType unless $type && $type ne "none";
+
+  $src = Encode::encode_utf8($src);
+  $src = Foswiki::urlDecode($src);
+
+  my $restUrlPath = $this->getScriptUrlPath("ImagePlugin", "process", "rest");
+  if ($file) {
+    if ($src =~ /^data:(.*)$/) {
+      $this->queueAttachment($web, $topic, $img->{context}{meta}, $1, $file);
     }
-
-  #print STDERR "web=$web, topic=$topic, file=$file\n";
-
-    $web = "" if $web eq $this->{session}{webName};
-    $topic = "" if $topic eq $this->{session}{topicName};
-
-    my $class = $img->{attrs}{class} // '';
-    $class =~ s/\bimage(Simple|Float|Thumb|Frame|Plain)(_left|_right|_none)?\b//g;
-    $class =~ s/^\s+//;
-    $class =~ s/\s+$//;
-
-
-    my $align = $img->{attrs}{"align"};
-    $align = "" unless $align && $align ne "none";
-
-    my @params = ();
-    push @params, "\"$file\"";
-
-    if ($topic) {
-      if ($web) {
-        push @params, "topic=\"$web.$topic\"";
-      } else {
-        push @params, "topic=\"$topic\"";
-      }
-    }
-
-    push @params, 'caption="' . $img->{attrs}{"data-caption"} . '"' if $img->{attrs}{"data-caption"};
-    push @params, "width=\"$width\"" if defined $width;
-    push @params, "height=\"$height\"" if defined $height;
-    push @params, "class=\"$class\"" if $class;
-    push @params, "align=\"$align\"" if $align;
-    push @params, "type=\"$type\"" if $type && $type ne 'simple';
-    push @params, "href=\"$href\"" if $href;
-
-    return "%IMAGE{" . join(" ", @params) . "}%";
+  } elsif ($src =~ /^(?:%ATTACHURL(?:PATH)?%\/)(.*?)$/) {
+    $file = $1;
+  } elsif ($src =~ /(?:(?:%PUBURL(?:PATH)?%|\/pub)\/)(.*)\/(.*?)\/(.*?)$/) {
+    $web = $1;
+    $topic = $2;
+    $file = $3;
+    return if $file =~ /\.svgz?$/;# don't convert svgs
+  } elsif ($src =~ /^data:(.*)$/) {
+    $file = $this->queueAttachment($web, $topic, $img->{context}{meta}, $1);
+  } elsif ($src =~ /^(?:$restUrlPath|(?:%SCRIPTURL(?:PATH)?%\/rest\/ImagePlugin)\/process)\?topic=(.*?);file=(.*)$/) {
+    $file = $2;
+  } else {
+    $file = $src;
   }
 
-  return;
+  ($web, $topic) = Foswiki::Func::normalizeWebTopicName($web, $topic);
+
+  #print STDERR "web=$web, topic=$topic, file=$file baseWeb=$this->{session}{webName}, baseTopic=$this->{session}{topicName}\n";
+
+  $web = "" if $web eq $this->{session}{webName};
+  $topic = "" if $topic eq $this->{session}{topicName};
+
+  my $class = $img->{attrs}{class} // $defaultClass;
+  $class =~ s/\bimage(Simple|Float|Thumb|Frame|Plain)(_left|_right|_none|_center)?\b//g;
+  $class =~ s/^\s+//;
+  $class =~ s/\s+$//;
+
+  my $align = $img->{attrs}{"align"};
+  $align = $defaultAlign unless $align && $align ne "none";
+
+  my @params = ();
+  push @params, "\"$file\"";
+
+  if ($topic) {
+    if ($web) {
+      push @params, "topic=\"$web.$topic\"";
+    } else {
+      push @params, "topic=\"$topic\"";
+    }
+  }
+
+  push @params, 'caption="' . $img->{attrs}{"data-caption"} . '"' if $img->{attrs}{"data-caption"};
+
+  #push @params, "size=\"$size\"" if $size;
+  push @params, "width=\"$width\"" if defined $width;
+  push @params, "height=\"$height\"" if defined $height;
+  push @params, "zoom=\"$zoom\"" if $zoom && $zoom ne 'off';
+  push @params, "output=\"$output\"" if $output;
+  push @params, "ratio=\"$ratio\"" if $ratio && $ratio ne 'on';
+  push @params, "filter=\"$filter\"" if $filter;
+
+  push @params, "class=\"$class\"" if $class;
+  push @params, "align=\"$align\"" if $align;
+  push @params, "type=\"$type\"" if $type && $type ne 'simple';
+  push @params, "href=\"$href\"" if $href;
+
+  return "%IMAGE{" . join(" ", @params) . "}%";
 }
 
 sub queueAttachment {
@@ -198,7 +215,7 @@ sub queueAttachment {
 
     my $fh = File::Temp->new();
     binmode($fh);
-    $fileName ||= $fh->filename;
+    my $tmpFile = $fh->filename;
 
     my $offset = 0;
     my $size = do { use bytes; length $data };
@@ -212,9 +229,9 @@ sub queueAttachment {
 
     # queue blobs to be attached later on
     $this->{queuedAttachments}{$attachment} = {
-      name => $fileName,
+      name => $fileName || $attachment,
       fh => $fh,
-      file => $fileName,
+      file => $tmpFile,
       filesize => $size,
     };
   }
@@ -231,15 +248,16 @@ sub saveQueuedAttachments {
   ($meta) = Foswiki::Func::readTopic($this->{session}{webName}, $this->{session}{topicName})
     unless $meta;
 
-  my $web = $meta->web;
-  my $topic = $meta->topic;
-  return unless Foswiki::Func::topicExists($web, $topic);
+  return unless $meta->existsInStore();
 
   my $attachments = $this->{queuedAttachments};
   undef $this->{queuedAttachments};
 
   foreach my $item (values %$attachments) {
-  #print STDERR "attaching $item->{name} to ".$meta->getPath()."\n";
+    next if $meta->hasAttachment($item->{name});
+
+    #print STDERR "attaching $item->{name} to ".$meta->getPath()."\n";
+
     $meta->attach(
       name => $item->{name},
       file => $item->{file},

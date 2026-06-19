@@ -1,7 +1,7 @@
 /*
  * Utils for NatEdit
  *
- * Copyright (c) 2021-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2021-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
@@ -16,47 +16,55 @@ function _last(array) {
     return array[array.length - 1];
 }
 
-/* delayed execution of accumulating calls */
-function _debounce(callback, wait) {
-  return function(...args) {
-    clearTimeout(_debounce.timeout);
-    _debounce.timeout = setTimeout(function() {
-      callback(...args);
-    }, wait);
-  };
-}
-
 // reduce the line length to max len chars, wrap the text accordingly
 function _wrapText(text, len) {
   var lines = [], 
     buf = "", 
     ch,
-    newLine = false;
+    isNewline = false,
+    isSpace = false;
+    listRegExp = new RegExp(/^(( {3})* {3})(\* |\d+ |\d+\. \|\$ |: )/),
+    listPrefix = "",
+    listIndent = "";
 
   len = len || 80;
-  text = text.trim();
+
+  if (listRegExp.test(text)) {
+    listPrefix = RegExp.$1; 
+    listIndent = " ".repeat(RegExp.$3.length);
+  }
 
   while(text !== '') {
     ch = text[0];
 
     if (ch === "\n") {
 
-      if (newLine) {
+      if (isNewline) {
         lines.push(buf.trim());
         lines.push(""); // add an empty line
         buf = "";
-        newLine = false;
+        isNewline = false;
         text = text.substr(1);
         continue;
       } 
 
-      newLine = true;
+      isNewline = true;
       ch = " ";
     } else {
-      newLine = false;
+      isNewline = false;
     }
 
-    if (buf.length >= len && ch === " ") {
+    if (ch === " ") {
+      if (isSpace) {
+        ch = "";
+      } else {
+        isSpace = true;
+      }
+    } else {
+      isSpace = false;
+    }
+
+    if (buf.length >= len && isSpace) {
       lines.push(buf.trim());
       buf = "";
     } else {
@@ -65,11 +73,12 @@ function _wrapText(text, len) {
 
     text = text.substr(1);
   }
+
   if (buf !== "") {
     lines.push(buf.trim());
   }
 
-  return lines.join("\n");
+  return listPrefix+lines.join("\n"+listPrefix+listIndent);
 }
 
 // compare two positions
@@ -110,22 +119,19 @@ function _clearClipboardContent(text) {
     }
 
     const attrs = [
-      "align",
+      "align", // sometimes there's a bogus align=left in there
       "border",
       "cellpadding",
       "cellspacing",
-      "class",
-      "data\-.*?",
       "dir",
-      "height",
       "id",
       "itemprop",
       "name",
       "rel",
+      "class", // required to convert html tables to tml tables
       "style",
       "tabindex",
       "target",
-      "title",
       "valign",
       "width",
     ];
@@ -143,15 +149,19 @@ function _clearClipboardContent(text) {
       "time",
       "section",
       "meta",
+      "o:p",
+      "o",
     ];
 
-    _clearClipboardContent.attrsRegex = new RegExp("("+attrs.join("|")+")=[\"'].*?['\"]", "gis"),
+    _clearClipboardContent.attrsRegex = new RegExp('(' + attrs.join('|') + ')=(["\']).*?\\2', 'gis'),
     _clearClipboardContent.tagsRegex = new RegExp("</?("+tags.join("|")+").*?>", "gis");
     _clearClipboardContent.doubleBrRegex = new RegExp("<br */?>\s*<br */?>", "gis");
     _clearClipboardContent.finalBrRegex = new RegExp("<br */?>$", "i");
     _clearClipboardContent.preRegex = new RegExp("^ *<pre *>(.*)</pre> *$", "si");
     _clearClipboardContent.strongRegex = new RegExp("<strong .*?>(.*)</strong>", "si");
     _clearClipboardContent.xmlHeaderRegex = new RegExp("<!\\-\\-\\?xml.*?\\?\\-\\->", "i");
+    _clearClipboardContent.commentsRegex = new RegExp("<!\\-\\-.*?\\-\\->", "gs");
+    _clearClipboardContent.conditionalRegex = new RegExp("<!\\[if .*?\\]>|<!\\[endif\\]>", "gi");
     _clearClipboardContent.emptySpansRegex = new RegExp("<span [^>]*>(&nbsp;|\\s)*</span>", "gis");
   }
 
@@ -167,9 +177,12 @@ function _clearClipboardContent(text) {
     .replace(_clearClipboardContent.strongRegex, "<b>$1</b>") // rewrite strong to b
     .replace(_clearClipboardContent.xmlHeaderRegex, "") // xml headers sometimes are part of a text/html blob
     .replace(_clearClipboardContent.emptySpansRegex, "") // remove bogus spans
+    .replace(_clearClipboardContent.commentsRegex, "") // remove html comments
+    .replace(_clearClipboardContent.conditionalRegex, "") // remove conditional html comments
     .replace(_clearClipboardContent.finalBrRegex, ""); // remove br at end of string
 
-  //console.log("after='"+text+"'");
+  //console.log("after ='"+text+"'");
 
   return text;
 }
+

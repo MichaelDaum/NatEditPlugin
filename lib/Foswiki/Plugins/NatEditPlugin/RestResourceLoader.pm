@@ -1,4 +1,4 @@
-# Copyright (C) 2025 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2025-2026 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -55,7 +55,7 @@ sub restGetDocumentTitle {
 
   my $content = $response->decoded_content();
 
-  if ($content =~ /<title>\s*(.*?)\s*<\/title>/) {
+  if ($content =~ /<title[^>]*>\s*(.*?)\s*<\/title>/) {
     return Foswiki::entityDecode($1);
   }
 

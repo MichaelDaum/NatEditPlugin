@@ -163,7 +163,7 @@
             clearTimeout(this.searchTimeout);
             this.searchTimeout = setTimeout($.proxy(function () {
                 // Added delimiter parameter as last argument for backwards compatibility.
-                var items = $.isFunction(this.options.source) ? this.options.source(this.query, $.proxy(this.process, this), this.options.delimiter) : this.options.source;
+                var items = typeof(this.options.source) === "function" ? this.options.source(this.query, $.proxy(this.process, this), this.options.delimiter) : this.options.source;
                 if (items) {
                     this.process(items);
                 }
@@ -344,7 +344,7 @@
 
             // If the delimiter is undefined set default value to ['@'].
             // If the delimiter is a string value convert it to an array. (backwards compatibility)
-            autoCompleteData.delimiter = (autoCompleteData.delimiter !== undefined) ? !$.isArray(autoCompleteData.delimiter) ? [autoCompleteData.delimiter] : autoCompleteData.delimiter : ['@'];
+            autoCompleteData.delimiter = (autoCompleteData.delimiter !== undefined) ? !Array.isArray(autoCompleteData.delimiter) ? [autoCompleteData.delimiter] : autoCompleteData.delimiter : ['@'];
 
             function prevCharIsSpace() {
                 var start = ed.selection.getRng(true).startOffset,

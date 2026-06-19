@@ -1,13 +1,13 @@
 /*
  * NatEdit Shell
  *
- * Copyright (c) 2008-2025 Michael Daum http://michaeldaumconsulting.com
+ * Copyright (c) 2008-2026 Michael Daum http://michaeldaumconsulting.com
  *
  * Licensed under the GPL license http://www.gnu.org/licenses/gpl.html
  *
  */
 
-/*global StrikeOne:false DropDownMenu:false _debounce:false _escapeRegExp:false Emojis:false */
+/*global StrikeOne:false DropDownMenu:false _escapeRegExp:false Emojis:false */
 
 "use strict";
 (function($) {
@@ -25,7 +25,7 @@ $.NatEditor = function(txtarea, opts) {
   self.form = $(txtarea.form);
   self.formManager = self.form.formManager().data("formManager");
 
-  self.opts = $.extend({
+  self.opts = $.extend(true, {
     name: self.txtarea.attr("name")
   }, opts, self.txtarea.data());
 
@@ -35,10 +35,11 @@ $.NatEditor = function(txtarea, opts) {
   self.topicTitleCache = {};
   self.engines = {};
 
-  self.log("creating new natedit",self.opts);
+  self.log("creating new natedit");
 
   self.container = self.txtarea.wrap('<div class="ui-natedit"></div>').parent();
   self.container.attr("id", self.id);
+  self.txtarea.attr("id", "txtarea_"+self.id);
   self.container.data("natedit", self);
   self.textFormat = $(`<input type='hidden' name='_text_format_${self.opts.name}' />`).prependTo(self.form);
 
@@ -46,28 +47,31 @@ $.NatEditor = function(txtarea, opts) {
     self.log("not creating engine for hidden editor");
     // just init the shell, not any engine
     self.container.addClass("foswikiHidden");
-    self.createEngine().then(function(engine) {
+    self.createEngine().done(function(engine) {
       return self.attachEngine(engine);
-    }).then(function() {
+    }).done(function() {
       self.txtarea.trigger("inited");
       self.isInited = true;
-      self.initGui();
       self.container.css("opacity", 1);
+    }).fail(function() {
+      console.error("failed to create engine");
     });
   } else {
     // init shell and engine
     self.txtarea.addClass("ui-widget");
     self.container.css("opacity", 0);
-    $.when(
-      self.preloadTemplate(self.opts.toolbarTemplate, self.opts.toolbar),
-      self.createEngine()
-    ).then(function(tmpl, engine) {
+    self.preloadTemplate(self.opts.toolbarTemplate, self.opts.toolbar)
+    .then(function() {
+      return self.createEngine();
+    }).then(function(engine) {
       return self.attachEngine(engine);
     }).then(function() {
       self.txtarea.trigger("inited");
       self.isInited = true;
       self.initGui();
       self.container.css("opacity", 1);
+    }).fail(function() {
+      console.error("failed to create engine");
     });
   }
 
@@ -141,6 +145,7 @@ $.NatEditor.prototype.createEngine = function(id) {
     dfd = $.Deferred();
 
   id = id || self.opts.engine || 'CodemirrorEngine';
+
   self.log("creating engine ",id);
 
   if (self.engines[id]) {
@@ -152,8 +157,8 @@ $.NatEditor.prototype.createEngine = function(id) {
       dfd.resolve(self.engines[id]);
     } else {
       url = self.opts.pubUrl+"/"+self.opts.systemWeb+"/NatEditPlugin/build/"+id+".js";
-      console.log("loading engine source");
-      self.getScript(url).then(function() {
+      //console.log("loading engine source");
+      self.loadScript(url).then(function() {
         if ($.NatEditor.factory[id]) {
           self.engines[id] = $.NatEditor.factory[id].createEngine(self);
           dfd.resolve(self.engines[id]);
@@ -167,6 +172,57 @@ $.NatEditor.prototype.createEngine = function(id) {
 
   return dfd.promise();
 };
+
+/**
+ * load the given script resource into the page by injecting a <script> element into the head
+ * @param url: src parameter of the script element
+ *
+ * Note that multiple calls to loadScript() with the same url will result in only one script
+ * element being created. The function returns a promis that will be resolved when the script
+ * has been loaded, or rejected when the script couldn't be loaded.
+ */
+$.NatEditor.prototype.loadScript = function(url) {
+  var dfd, script;
+
+  url = url + `?version=${$.NatEditor.version}`;
+
+  $(`script[src="${url}"]`).each(function() {
+    dfd = this._dfd;
+    return false;
+  });
+
+  if (dfd) {
+    //console.warn("url already loaded",url);
+    return dfd.promise();
+  }
+
+  dfd = $.Deferred();
+
+  script = document.createElement('script');
+  script.async = true;
+  script.src = url;
+  script._dfd = dfd;
+
+  script.addEventListener('load', function() { 
+    //console.warn("finished loading",url);
+    dfd.resolve();
+  }); 
+
+  script.addEventListener('error', function() {
+    console.warn("rejected loading",url);
+    dfd.reject('Error loading script '+url);
+  });
+
+  script.addEventListener('abort', function() { 
+    console.warn("abort loading",url);
+    dfd.reject('Script loading aborted.');
+  });
+
+  document.head.appendChild(script);
+
+  return dfd.promise();
+};
+
 
 /*************************************************************************
  * attach the given engine, detaches any previous one
@@ -210,37 +266,6 @@ $.NatEditor.prototype.getTopicTitle = function(topic) {
       dfd.reject("failed to get topic title for ",topic);
     });;
   }
-
-  return dfd.promise();
-};
-
-
-/*************************************************************************
- * get a script from the backend 
- */
-$.NatEditor.prototype.getScript = function(url) {
-  var /*self = this,*/
-      dfd = $.Deferred(),
-      script;
-
-  script = document.createElement('script');
-  script.async = true;
-  script.src = url + `?version=${$.NatEditor.version}`;
-
-  script.addEventListener('load', function() { 
-    //self.log("loaded",url);
-    dfd.resolve();
-  }); 
-
-  script.addEventListener('error', function() {
-    dfd.reject('Error loading script '+url);
-  });
-
-  script.addEventListener('abort', function() { 
-    dfd.reject('Script loading aborted.');
-  });
-
-  document.head.appendChild(script);
 
   return dfd.promise();
 };
@@ -309,6 +334,7 @@ $.NatEditor.prototype.initToolbar = function() {
     web: webTopic[0],
     topic: webTopic[1],
   }));
+  self._origParagraphLabel = self.toolbar.find(".ui-natedit-paragraph-label").text();
 
   if (self.opts.showFullscreen) {
     self.toolbar.find(".ui-natedit-fullscreen-button").show();
@@ -322,8 +348,8 @@ $.NatEditor.prototype.initToolbar = function() {
 
   self.container.prepend(self.toolbar);
 
-  // buttonsets
-  self.toolbar.find(".ui-natedit-buttons").buttonset({onlyVisible:false}).on("click", function(ev) {
+  // control groups
+  self.toolbar.find(".ui-natedit-buttons").controlgroup({onlyVisible:false}).on("click", function(ev) {
     self.handleToolbarAction(ev, $(ev.target).closest("a:not(.ui-natedit-menu-button)"));
     return false;
   });
@@ -604,6 +630,7 @@ $.NatEditor.prototype.hideMenus = function() {
         $button = $($this.data("menu-button"));
 
     $button.removeClass("ui-state-highlight");
+    $this.menu("collapseAll", null, true);
     $this.hide().data("state", false);
   });
 };
@@ -1013,6 +1040,9 @@ $.NatEditor.prototype.dialog = function(opts) {
   }
 
   opts = $.extend(true, {}, defaults, opts);
+  if(/AUTOINC\d+$/.test(opts.data.topic)) {
+    opts.data.topic = "";
+  }
  
   if (opts.event !== undefined) {
     opts.position = {
@@ -1022,7 +1052,6 @@ $.NatEditor.prototype.dialog = function(opts) {
     };
   }
 
-  self.formManager.hideMessages();
   $.blockUI({ message: '' });
   return $.Deferred(function(dfd) {
     $.loadTemplate({
@@ -1133,15 +1162,6 @@ $.NatEditor.prototype.handleInsertTable = function(elem) {
 };
 
 /*****************************************************************************
- * handler for inserting a clear
- */
-$.NatEditor.prototype.handleInsertClear = function() {
-  var self = this;
-
-  return self.engine.insertClear();
-};
-
-/*****************************************************************************
   * handler for the insert link dialog
   */
 $.NatEditor.prototype.handleInsertLink = function(elem) {
@@ -1235,13 +1255,13 @@ $.NatEditor.prototype.handleInsertAttachment = function(elem) {
 /*****************************************************************************
  * init the color dialog
  */
-$.NatEditor.prototype.initColorDialog = function(elem/*, data*/) {
+$.NatEditor.prototype.initColorDialog = function(elem) {
   var self = this,
       $dialog = $(elem),
       /*color = self.engine.getSelection(),*/
       inputField = $dialog.find("input[name='color']")[0];
 
-  self.fb = $.farbtastic($dialog.find(".ui-natedit-colorpicker")).setColor("#fafafa").linkTo(inputField);
+  self.fb = $.farbtastic($dialog.find(".ui-natedit-colorpicker")).linkTo(inputField);
 
   return false;
 };
@@ -1410,6 +1430,7 @@ $.NatEditor.prototype.handleSwitchEditor = function(/*elem*/) {
 
   self.log("called handleSwitchEditor");
   self.log("current engine=",self.engine.id, "otherEngine=", otherEngine);
+  self.toolbar.find(".ui-natedit-paragraph-label").text(self._origParagraphLabel);
 
   dfd.promise().then(function(result) {
 
@@ -1496,15 +1517,16 @@ $.NatEditor.prototype.handleSortDescending = function(/*ev, elem*/) {
 };
 
 /*****************************************************************************
-  * init the link dialog 
+  * init a dialog 
   */
-$.NatEditor.prototype.initLinkDialog = function(dialogElem) {
+$.NatEditor.prototype.initDialog = function(dialogElem, opts) {
   var self = this,
       $dialog = $(dialogElem),
       xhr, requestIndex = 0,
       $fileSelect = $dialog.find(".natEditAttachmentSelector"),
       $fileUpload = $dialog.find(".natEditFileUpload"),
-      webTopic = self.formManager.getWebTopic();
+      webTopic = self.formManager.getWebTopic(),
+      geometryOfFile = {};
 
   // get the container of the current part of the dialog
   function getContainer() {
@@ -1536,8 +1558,13 @@ $.NatEditor.prototype.initLinkDialog = function(dialogElem) {
 
       json.forEach(function(elem) {
         files.add(elem.name);
+        geometryOfFile[elem.name] = {
+          width: elem.width,
+          height: elem.height,
+        };
       });
 
+      // gather newFiles
       self.form.find(".newFile").each(function() {
         files.add(this.files[0].name);
       });
@@ -1550,8 +1577,8 @@ $.NatEditor.prototype.initLinkDialog = function(dialogElem) {
 
       options.push("<option></option>");
       files.forEach(function(file) {
-        if (filterRegEx.test(file)) {
-          options.push("<option"+(selection === file?" selected='selected'":"")+">"+file+"</option>");
+        if (filterRegEx.test(file) || /^(blob|data):/.test(file)) {
+          options.push(`<option ${selection === file?" selected='selected'":""}>${file}</option>`);
         }
       });
       $fileSelect.html(options.join("")).trigger("reset");
@@ -1672,7 +1699,15 @@ $.NatEditor.prototype.initLinkDialog = function(dialogElem) {
     loadAttachments();
   });
 
-  $dialog.find(".getDocumentTitle").on("click", function() {
+  $fileSelect.on("change", function(data) {
+    var geom = geometryOfFile[data.val];
+    if (geom) {
+      $dialog.find("[name=width]").val(geom.width);
+      $dialog.find("[name=height]").val(geom.height);
+    }
+  });
+
+  $dialog.find(".ui-natedit-get-document-title").on("click", function() {
     var $button = $(this),
       $icon = $button.find(".foswikiIcon"),
       $container = getContainer(),
@@ -1710,7 +1745,7 @@ $.NatEditor.prototype.linkDialog = function(dialogData) {
   return self.dialog({
     name: "insertlink",
     open: function(elem) {
-      self.initLinkDialog(elem);
+      self.initLinkDialog(elem, dialogData);
     },
     data: dialogData,
     width: 800,
@@ -1755,10 +1790,10 @@ $.NatEditor.prototype.imageDialog = function(ev) {
   self.dialog({
     name: "insertimage",
     open: function(elem) {
-      self.initImageDialog(elem);
+      self.initImageDialog(elem, opts);
     },
     width: 550,
-    height: 440,
+    height: 450,
     data: opts,
     event: ev
   }).done(function(dialog) {
@@ -1769,12 +1804,149 @@ $.NatEditor.prototype.imageDialog = function(ev) {
 /*****************************************************************************
   * init the image dialog 
   */
-$.NatEditor.prototype.initImageDialog = function(elem) {
+$.NatEditor.prototype.initImageDialog = function(dialogElem, opts) {
+  var self = this,
+      $dialog = $(dialogElem),
+      origWidth = parseInt($dialog.find("[name=origWidth]").val(), 10),
+      origHeight = parseInt($dialog.find("[name=origHeight]").val(), 10);
+
+  self.log("initImageDialog opts=",opts);
+  self.initDialog(dialogElem, opts);
+
+  // move cursor to end of input field
+  function cursorToEnd(elem) {
+    var length = elem.val().length,
+      input = elem[0];
+    input.focus();
+    input.setSelectionRange(length, length);
+  }
+
+
+  // calc aspect ration of width and height elements
+  function calcRatio(elem) {
+    var otherElem, 
+      otherVal,
+      val = elem.val(),
+      doRation = $dialog.find("[name=ratio]").is(":checked"),
+      ratio;
+
+    if (doRation) {
+      if (elem.attr("name") === "width") {
+        otherElem = $dialog.find("[name=height]");
+        ratio = origHeight / origWidth;
+      } else {
+        otherElem = $dialog.find("[name=width]");
+        ratio = origWidth / origHeight;
+      }
+      otherVal = Math.floor(val * ratio + 0.5);
+      if (otherVal > 0) {
+        otherElem.val(otherVal);
+      }
+    }
+  }
+
+  // listen to width and height elements
+  $dialog.find("[name=width], [name=height]").on("keydown", function(ev) {
+    var elem = $(this),
+      val = parseInt(elem.val() || 0, 10);
+
+    if (ev.key === "ArrowUp") {
+      val++;
+
+      elem.val(val);
+      cursorToEnd(elem);
+
+      ev.preventDefault();
+      return false;
+    } 
+
+    if (ev.key === "ArrowDown") {
+      val--;
+      if (val < 0) {
+        val = 0;
+      }
+
+      elem.val(val);
+      cursorToEnd(elem);
+
+      ev.preventDefault();
+      return false;
+    } 
+
+    if (ev.key === "PageUp") {
+      val += 10;
+
+      elem.val(val);
+      cursorToEnd(elem);
+
+      ev.preventDefault();
+      return false;
+    } 
+
+    if (ev.key === "PageDown") {
+      val -= 10;
+      if (val < 0) {
+        val = 0;
+      }
+
+      elem.val(val);
+      cursorToEnd(elem);
+      
+      ev.preventDefault();
+      return false;
+    } 
+
+    if (!/[0-9]/.test(ev.key) && 
+        ev.key !== "Tab" && 
+        ev.key !== "Enter" &&
+        ev.key !== "ArrowLeft" && 
+        ev.key !== "ArrowRight" &&
+        ev.key !== "End" &&
+        ev.key !== "Backspace" &&
+        ev.key !== "Delete" &&
+        ev.key !== "Home") {
+
+      //console.log("blocking key",ev.key);
+      ev.preventDefault();
+      return false;
+    }
+
+  }).on("keyup", function(ev) {
+    var elem = $(this);
+    if (ev.key !== "Tab") {
+      calcRatio(elem);
+    }
+  }).on("wheel", function(ev) {
+    var elem = $(this),
+      val = parseInt(elem.val(), 10);
+
+    if (ev.originalEvent.deltaY < 0) {
+      if (ev.shiftKey) {
+        val += 10;
+      } else {
+        val++;
+      }
+    } else {
+      if (ev.shiftKey) {
+        val -= 10;
+      } else {
+        val--
+      }
+    }
+
+    elem.val(val);
+    calcRatio(elem);
+  });
+};
+
+/*****************************************************************************
+  * init the image dialog 
+  */
+$.NatEditor.prototype.initLinkDialog = function(elem, opts) {
   var self = this;
 
-  self.log("initImageDialog on dialog=",elem);
-
-  self.initLinkDialog(elem);
+  self.log("initLinkDialog on dialog=",elem);
+  self.initDialog(elem, opts);
 };
 
 /*****************************************************************************
@@ -1846,7 +2018,7 @@ $.NatEditor.prototype.parseUrl = function(text) {
 $.NatEditor.prototype.parseImageSelection = function() {
   var self = this;
 
-  return self.engine.getImageData();
+  return $.extend(true, {}, self.opts.imageDialogDefaults, self.engine.getImageData());
 };
 
 /*****************************************************************************
@@ -1880,7 +2052,7 @@ $.NatEditor.prototype.handleKeyDown = function(ev) {
     } else if (ev.key === "ArrowDown") {
       self.dropdown.selectNext();
       self.keyPressPrevented = true;
-    } else if (ev.key === "Enter") {
+    } else if (ev.key === "Enter" || ev.key == 'Tab') {
       self.dropdown.hide();
       self.dropdown.callback();
       self.keyPressPrevented = true;
@@ -1908,6 +2080,7 @@ $.NatEditor.prototype.handleKeyUp = function(ev) {
       prefs = foswiki.getPreference("NatEditPlugin");
 
   if (self.keyPressPrevented) {
+    self.keyPressPrevented = false; // only once
     return false;
   }
 
@@ -1916,9 +2089,9 @@ $.NatEditor.prototype.handleKeyUp = function(ev) {
       if (lineEnd.match(/^(\s|$)/) && completion.match.test(lineStart)) {
         found = true;
         prefix = RegExp.$1;
-        _debounce(function() {
+        foswiki.debounce(function() {
           self.engine.execCompletion(completion, prefix);
-        }, 300)();
+        }, "NatEdit.complete", 300)();
         break;
       }
     }
@@ -1929,6 +2102,8 @@ $.NatEditor.prototype.handleKeyUp = function(ev) {
   }
 
   //console.log("no match for '"+lineStart+"'");
+
+  return true;
 };
 
 /*************************************************************************
@@ -1995,13 +2170,20 @@ $.NatEditor.defaults = {
   h4Markup: ['---++++ ','Headline text',''],
   h5Markup: ['---+++++ ','Headline text',''],
   h6Markup: ['---++++++ ','Headline text',''],
+  messageMarkup: ['<div class="foswikiMessage">\n', "Insert message here", "\n</div>"],
+  successMessageMarkup: ['<div class="foswikiSuccessMessage">\n', "Insert success message here", "\n</div>"],
+  infoMessageMarkup: ['<div class="foswikiInfoMessage">\n', "Insert info message here", "\n</div>"],
+  warningMessageMarkup: ['<div class="foswikiWarningMessage">\n', "Insert warning message here", "\n</div>"],
+  errorMessageMarkup: ['<div class="foswikiErrorMessage">\n', "Insert error message here", "\n</div>"],
   verbatimMarkup: ['<verbatim>\n','Insert non-formatted text here','\n</verbatim>'],
+  stickyMarkup: ['<sticky>\n','Insert protected text here','\n</sticky>'],
+  literalMarkup: ['<literal>\n','Insert literal text here','\n</literal>'],
   quoteMarkup: ['<blockquote>\n','Insert quote here','\n</blockquote>'],
   boldMarkup: ['*', 'Bold text', '*'],
   italicMarkup: ['_', 'Italic text', '_'],
   monoMarkup: ['=', 'Monospace text', '='],
   underlineMarkup: ['<u>', 'Underlined text', '</u>'],
-  strikeMarkup: ['<s>', 'Strike through text', '</s>'],
+  strikeMarkup: ['<del>', 'Strike through text', '</del>'],
   superscriptMarkup: ['<sup>', 'superscript text', '</sup>'],
   subscriptMarkup: ['<sub>', 'subscript text', '</sub>'],
   colorMarkup: ['%COLOR%','colored text','%ENDCOLOR%'],
@@ -2026,6 +2208,11 @@ $.NatEditor.defaults = {
   engine: 'raw',
   showToolbar: true,
   showFullscreen: true,
+  imageDialogDefaults: {
+    classList: "",
+    type: "linked",
+    align: "none",
+  },
   completions: [{
     "id": "emoji",
     "context": "EmojiPluginEnabled",
@@ -2112,16 +2299,16 @@ $.fn.natedit = function(opts) {
 
   // defaults that need to be computed
   if (!initedDefaults) {
-    const natEditPlugin = foswiki.getPreference("NatEditPlugin");
+    const prefs = foswiki.getPreference("NatEditPlugin");
     initedDefaults = true;
-    $.NatEditor.version = natEditPlugin.version;
-    $.NatEditor.defaults.debug = natEditPlugin.debug;
+    $.NatEditor.version = prefs.version;
+    $.NatEditor.defaults.debug = prefs.debug;
     $.NatEditor.defaults.web = foswiki.getPreference("WEB");
     $.NatEditor.defaults.topic = foswiki.getPreference("TOPIC");
     $.NatEditor.defaults.systemWeb = foswiki.getPreference("SYSTEMWEB");
     $.NatEditor.defaults.pubUrl = foswiki.getPreference("PUBURL");
     $.NatEditor.defaults.signatureMarkup = ['-- ', '[['+foswiki.getPreference("WIKIUSERNAME")+']]', ' - '+foswiki.getPreference("SERVERTIME")];
-    $.NatEditor.defaults.engine = natEditPlugin.Engine;
+    $.NatEditor.defaults.engine = prefs.Engine;
     $.NatEditor.defaults.attachmentsUrl = foswiki.getScriptUrl("rest", "NatEditPlugin", "attachments");
     $.NatEditor.defaults.webUrl = foswiki.getScriptUrl("view", $.NatEditor.defaults.systemWeb, "JQueryAjaxHelper", {
       section: "web",

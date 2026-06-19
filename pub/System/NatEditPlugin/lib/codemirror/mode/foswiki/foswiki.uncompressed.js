@@ -231,6 +231,7 @@
       // lists
       if (state.indented) {
         if (state.indented % 3 === 0 && stream.pos === state.indented && stream.match(listRegExp, 1)) {
+          state.insideList = 1;
           styles.push("atom bullet");
         }
       }
@@ -289,6 +290,7 @@
           indented: 0, 
           headingLevel: 0,
           insideVerbatim: 0,
+          insideList: 0, 
           insideNoAutolink: false,
           macroName: undefined,
           colorTags: [],
@@ -301,6 +303,7 @@
           indented: state.indented,
           headingLevel: state.headingLevel,
           insideVerbatim: state.insideVerbatim,
+          insideList: state.insideList,
           insideNoAutolink: state.insideNoAutolink,
           macroName: state.macroName,
           colorTags: state.colorTags.slice(),
@@ -484,18 +487,18 @@
     for (var i = 0; i < ranges.length; i++) {
       var pos = ranges[i].head,
           eolState = cm.getStateAfter(pos.line),
-          inList = eolState.list !== false,
+          inList = eolState.insideList,
           line = cm.getLine(pos.line),
-          match = listIndentRegExp.exec(line);
+          match = listIndentRegExp.exec(line),
+          cursorBeforeBullet = /^(\s*)$/.test(line.slice(0, pos.ch));
 
       //console.log("line=",line,"match=",match,"ranges[i]=",ranges[i],"inList=",inList);
-
-      if (!ranges[i].empty() || !inList || !match) {
+      if (inList && cursorBeforeBullet) {
+        replacements[i] = "\n" + RegExp.$1;
+      } else if (!ranges[i].empty() || !inList || !match) {
         cm.execCommand("newlineAndIndent");
         return;
-      }
-
-      if (!match[4]) {
+      } else if (!match[4]) {
         cm.replaceRange("", {
           line: pos.line, ch: 0
         }, {
@@ -504,6 +507,43 @@
         replacements[i] = "";
       } else {
         replacements[i] = "\n" + match[1] + match[2] + match[3];
+      }
+    }
+
+    cm.replaceSelections(replacements);
+  };
+
+  CodeMirror.commands.newlineAndContinueList = function(cm) {
+    var ranges, replacements = [];
+
+    if (cm.getOption("disableInput")) {
+      return CodeMirror.Pass;
+    }
+
+    ranges = cm.listSelections();
+
+    for (var i = 0; i < ranges.length; i++) {
+      var pos = ranges[i].head,
+          eolState = cm.getStateAfter(pos.line),
+          inList = eolState.insideList,
+          line = cm.getLine(pos.line),
+          match = listIndentRegExp.exec(line),
+          cursorBeforeBullet = /^(\s*)$/.test(line.slice(0, pos.ch));
+
+      //console.log("line=",line,"match=",match,"ranges[i]=",ranges[i],"inList=",inList);
+      if (inList && cursorBeforeBullet) {
+        replacements[i] = "\n" + RegExp.$1;
+      } else if (!ranges[i].empty() || !inList || !match) {
+        replacements[i] = "\n";
+      } else if (!match[4]) {
+        cm.replaceRange("", {
+          line: pos.line, ch: 0
+        }, {
+          line: pos.line, ch: pos.ch + 1
+        });
+        replacements[i] = "";
+      } else {
+        replacements[i] = "\n" + match[1] + " " + match[3];
       }
     }
 

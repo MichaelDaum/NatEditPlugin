@@ -1,0 +1,10 @@
+--- plugin.js.orig	2026-02-18 19:01:44.009420215 +0100
++++ plugin.js	2026-02-18 18:59:34.953580415 +0100
+@@ -1332,6 +1332,7 @@
+ 
+     var setup = function (editor, patternsState) {
+       var charCodes = [
++        ' ',
+         ',',
+         '.',
+         ';',

@@ -78,11 +78,12 @@
 .cm-s-foswiki .CodeMirror-width .ui-resizable-se { bottom:0; right:0; }
 
 /* color scheme */
+.cm-s-foswiki .cm-sticky { background-color: var(--codemirror-sticky-background, #f6f6f6); }
 .cm-s-foswiki .cm-verbatim { background-color: var(--codemirror-verbatim-background, #f6f6f6); }
 .cm-s-foswiki .cm-keyword { color: var(--codemirror-keyword-foreground, #708); }
 .cm-s-foswiki .cm-atom { color: var(--codemirror-atom-foreground, blue); }
-.cm-s-foswiki .cm-number { color: var(--codemorrir-number, #164); }
-.cm-s-foswiki .cm-def { color: var(--codemorrir-def-color, #00f); }
+.cm-s-foswiki .cm-number { color: var(--codemirror-number, #164); }
+.cm-s-foswiki .cm-def { color: var(--codemirror-def-foreground, #00f); }
 
 .cm-s-foswiki .cm-variable { color: var(--codemirror-variable-foreground, black); }
 .cm-s-foswiki .cm-variable-2 { color: var(--codemirror-variable-2-foreground, #05a); }
@@ -110,7 +111,7 @@
   font-weight:bold; 
 }
 .cm-s-foswiki .cm-link { text-decoration:underline; }
-.cm-s-foswiki .cm-error { color: var(--codemorrir-error-foreground, #f00); }
+.cm-s-foswiki .cm-error { color: var(--codemirror-error-foreground, #f00); }
 
 .cm-s-foswiki .cm-mono {
   /*font-family:"Bitstream Vera Sans Mono", "Andale Mono", monospace;*/

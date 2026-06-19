@@ -650,7 +650,7 @@ pub/System/NatEditPlugin/lib/tinymce/tinymce.d.ts 0644
 pub/System/NatEditPlugin/lib/tinymce/tinymce.js 0644
 pub/System/NatEditPlugin/lib/tinymce/tinymce.min.js 0644
 pub/System/NatEditPlugin/Makefile 0644
-pub/System/NatEditPlugin/screenshot1.png 0644
+pub/System/NatEditPlugin/screenshot1.webp 0644
 pub/System/NatEditPlugin/src/Attrs.js 0644
 pub/System/NatEditPlugin/src/BaseEngine.js 0644
 pub/System/NatEditPlugin/src/CodemirrorEngine.js 0644

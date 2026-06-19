@@ -4,6 +4,7 @@
   background-color:#fff;
   transition: opacity 150ms;  
   clear:both;
+  text-align:left;
 }
 
 .ui-natedit-fullscreen .ui-natedit-widget {
@@ -143,6 +144,20 @@
   display: block;
   width: 0;
   z-index: 1;
+}
+
+.ui-natedit-paragraph-label {
+  display:inline-block;
+  width:6em;
+  text-overflow:ellipsis;
+  overflow:hidden;
+  text-align:left;
+  white-space:nowrap;
+  float:left;
+}
+
+.ui-natedit-paragraph-menu li {
+  white-space:nowrap;
 }
 
 /* dialogs */
@@ -364,5 +379,39 @@
 .ui-natedit-discard a:hover,
 .ui-natedit-discard a:active {
   color:inherit;
+  text-decoration:underline;
+}
+.ui-natedit .tox .tox-statusbar {
+  background:transparent;
+  border:0;
+}
+.ui-natedit .tox .tox-statusbar__resize-handle svg {
+  fill:var(--color-text, #fff);
+}
+.ui-natedit-toggle {
+  position:relative;
+  display:inline-block;
+}
+.ui-natedit-toggle input {
+  opacity:0;
+  width:0;
+  height:0;
+}
+.ui-natedit-toggle .ui-natedit-toggle-on,
+.ui-natedit-toggle .ui-natedit-toggle-off {
+  display:none;
+}
+.ui-natedit-toggle input[type="checkbox"]:checked + .ui-natedit-toggle-on,
+.ui-natedit-toggle input[type="checkbox"]:not(:checked) + i + .ui-natedit-toggle-off {
+  display:inline;
+}
+.ui-natedit-get-document-title {
+  text-decoration:none;
+  cursor:pointer;
+}
+.ui-natedit-get-document-title .foswikiIcon {
+  margin-right:0.2em;
+}
+.ui-natedit-get-document-title:hover span {
   text-decoration:underline;
 }

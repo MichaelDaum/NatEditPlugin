@@ -1,4 +1,4 @@
-%TMPL:DEF{"natedit::options"}%%NATEDIT_OPTIONS{default=""}% %TMPL:P{"natedit::codemirror::options"}% %TMPL:P{"natedit::tinymce::options"}% %TMPL:P{"natedit::engine"}%%TMPL:END%
+%TMPL:DEF{"natedit::options"}%%NATEDIT_OPTIONS{default=""}% %TMPL:P{"natedit::codemirror::options"}% %TMPL:P{"natedit::tinymce::options"}% %TMPL:P{"natedit::engine"}% %TMPL:P{"natedit::imagedialog::options"}%%TMPL:END%
 %TMPL:DEF{"natedit::engine"}%data-engine="%IF{"$'URLPARAM{nowysiwyg}'='on'"
   then="CodemirrorEngine"
   else="%IF{"'%NATEDIT_ENGINE{default=""}%'=''"
@@ -18,10 +18,12 @@
 
 %TMPL:DEF{"natedit::codemirror::options"}%data-codemirror='{"foldGutter": %TMPL:P{"natedit::codemirror::foldgutter"}%, "lineNumbers": %TMPL:P{"natedit::codemirror::linenumbers"}%, "keyMap": "%TMPL:P{"natedit::codemirror::keymap"}%", "lineWrapping": %TMPL:P{"natedit::codemirror::linewrapping"}%, "spellcheck": %TMPL:P{"textarea::spellcheck"}%, "normalizeTables": "%TMPL:P{"natedit::codemirror::normalizetables"}%", "showTableEditorHelp": %TMPL:P{"natedit::codemirror::showtableeditorhelp"}%, %NATEDIT_CODEMIRROR_OPTIONS{default="\"true\":true"}%}'%TMPL:END%
 %TMPL:DEF{"natedit::codemirror::keymap"}%%NATEDIT_KEYMAP{default="default"}%%TMPL:END%
-%TMPL:DEF{"natedit::codemirror::linewrapping"}%%IF{"'%NATEDIT_LINEWRAPPING{default="off"}%'=~'^(on|true|yes|1)$'" then="true" else="false"}%%TMPL:END%
+%TMPL:DEF{"natedit::codemirror::linewrapping"}%%IF{"'%NATEDIT_LINEWRAPPING{default="on"}%'=~'^(on|true|yes|1)$'" then="true" else="false"}%%TMPL:END%
 %TMPL:DEF{"natedit::codemirror::normalizetables"}%%NATEDIT_NORMALIZETABLES{default="off"}%%TMPL:END%
 %TMPL:DEF{"natedit::codemirror::foldgutter"}%%IF{"'%NATEDIT_FOLDGUTTER{default="off"}%'=~'^(on|true|yes)$'" then="true" else="false"}%%TMPL:END%
 %TMPL:DEF{"natedit::codemirror::linenumbers"}%%IF{"'%NATEDIT_LINENUMBERS{default="off"}%'=~'^(on|true|yes)$'" then="true" else="false"}%%TMPL:END%
 %TMPL:DEF{"natedit::codemirror::showtableeditorhelp"}%%IF{"'%NATEDIT_SHOWTABLEEDITORHELP{default="on"}%'=~'^(on|true|yes)$'" then="true" else="false"}%%TMPL:END%
 
 %TMPL:DEF{"natedit::tinymce::options"}%data-tinymce='{"browser_spellcheck": %TMPL:P{"textarea::spellcheck"}%}'%TMPL:END%
+
+%TMPL:DEF{"natedit::imagedialog::options"}%data-image-dialog-defaults='{"classList":"%NATEDIT_IMAGECLASS{default=""}%", "align":"%NATEDIT_IMAGEALIGN{default="none"}%", "type":"%NATEDIT_IMAGEFORMAT{default="simple"}%"}'%TMPL:END%

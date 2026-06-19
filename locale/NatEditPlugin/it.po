@@ -18,11 +18,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 2.4\n"
 
-#: templates/edittoolbar.natedit.tmpl:232
-#, fuzzy
-msgid "$action"
-msgstr "Azione"
-
 #. ("Foswiki")
 #: lib/Foswiki/Plugins/NatEditPlugin/RestSave.pm:33
 msgid "%1 has received a suspicious change request from your browser."
@@ -33,7 +28,7 @@ msgstr ""
 msgid "Add a new form to <nop>%1"
 msgstr "Aggiungi un nuovo modulo a <nop>%1"
 
-#: templates/edittoolbar.natedit.tmpl:119
+#: templates/edittoolbar.natedit.tmpl:138
 #, fuzzy
 msgid "Add column"
 msgstr "Aggiungi modulo"
@@ -42,55 +37,60 @@ msgstr "Aggiungi modulo"
 msgid "Add form"
 msgstr "Aggiungi modulo"
 
-#: templates/edittoolbar.natedit.tmpl:116
+#: templates/edittoolbar.natedit.tmpl:135
 #, fuzzy
 msgid "Add row"
 msgstr "Aggiungi modulo"
 
-#: templates/editdialog.natedit.tmpl:106
+#: templates/editdialog.natedit.tmpl:117
 msgid "Advanced"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:90
+#: templates/edittoolbar.natedit.tmpl:109
 msgid "Align left"
 msgstr "Allinea a sinistra"
 
-#: templates/edittoolbar.natedit.tmpl:93
+#: templates/edittoolbar.natedit.tmpl:112
 msgid "Align right"
 msgstr "Allinea a destra"
 
-#: templates/editdialog.natedit.tmpl:96
+#: templates/editdialog.natedit.tmpl:106
 #, fuzzy
 msgid "Alignment"
 msgstr "Allinea a sinistra"
 
-#: templates/editdialog.natedit.tmpl:144
+#: templates/editdialog.natedit.tmpl:154
 msgid "Attachment"
 msgstr "Allegato"
 
-#: templates/edittoolbar.natedit.tmpl:46
+#: templates/edittoolbar.natedit.tmpl:40
+#, fuzzy
+msgid "Block"
+msgstr "Blocco quotato"
+
+#: templates/edittoolbar.natedit.tmpl:49
 msgid "Blockquote"
 msgstr "Blocco quotato"
 
-#: templates/edittoolbar.natedit.tmpl:50
+#: templates/edittoolbar.natedit.tmpl:69
 msgid "Bold"
 msgstr "Grassetto"
 
-#: templates/edittoolbar.natedit.tmpl:99 templates/settings.natedit.tmpl:50
+#: templates/edittoolbar.natedit.tmpl:118 templates/settings.natedit.tmpl:50
 msgid "Bullet list"
 msgstr "Elenco puntato"
 
-#: templates/edittoolbar.natedit.tmpl:223
-#: templates/edittoolbar.natedit.tmpl:227
+#: templates/edittoolbar.natedit.tmpl:250
+#: templates/edittoolbar.natedit.tmpl:251
 msgid "Cancel"
 msgstr "Annullare"
 
-#: templates/editdialog.natedit.tmpl:85
+#: templates/editdialog.natedit.tmpl:90
 #, fuzzy
 msgid "Caption"
 msgstr "Opzioni"
 
-#: templates/edittoolbar.natedit.tmpl:91
+#: templates/edittoolbar.natedit.tmpl:110
 msgid "Center align"
 msgstr "Allineamento centrato"
 
@@ -103,28 +103,28 @@ msgstr "Cambia modulo"
 msgid "Change the current form of <nop>%1"
 msgstr "Cambia il modulo corrente di <nop>%1"
 
-#: templates/editdialog.natedit.tmpl:117
+#: templates/editdialog.natedit.tmpl:128
 msgid "Class"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:137
+#: templates/edittoolbar.natedit.tmpl:162
 msgid "Clear floating objects"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:204
+#: templates/editdialog.natedit.tmpl:213
 msgid "Click to upload a new file"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:81
+#: templates/editdialog.natedit.tmpl:86
 msgid "Click to upload a new image"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:157 templates/preview.natedit.tmpl:6
+#: templates/edittoolbar.natedit.tmpl:173 templates/preview.natedit.tmpl:6
 #: templates/settings.natedit.tmpl:58
 msgid "Close"
 msgstr "Chiudi"
 
-#: templates/edittoolbar.natedit.tmpl:134 templates/edittoolbar.natedit.tmpl:54
+#: templates/edittoolbar.natedit.tmpl:164 templates/edittoolbar.natedit.tmpl:73
 msgid "Color"
 msgstr "Colore"
 
@@ -140,7 +140,7 @@ msgstr "Continua la modifica"
 msgid "Create a new table"
 msgstr "Crea una nuova tabella"
 
-#: templates/edittoolbar.natedit.tmpl:238
+#: templates/edittoolbar.natedit.tmpl:264
 msgid "Creates a new topic revision when saving"
 msgstr "Crea una nuova versione della pagina al salvataggio"
 
@@ -152,11 +152,11 @@ msgstr "N° di righe"
 msgid "Default"
 msgstr "Predefinito"
 
-#: templates/edittoolbar.natedit.tmpl:120
+#: templates/edittoolbar.natedit.tmpl:139
 msgid "Delete column"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:117
+#: templates/edittoolbar.natedit.tmpl:136
 #, fuzzy
 msgid "Delete row"
 msgstr "N° di righe"
@@ -169,7 +169,7 @@ msgstr "Ogni preferenza ha la sintassi"
 msgid "Edit"
 msgstr "Modifica"
 
-#: templates/edittoolbar.natedit.tmpl:132
+#: templates/edittoolbar.natedit.tmpl:166
 msgid "Emoticon"
 msgstr "Faccina"
 
@@ -177,7 +177,11 @@ msgstr "Faccina"
 msgid "Enter your comment"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:154
+#: templates/edittoolbar.natedit.tmpl:54
+msgid "Error Message"
+msgstr ""
+
+#: templates/edittoolbar.natedit.tmpl:182
 msgid "Escape markup"
 msgstr "\"Escape markup\" del testo"
 
@@ -185,19 +189,23 @@ msgstr "\"Escape markup\" del testo"
 msgid "Everybody"
 msgstr "Chiunque"
 
-#: templates/editdialog.natedit.tmpl:145
+#: templates/editdialog.natedit.tmpl:155
 msgid "External"
 msgstr "Esterno"
 
-#: templates/editdialog.natedit.tmpl:200
+#: templates/editdialog.natedit.tmpl:191
+msgid "Fetch document title"
+msgstr ""
+
+#: templates/editdialog.natedit.tmpl:209
 msgid "File"
 msgstr "File"
 
-#: templates/edittoolbar.natedit.tmpl:239
+#: templates/edittoolbar.natedit.tmpl:265
 msgid "Flag the changes as being minor"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:238
+#: templates/edittoolbar.natedit.tmpl:264
 msgid "Force new revision"
 msgstr "Forza una nuova versione"
 
@@ -205,7 +213,7 @@ msgstr "Forza una nuova versione"
 msgid "Form"
 msgstr "Modulo"
 
-#: templates/edittoolbar.natedit.tmpl:23
+#: templates/editdialog.natedit.tmpl:140 templates/edittoolbar.natedit.tmpl:23
 #, fuzzy
 msgid "Format"
 msgstr "Modulo"
@@ -214,12 +222,16 @@ msgstr "Modulo"
 msgid "Format selected text"
 msgstr "Impagina il testo selezionato"
 
-#: templates/edittoolbar.natedit.tmpl:138
+#: templates/edittoolbar.natedit.tmpl:163
 msgid "Formula"
 msgstr "Ricetta"
 
 #: templates/editdialog.natedit.tmpl:74
 msgid "General"
+msgstr ""
+
+#: templates/edittoolbar.natedit.tmpl:50
+msgid "Generic Message"
 msgstr ""
 
 #: templates/settings.natedit.tmpl:37
@@ -230,27 +242,27 @@ msgstr "Maggiori informazioni su come impostare le preferenze della pagina"
 msgid "Header rows"
 msgstr "Righe di intestazione"
 
-#: templates/edittoolbar.natedit.tmpl:39
+#: templates/edittoolbar.natedit.tmpl:57
 msgid "Heading 1"
 msgstr "Testata 1"
 
-#: templates/edittoolbar.natedit.tmpl:40
+#: templates/edittoolbar.natedit.tmpl:58
 msgid "Heading 2"
 msgstr "Testata 2"
 
-#: templates/edittoolbar.natedit.tmpl:41
+#: templates/edittoolbar.natedit.tmpl:59
 msgid "Heading 3"
 msgstr "Testata 3"
 
-#: templates/edittoolbar.natedit.tmpl:42
+#: templates/edittoolbar.natedit.tmpl:60
 msgid "Heading 4"
 msgstr "Testata 4"
 
-#: templates/edittoolbar.natedit.tmpl:43
+#: templates/edittoolbar.natedit.tmpl:61
 msgid "Heading 5"
 msgstr "Testata 5"
 
-#: templates/edittoolbar.natedit.tmpl:44
+#: templates/edittoolbar.natedit.tmpl:62
 msgid "Heading 6"
 msgstr "Testata 6"
 
@@ -259,66 +271,70 @@ msgstr "Testata 6"
 msgid "Help"
 msgstr "Aiuto"
 
-#: templates/edittoolbar.natedit.tmpl:136
+#: templates/edittoolbar.natedit.tmpl:161
 #, fuzzy
 msgid "Horizontal Ruler"
 msgstr "Righello orizzontale"
 
-#: templates/edittoolbar.natedit.tmpl:131
+#: templates/edittoolbar.natedit.tmpl:167
 msgid "Icon"
 msgstr "Icona"
 
-#: templates/editdialog.natedit.tmpl:77
+#: templates/editdialog.natedit.tmpl:82
 msgid "Image"
 msgstr "Immagine"
 
-#: templates/edittoolbar.natedit.tmpl:100 templates/settings.natedit.tmpl:51
+#: templates/edittoolbar.natedit.tmpl:119 templates/settings.natedit.tmpl:51
 msgid "Indent"
 msgstr "Indentazione"
 
-#: templates/edittoolbar.natedit.tmpl:137
+#: templates/edittoolbar.natedit.tmpl:52
+msgid "Info Message"
+msgstr ""
+
+#: templates/edittoolbar.natedit.tmpl:162
 #, fuzzy
 msgid "Insert Clear"
 msgstr "Inserire una macro"
 
-#: templates/edittoolbar.natedit.tmpl:108
+#: templates/edittoolbar.natedit.tmpl:127
 #, fuzzy
 msgid "Insert Image"
 msgstr "Indicare una data"
 
-#: templates/editdialog.natedit.tmpl:4 templates/edittoolbar.natedit.tmpl:134
+#: templates/editdialog.natedit.tmpl:4 templates/edittoolbar.natedit.tmpl:164
 msgid "Insert a color code"
 msgstr "Indicare un codice colore"
 
-#: templates/edittoolbar.natedit.tmpl:136
+#: templates/edittoolbar.natedit.tmpl:161
 msgid "Insert a horizontal ruler"
 msgstr "Inserire una riga orizzontale"
 
-#: templates/editdialog.natedit.tmpl:140 templates/edittoolbar.natedit.tmpl:107
+#: templates/editdialog.natedit.tmpl:150 templates/edittoolbar.natedit.tmpl:126
 msgid "Insert a link"
 msgstr "Inserire un link"
 
-#: templates/edittoolbar.natedit.tmpl:138
+#: templates/edittoolbar.natedit.tmpl:163
 msgid "Insert a mathematical formula"
 msgstr "Inserire una formula matematica"
 
-#: templates/edittoolbar.natedit.tmpl:114
+#: templates/edittoolbar.natedit.tmpl:133
 msgid "Insert a new table"
 msgstr "Inserire una nuova tabella"
 
-#: templates/edittoolbar.natedit.tmpl:133
+#: templates/edittoolbar.natedit.tmpl:165
 msgid "Insert a symbol"
 msgstr "Inserire un simbolo"
 
-#: templates/edittoolbar.natedit.tmpl:132
+#: templates/edittoolbar.natedit.tmpl:166
 msgid "Insert an emoticon"
 msgstr "Inserire una faccina"
 
-#: templates/edittoolbar.natedit.tmpl:131
+#: templates/edittoolbar.natedit.tmpl:167
 msgid "Insert an icon"
 msgstr "Inserire una icona"
 
-#: templates/edittoolbar.natedit.tmpl:135
+#: templates/edittoolbar.natedit.tmpl:160
 msgid "Insert your signature"
 msgstr "Inserire la vostra firma"
 
@@ -327,7 +343,7 @@ msgstr "Inserire la vostra firma"
 msgid "Insert/Update image"
 msgstr "Indicare una data"
 
-#: templates/edittoolbar.natedit.tmpl:51
+#: templates/edittoolbar.natedit.tmpl:70
 msgid "Italic"
 msgstr "Italico"
 
@@ -335,49 +351,57 @@ msgstr "Italico"
 msgid "Just me"
 msgstr "Solo io"
 
-#: templates/edittoolbar.natedit.tmpl:92
+#: templates/edittoolbar.natedit.tmpl:111
 msgid "Justify text"
 msgstr "Testo giustificato"
 
-#: templates/editdialog.natedit.tmpl:121
+#: templates/editdialog.natedit.tmpl:132
 msgid "Link"
 msgstr "Collegamento"
 
-#: templates/edittoolbar.natedit.tmpl:239
+#: templates/edittoolbar.natedit.tmpl:65
+msgid "Literal"
+msgstr ""
+
+#: templates/edittoolbar.natedit.tmpl:265
 #, fuzzy
 msgid "Minor change"
 msgstr "Nessun cambiamento"
 
-#: templates/edittoolbar.natedit.tmpl:53
+#: templates/edittoolbar.natedit.tmpl:82
+msgid "Monospace"
+msgstr ""
+
+#: templates/edittoolbar.natedit.tmpl:72
 msgid "More character formats"
 msgstr "Altri formati di carattere"
 
-#: templates/edittoolbar.natedit.tmpl:109
+#: templates/edittoolbar.natedit.tmpl:128
 msgid "More objects to insert"
 msgstr "Altri oggetti da inserire"
 
-#: templates/edittoolbar.natedit.tmpl:102
+#: templates/edittoolbar.natedit.tmpl:121
 #, fuzzy
 msgid "More table tools"
 msgstr "Altri strumenti"
 
-#: templates/edittoolbar.natedit.tmpl:146
+#: templates/edittoolbar.natedit.tmpl:174
 msgid "More tools"
 msgstr "Altri strumenti"
 
-#: templates/edittoolbar.natedit.tmpl:125
+#: templates/edittoolbar.natedit.tmpl:144
 msgid "Move column left"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:126
+#: templates/edittoolbar.natedit.tmpl:145
 msgid "Move column right"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:123
+#: templates/edittoolbar.natedit.tmpl:142
 msgid "Move row down"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:122
+#: templates/edittoolbar.natedit.tmpl:141
 msgid "Move row up"
 msgstr ""
 
@@ -385,15 +409,15 @@ msgstr ""
 msgid "Nobody"
 msgstr "Nessuno"
 
-#: templates/edittoolbar.natedit.tmpl:38
+#: templates/edittoolbar.natedit.tmpl:56
 msgid "Normal"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:98
+#: templates/edittoolbar.natedit.tmpl:117
 msgid "Numbered list"
 msgstr "Lista numerata"
 
-#: templates/edittoolbar.natedit.tmpl:101 templates/settings.natedit.tmpl:52
+#: templates/edittoolbar.natedit.tmpl:120 templates/settings.natedit.tmpl:52
 msgid "Outdent"
 msgstr "Riduci rientro"
 
@@ -413,12 +437,12 @@ msgstr ""
 msgid "Press OK to confirm that this change was intentional."
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:215
-#: templates/edittoolbar.natedit.tmpl:219 templates/preview.natedit.tmpl:1
+#: templates/edittoolbar.natedit.tmpl:242
+#: templates/edittoolbar.natedit.tmpl:243 templates/preview.natedit.tmpl:1
 msgid "Preview"
 msgstr "Anteprima"
 
-#: templates/edittoolbar.natedit.tmpl:144
+#: templates/edittoolbar.natedit.tmpl:172
 msgid "Redo previous change"
 msgstr "Ripristina il precedente cambiamento"
 
@@ -426,33 +450,33 @@ msgstr "Ripristina il precedente cambiamento"
 msgid "Registered users"
 msgstr "Utenti registrati"
 
-#: templates/edittoolbar.natedit.tmpl:55
+#: templates/edittoolbar.natedit.tmpl:74
 #, fuzzy
 msgid "Remove Format"
 msgstr "Rimuove Utente"
 
-#: templates/editdialog.natedit.tmpl:20 templates/edittoolbar.natedit.tmpl:157
+#: templates/editdialog.natedit.tmpl:20 templates/edittoolbar.natedit.tmpl:173
 #: templates/settings.natedit.tmpl:58
 msgid "Replace"
 msgstr "Sostituisci"
 
-#: templates/edittoolbar.natedit.tmpl:176
-#: templates/edittoolbar.natedit.tmpl:180
+#: templates/edittoolbar.natedit.tmpl:203
+#: templates/edittoolbar.natedit.tmpl:204
 msgid "Restore"
 msgstr "Ripristina"
 
-#: templates/edittoolbar.natedit.tmpl:192
-#: templates/edittoolbar.natedit.tmpl:195
+#: templates/edittoolbar.natedit.tmpl:219
+#: templates/edittoolbar.natedit.tmpl:220
 msgid "Restore and Continue"
 msgstr "Ripristina e continua"
 
-#: templates/edittoolbar.natedit.tmpl:184
-#: templates/edittoolbar.natedit.tmpl:188
+#: templates/edittoolbar.natedit.tmpl:211
+#: templates/edittoolbar.natedit.tmpl:212
 msgid "Save"
 msgstr "Salva"
 
-#: templates/edittoolbar.natedit.tmpl:199
-#: templates/edittoolbar.natedit.tmpl:203
+#: templates/edittoolbar.natedit.tmpl:226
+#: templates/edittoolbar.natedit.tmpl:227
 msgid "Save and Continue"
 msgstr "Salva e continua"
 
@@ -461,32 +485,31 @@ msgstr "Salva e continua"
 msgid "Search"
 msgstr "Cerca"
 
-#: templates/editdialog.natedit.tmpl:12 templates/edittoolbar.natedit.tmpl:157
-#: templates/settings.natedit.tmpl:58
+#: templates/editdialog.natedit.tmpl:12 templates/settings.natedit.tmpl:58
 msgid "Search && Replace"
 msgstr "Ricerca e sostituisci"
 
-#: templates/edittoolbar.natedit.tmpl:135
+#: templates/edittoolbar.natedit.tmpl:160
 msgid "Signature"
 msgstr "Firma"
 
-#: templates/editdialog.natedit.tmpl:89
+#: templates/editdialog.natedit.tmpl:94
 msgid "Size"
 msgstr "Dimensione"
 
-#: templates/edittoolbar.natedit.tmpl:151 templates/settings.natedit.tmpl:56
+#: templates/edittoolbar.natedit.tmpl:179 templates/settings.natedit.tmpl:56
 msgid "Sort ascending"
 msgstr "Ordinamento crescente"
 
-#: templates/edittoolbar.natedit.tmpl:152 templates/settings.natedit.tmpl:57
+#: templates/edittoolbar.natedit.tmpl:180 templates/settings.natedit.tmpl:57
 msgid "Sort descending"
 msgstr "Ordinamento decrescente"
 
-#: templates/edittoolbar.natedit.tmpl:151 templates/settings.natedit.tmpl:56
+#: templates/edittoolbar.natedit.tmpl:179 templates/settings.natedit.tmpl:56
 msgid "Sort selected lines ascending"
 msgstr "Ordinamento crescente delle righe selezionate"
 
-#: templates/edittoolbar.natedit.tmpl:152 templates/settings.natedit.tmpl:57
+#: templates/edittoolbar.natedit.tmpl:180 templates/settings.natedit.tmpl:57
 msgid "Sort selected lines descending"
 msgstr "Ordinamento decrescente delle righe selezionate"
 
@@ -500,37 +523,45 @@ msgstr ""
 "Cambiamento dello stato da *%1* a *%2* (vedi [[%3][definizioni del flusso di "
 "lavoro]])."
 
-#: templates/edittoolbar.natedit.tmpl:60
+#: templates/edittoolbar.natedit.tmpl:64
+msgid "Sticky"
+msgstr ""
+
+#: templates/edittoolbar.natedit.tmpl:79
 msgid "Strikethrough"
 msgstr "Barrato"
 
-#: templates/edittoolbar.natedit.tmpl:62
+#: templates/edittoolbar.natedit.tmpl:81
 msgid "Subscript"
 msgstr "Pedice"
 
-#: templates/edittoolbar.natedit.tmpl:243
+#: templates/edittoolbar.natedit.tmpl:51
+msgid "Success Message"
+msgstr ""
+
+#: templates/edittoolbar.natedit.tmpl:269
 msgid "Summary of changes"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:61
+#: templates/edittoolbar.natedit.tmpl:80
 msgid "Superscript"
 msgstr "Apice"
 
-#: templates/edittoolbar.natedit.tmpl:145
+#: templates/edittoolbar.natedit.tmpl:189
 #, fuzzy
 msgid "Switch Editor"
 msgstr "Passa a visualizzazione WYSIWYG"
 
-#: templates/edittoolbar.natedit.tmpl:163
+#: templates/edittoolbar.natedit.tmpl:190
 msgid "Switch to full-screen mode"
 msgstr ""
 
-#: templates/edittoolbar.natedit.tmpl:133
+#: templates/edittoolbar.natedit.tmpl:165
 msgid "Symbol"
 msgstr "Simbolo"
 
-#: templates/edit.natedit.tmpl:84 templates/editdialog.natedit.tmpl:166
-#: templates/editdialog.natedit.tmpl:180 templates/editdialog.natedit.tmpl:208
+#: templates/edit.natedit.tmpl:84 templates/editdialog.natedit.tmpl:174
+#: templates/editdialog.natedit.tmpl:187 templates/editdialog.natedit.tmpl:217
 msgid "Text"
 msgstr "Testo"
 
@@ -543,28 +574,24 @@ msgstr "Titolo:"
 msgid "Title/Subject"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:113 templates/editdialog.natedit.tmpl:143
-#: templates/editdialog.natedit.tmpl:162 templates/editdialog.natedit.tmpl:196
+#: templates/editdialog.natedit.tmpl:124 templates/editdialog.natedit.tmpl:153
+#: templates/editdialog.natedit.tmpl:170 templates/editdialog.natedit.tmpl:205
 msgid "Topic"
 msgstr "Pagina"
 
-#: templates/editdialog.natedit.tmpl:130
-msgid "Type"
-msgstr ""
-
-#: templates/editdialog.natedit.tmpl:176
+#: templates/editdialog.natedit.tmpl:183
 msgid "URL"
 msgstr "URL"
 
-#: templates/edittoolbar.natedit.tmpl:52
+#: templates/edittoolbar.natedit.tmpl:71
 msgid "Underline"
 msgstr "Sottolineato"
 
-#: templates/edittoolbar.natedit.tmpl:143
+#: templates/edittoolbar.natedit.tmpl:171
 msgid "Undo last change"
 msgstr "Annulla l'ultimo cambiamento"
 
-#: templates/edittoolbar.natedit.tmpl:155
+#: templates/edittoolbar.natedit.tmpl:183
 msgid "Unescape markup"
 msgstr "Toglie la formattazione"
 
@@ -578,9 +605,13 @@ msgstr "Gli utenti che possono modificare:"
 msgid "Users who may view"
 msgstr "Gli utenti che possono visualizzare:"
 
-#: templates/edittoolbar.natedit.tmpl:45
+#: templates/edittoolbar.natedit.tmpl:63
 msgid "Verbatim"
 msgstr "Testuale"
+
+#: templates/edittoolbar.natedit.tmpl:53
+msgid "Warning Message"
+msgstr ""
 
 #: templates/edit.natedit.tmpl:140
 msgid ""
@@ -588,12 +619,12 @@ msgid ""
 "dialog to change the ACLs."
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:109 templates/editdialog.natedit.tmpl:158
-#: templates/editdialog.natedit.tmpl:192
+#: templates/editdialog.natedit.tmpl:120 templates/editdialog.natedit.tmpl:166
+#: templates/editdialog.natedit.tmpl:201
 msgid "Web"
 msgstr "Web"
 
-#: templates/edittoolbar.natedit.tmpl:158
+#: templates/edittoolbar.natedit.tmpl:184
 msgid "Wrap text"
 msgstr ""
 
@@ -604,18 +635,9 @@ msgstr ""
 "[multipli di 3 spazi] * [spazio] Set [spazio] NOMEVARIABILE [spazio] = "
 "[valore]"
 
-#: templates/editdialog.natedit.tmpl:100
+#: templates/editdialog.natedit.tmpl:110
 msgid "center"
 msgstr ""
-
-#: templates/editdialog.natedit.tmpl:134
-msgid "decorated"
-msgstr ""
-
-#: templates/editdialog.natedit.tmpl:132
-#, fuzzy
-msgid "default"
-msgstr "Predefinito"
 
 #: templates/edit.natedit.tmpl:194 templates/edit.natedit.tmpl:247
 msgid "default as defined in the %1"
@@ -629,11 +651,11 @@ msgstr "modifica"
 msgid "edit form"
 msgstr "modulo di modifica"
 
-#: templates/editdialog.natedit.tmpl:182
-msgid "fetch document title from external url"
+#: templates/editdialog.natedit.tmpl:144
+msgid "framed"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:92
+#: templates/editdialog.natedit.tmpl:97
 msgid "height"
 msgstr ""
 
@@ -641,31 +663,34 @@ msgstr ""
 msgid "ignore case"
 msgstr "ignora le maiuscole"
 
-#: templates/editdialog.natedit.tmpl:133
-msgid "img"
+#: templates/editdialog.natedit.tmpl:108
+msgid "in text flow"
 msgstr ""
 
 #: templates/form.natedit.tmpl:4
 msgid "indicates mandatory fields"
 msgstr "indica campi obbligatori"
 
-#: templates/editdialog.natedit.tmpl:98
-#, fuzzy
-msgid "inline"
-msgstr "Sottolineato"
+#: templates/editdialog.natedit.tmpl:100
+msgid "keep aspect ratio"
+msgstr ""
 
-#: templates/editdialog.natedit.tmpl:99
+#: templates/editdialog.natedit.tmpl:109
 msgid "left"
 msgstr ""
 
-#: templates/editdialog.natedit.tmpl:135
-#, fuzzy
-msgid "lightbox"
-msgstr "Allinea a destra"
+#: templates/editdialog.natedit.tmpl:143
+msgid "linked"
+msgstr ""
 
 #: templates/edit.natedit.tmpl:10
 msgid "new"
 msgstr "nuovo"
+
+#: templates/editdialog.natedit.tmpl:145
+#, fuzzy
+msgid "preview"
+msgstr "Anteprima"
 
 #: templates/edit.natedit.tmpl:201
 msgid "public view access"
@@ -695,10 +720,18 @@ msgstr ""
 "limita l'accesso in scrittura agli utenti che possiedono un account su "
 "questo sito"
 
-#: templates/editdialog.natedit.tmpl:101
+#: templates/editdialog.natedit.tmpl:111
 #, fuzzy
 msgid "right"
 msgstr "Allinea a destra"
+
+#: templates/editdialog.natedit.tmpl:101
+msgid "scale image freely"
+msgstr ""
+
+#: templates/editdialog.natedit.tmpl:142
+msgid "simple"
+msgstr ""
 
 #: templates/edit.natedit.tmpl:229 templates/edit.natedit.tmpl:275
 msgid "specify a list of users and/or groups"
@@ -712,9 +745,25 @@ msgstr "nega rigorosamente qualsiasi accesso a questa pagina"
 msgid "strictly deny write access to this topic"
 msgstr "nega rigorosamente l'accesso in scrittura a questa pagina"
 
-#: templates/editdialog.natedit.tmpl:91
+#: templates/editdialog.natedit.tmpl:96
 msgid "width"
 msgstr ""
+
+#, fuzzy
+#~ msgid "lightbox"
+#~ msgstr "Allinea a destra"
+
+#, fuzzy
+#~ msgid "inline"
+#~ msgstr "Sottolineato"
+
+#, fuzzy
+#~ msgid "$action"
+#~ msgstr "Azione"
+
+#, fuzzy
+#~ msgid "default"
+#~ msgstr "Predefinito"
 
 #~ msgid "Please validate"
 #~ msgstr "Si prega di confermare"
